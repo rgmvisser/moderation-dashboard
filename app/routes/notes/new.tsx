@@ -22,7 +22,7 @@ export async function action({ request }: ActionArgs) {
 
   if (typeof body !== "string" || body.length === 0) {
     return json(
-      { errors: { title: null, body: "Body is required" } },
+      { errors: { body: "Body is required", title: null } },
       { status: 400 }
     );
   }
@@ -99,7 +99,7 @@ export default function NewNotePage() {
       <div className="text-right">
         <button
           type="submit"
-          className="rounded bg-blue-500 py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
+          className="rounded bg-blue-500  py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
         >
           Save
         </button>

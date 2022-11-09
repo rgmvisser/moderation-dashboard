@@ -10,11 +10,9 @@ describe("smoke tests", () => {
       email: `${faker.internet.userName()}@example.com`,
       password: faker.internet.password(),
     };
-
     cy.then(() => ({ email: loginForm.email })).as("user");
 
     cy.visitAndCheck("/");
-
     cy.findByRole("link", { name: /sign up/i }).click();
 
     cy.findByRole("textbox", { name: /email/i }).type(loginForm.email);
@@ -32,7 +30,6 @@ describe("smoke tests", () => {
       body: faker.lorem.sentences(1),
     };
     cy.login();
-
     cy.visitAndCheck("/");
 
     cy.findByRole("link", { name: /notes/i }).click();

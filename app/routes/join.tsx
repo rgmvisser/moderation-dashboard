@@ -3,7 +3,7 @@ import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import * as React from "react";
 
-import { getUserId, createUserSession } from "~/session.server";
+import { createUserSession, getUserId } from "~/session.server";
 
 import { createUser, getUserByEmail } from "~/models/user.server";
 import { safeRedirect, validateEmail } from "~/utils";
@@ -88,7 +88,7 @@ export default function Join() {
   return (
     <div className="flex min-h-full flex-col justify-center">
       <div className="mx-auto w-full max-w-md px-8">
-        <Form method="post" className="space-y-6">
+        <Form method="post" className="space-y-6" noValidate>
           <div>
             <label
               htmlFor="email"
