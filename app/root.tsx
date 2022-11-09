@@ -13,6 +13,7 @@ import { MantineProvider, createEmotionCache } from "@mantine/core";
 import { StylesPlaceholder } from "@mantine/remix";
 import tailwindStylesheetUrl from "./styles/tailwind.css";
 import { getUser } from "./session.server";
+import AppLayout from "./shared/components/AppLayout";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
@@ -42,7 +43,9 @@ export default function App() {
           <Links />
         </head>
         <body className="h-full">
-          <Outlet />
+          <AppLayout>
+            <Outlet />
+          </AppLayout>
           <ScrollRestoration />
           <Scripts />
           <LiveReload />

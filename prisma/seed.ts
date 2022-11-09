@@ -1,46 +1,69 @@
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import randomSentence from "random-sentence";
+import type { Config } from "unique-names-generator";
+import { uniqueNamesGenerator, names } from "unique-names-generator";
+
+const nameConfig: Config = {
+  dictionaries: [names],
+};
 
 const prisma = new PrismaClient();
 
 async function seed() {
-  const email = "rachel@remix.run";
+  await prisma.user.deleteMany(); // Messages get cascaded
 
-  // cleanup the existing database
-  await prisma.user.delete({ where: { email } }).catch(() => {
-    // no worries if it doesn't exist yet
+  const numMessages = 10000;
+  const numUsers = 1000;
+
+  // Create users
+  await prisma.user.createMany({
+    data: Array.from(Array(numUsers).keys()).map((num) => {
+      return {
+        name: uniqueNamesGenerator(nameConfig),
+      };
+    }),
   });
 
-  const hashedPassword = await bcrypt.hash("racheliscool", 10);
-
-  const user = await prisma.user.create({
-    data: {
-      email,
-      password: {
-        create: {
-          hash: hashedPassword,
-        },
+  const userIds = (
+    await prisma.user.findMany({
+      select: {
+        id: true,
       },
-    },
-  });
+      take: numUsers,
+    })
+  ).map((obj) => obj.id);
 
-  await prisma.note.create({
-    data: {
-      title: "My first note",
-      body: "Hello, world!",
-      userId: user.id,
-    },
-  });
+  let timeMiliseconds = 0;
+  const randomTimes: number[] = [];
+  for (let i = 0; i < numMessages; i++) {
+    timeMiliseconds += getRandomMillisecondsAfterStart();
+    randomTimes.push(timeMiliseconds);
+  }
 
-  await prisma.note.create({
-    data: {
-      title: "My second note",
-      body: "Hello, world!",
-      userId: user.id,
-    },
+  // Create messages
+  await prisma.message.createMany({
+    data: Array.from(Array(numMessages).keys()).map((num) => {
+      return {
+        message: randomSentence({ min: 1, max: 250 }),
+        userId: userIds[getRandomInt(userIds.length - 1)],
+        millisecondsAfterStart: randomTimes[num],
+      };
+    }),
   });
 
   console.log(`Database has been seeded. 🌱`);
+}
+
+function getRandomInt(max: number) {
+  return Math.floor(Math.random() * max);
+}
+
+const options = [
+  10, 20, 50, 100, 200, 500, 10, 20, 50, 100, 200, 500, 200, 500, 1000, 2000,
+  5000,
+];
+function getRandomMillisecondsAfterStart() {
+  return options[Math.floor(Math.random() * options.length)];
 }
 
 seed()
