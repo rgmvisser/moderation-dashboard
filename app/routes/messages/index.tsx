@@ -1,6 +1,6 @@
 import type { Message, User } from "@prisma/client";
 import type { LoaderArgs } from "@remix-run/node";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { json, useLoaderData } from "remix-supertyped";
 import { db } from "~/db.server";
 import MessageBox from "~/shared/components/MessageBox";
@@ -11,7 +11,7 @@ type MessageWithUser = Message & { user: User };
 
 export async function loader({ request }: LoaderArgs) {
   const messages = await db.message.findMany({
-    take: 10,
+    take: 30,
     include: {
       user: true,
     },
@@ -19,6 +19,7 @@ export async function loader({ request }: LoaderArgs) {
       createdAt: "desc",
     },
   });
+  messages.reverse(); // to make sure the messages are at the bottom
   return json({ messages });
 }
 
@@ -30,10 +31,32 @@ export default function Messages() {
   const socket = useSocket();
   const bottomLineRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const scrolling = useRef(false);
+  const shouldDoLastScroll = useRef(false);
+  const prevScroll = useRef(0);
+  const shouldAutoScroll = useRef(true);
 
-  const scrollToBottom = () => {
-    bottomLineRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const scrollToBottom = useCallback(() => {
+    if (!bottomLineRef.current || !listRef.current) {
+      return;
+    }
+
+    if (shouldAutoScroll.current) {
+      if (!scrolling.current) {
+        scrolling.current = true;
+        bottomLineRef.current.scrollIntoView({ behavior: "smooth" });
+        setTimeout(() => {
+          scrolling.current = false;
+          if (shouldDoLastScroll.current) {
+            shouldDoLastScroll.current = false;
+            scrollToBottom();
+          }
+        }, 500);
+      } else {
+        shouldDoLastScroll.current = true;
+      }
+    }
+  }, [bottomLineRef, listRef, scrolling, shouldDoLastScroll]);
 
   useEffect(() => {
     if (!socket) return;
@@ -47,14 +70,28 @@ export default function Messages() {
       console.log("Disconnect handler");
       handler.disconnect();
     };
-  }, [socket, setMessages]);
+  }, [socket, setMessages, scrollToBottom]);
 
   scrollToBottom();
+
+  function onWheel(event: any) {
+    const scrollY = listRef.current?.scrollTop ?? 0;
+    if (prevScroll.current === scrollY && scrollY !== 0) {
+      console.log("at the bottom:", shouldAutoScroll.current);
+      // Scrolled to the bottom
+      shouldAutoScroll.current = true;
+    } else {
+      // Scrolling not at the bottom
+      shouldAutoScroll.current = false;
+    }
+    prevScroll.current = scrollY;
+  }
 
   return (
     <ul
       ref={listRef}
-      className="flex h-[700px] w-96 flex-shrink-0 flex-grow-0 flex-col items-start justify-start self-stretch overflow-y-scroll"
+      className="flex h-[400px] w-96 flex-shrink-0 flex-grow-0 flex-col items-start justify-start self-stretch overflow-y-scroll"
+      onWheel={onWheel}
     >
       {messages.map((message) => {
         return (
