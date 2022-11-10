@@ -1,13 +1,18 @@
 import { Checkbox, NumberInput } from "@mantine/core";
 import { useFetcher } from "@remix-run/react";
 import React, { useRef } from "react";
+import { useAppContext } from "../contexts/AppContext";
+
+type TimerStats = {
+  speed: number;
+  enabled: boolean;
+};
 
 export default function Timer() {
+  const appContext = useAppContext();
   const timer = useFetcher();
-  const { speed, enabled } = (timer.data ?? { speed: 1, enabled: false }) as {
-    speed: number;
-    enabled: boolean;
-  };
+  const { speed, enabled }: TimerStats = timer.data ?? appContext.timer;
+
   const formRef = useRef(null);
 
   return (

@@ -7,6 +7,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "@remix-run/react";
 
 import { MantineProvider, createEmotionCache } from "@mantine/core";
@@ -17,6 +18,9 @@ import { SocketProvider } from "./shared/contexts/SocketContext";
 import type { Socket } from "socket.io-client";
 import { io } from "socket.io-client";
 import { useEffect, useState } from "react";
+
+import { intervalTimer } from "./controllers.ts/timer.server";
+import { AppProvider } from "./shared/contexts/AppContext";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
@@ -32,11 +36,16 @@ createEmotionCache({ key: "mantine" });
 
 export async function loader({ request }: LoaderArgs) {
   return json({
+    timer: {
+      enabled: intervalTimer.enabled,
+      speed: intervalTimer.speed,
+    },
     // user: await getUser(request),
   });
 }
 
 export default function App() {
+  const data = useLoaderData<typeof loader>();
   const [socket, setSocket] = useState<Socket>();
   useEffect(() => {
     const socket = io();
@@ -62,11 +71,13 @@ export default function App() {
           <Links />
         </head>
         <body className="h-full">
-          <SocketProvider socket={socket}>
-            <AppLayout>
-              <Outlet />
-            </AppLayout>
-          </SocketProvider>
+          <AppProvider timer={data.timer}>
+            <SocketProvider socket={socket}>
+              <AppLayout>
+                <Outlet />
+              </AppLayout>
+            </SocketProvider>
+          </AppProvider>
           <ScrollRestoration />
           <Scripts />
           <LiveReload />

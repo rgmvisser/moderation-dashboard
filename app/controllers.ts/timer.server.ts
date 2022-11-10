@@ -1,11 +1,10 @@
 import EventEmitter from "events";
-import { emit } from "process";
 
 class IntervalTimer {
+  enabled = false;
+  speed = 1;
   private timer: NodeJS.Timer;
-  private enabled = false;
   private time = 0;
-  private speed = 1;
   private timeEventEmitter = new EventEmitter();
 
   private static TIME_UPDATE = "time_update";
