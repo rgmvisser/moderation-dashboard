@@ -1,11 +1,12 @@
 import { AppShell, Navbar, Header } from "@mantine/core";
 import { Outlet } from "@remix-run/react";
+import type { ReactNode } from "react";
 import Timer from "~/shared/components/Timer";
 import { TimerProvider } from "~/shared/contexts/TimerContext";
 
 // import { Link } from "@remix-run/react";
 
-export default function AppLayout() {
+export default function AppLayout({ children }: { children: ReactNode }) {
   return (
     <TimerProvider>
       <AppShell
@@ -27,6 +28,7 @@ export default function AppLayout() {
           </Header>
         }
       >
+        {children}
         <Outlet />
       </AppShell>
     </TimerProvider>

@@ -5,8 +5,11 @@ import morgan from "morgan";
 import { createRequestHandler } from "@remix-run/express";
 import prom from "express-prometheus-middleware";
 
+import { Server } from "socket.io";
+
 const app = express();
 const metricsApp = express();
+
 app.use(
   prom({
     metricsPath: "/metrics",
@@ -93,10 +96,25 @@ app.all(
 
 const port = process.env.PORT || 3000;
 
-app.listen(port, () => {
+const httpServer = app.listen(port, () => {
   // require the built app so we're ready when the first request comes in
   require(BUILD_DIR);
   console.log(`✅ app ready: http://localhost:${port}`);
+});
+
+// And then attach the socket.io server to the HTTP server
+const io = new Server(httpServer);
+
+io.on("connection", (socket) => {
+  // from this point you are on the WS connection with a specific client
+  console.log(socket.id, "connected");
+
+  socket.emit("confirmation", "connected!");
+
+  socket.on("event", (data) => {
+    console.log(socket.id, data);
+    socket.emit("event", "pong");
+  });
 });
 
 const metricsPort = process.env.METRICS_PORT || 3001;
