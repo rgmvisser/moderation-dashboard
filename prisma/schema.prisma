@@ -16,6 +16,17 @@ model User {
   Message   Message[]
 }
 
+model BacklogMessage {
+  id      String @id @default(cuid())
+  message String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  millisecondsAfterStart Int
+  userId                 String
+}
+
 model Message {
   id      String @id @default(cuid())
   message String

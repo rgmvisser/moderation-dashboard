@@ -41,7 +41,7 @@ async function seed() {
   }
 
   // Create messages
-  await prisma.message.createMany({
+  await prisma.backlogMessage.createMany({
     data: Array.from(Array(numMessages).keys()).map((num) => {
       return {
         message: randomSentence({ min: 1, max: 250 }),

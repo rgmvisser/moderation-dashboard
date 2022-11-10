@@ -6,6 +6,7 @@ import { createRequestHandler } from "@remix-run/express";
 import prom from "express-prometheus-middleware";
 
 import { Server } from "socket.io";
+import { startBacklogQueue } from "~/controllers.ts/backlog.server";
 
 const app = express();
 const metricsApp = express();
@@ -103,9 +104,9 @@ const httpServer = app.listen(port, () => {
 });
 
 // And then attach the socket.io server to the HTTP server
-const io = new Server(httpServer);
+export const ioServer = new Server(httpServer);
 
-io.on("connection", (socket) => {
+ioServer.on("connection", (socket) => {
   // from this point you are on the WS connection with a specific client
   console.log(socket.id, "connected");
 
@@ -122,6 +123,8 @@ const metricsPort = process.env.METRICS_PORT || 3001;
 metricsApp.listen(metricsPort, () => {
   console.log(`✅ metrics ready: http://localhost:${metricsPort}/metrics`);
 });
+
+startBacklogQueue();
 
 function purgeRequireCache() {
   // purge require cache on requests for "server side HMR" this won't let

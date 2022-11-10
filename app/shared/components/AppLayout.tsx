@@ -25,7 +25,6 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       }
     >
       {children}
-      <Outlet />
     </AppShell>
   );
 }

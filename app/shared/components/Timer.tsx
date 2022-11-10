@@ -4,7 +4,7 @@ import React, { useRef } from "react";
 
 export default function Timer() {
   const timer = useFetcher();
-  const { speed, enabled } = (timer.data ?? { speed: 1, enabled: true }) as {
+  const { speed, enabled } = (timer.data ?? { speed: 1, enabled: false }) as {
     speed: number;
     enabled: boolean;
   };
