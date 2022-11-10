@@ -1,24 +1,35 @@
 import { Checkbox, NumberInput } from "@mantine/core";
-import React from "react";
-import { useTimerContext } from "../contexts/TimerContext";
+import { useFetcher } from "@remix-run/react";
+import React, { useRef } from "react";
 
 export default function Timer() {
-  const timerContext = useTimerContext();
+  const timer = useFetcher();
+  const { speed, enabled } = (timer.data ?? { speed: 1, enabled: true }) as {
+    speed: number;
+    enabled: boolean;
+  };
+  const formRef = useRef(null);
 
   return (
-    <div>
-      <Checkbox
-        defaultChecked={timerContext.enabled}
-        onChange={() => timerContext.toggleEnabled()}
-        label={"Running"}
-      />
-      <NumberInput
-        defaultValue={timerContext.speed}
-        min={1}
-        max={100}
-        onChange={(number) => timerContext.setSpeed(number ?? 1)}
-      />
-      <div>Timer: {timerContext.currentTime / 1000}</div>
-    </div>
+    <timer.Form method="post" action="/settings/timer" ref={formRef}>
+      <div>
+        <Checkbox
+          defaultChecked={enabled}
+          onChange={(event) => timer.submit(formRef.current)}
+          label={"Running"}
+          name={"enabled"}
+        />
+        <NumberInput
+          defaultValue={speed}
+          min={1}
+          max={100}
+          onChange={(number) => {
+            // Stupid bug where the value of the input is still the old value, so just delay a bit
+            setTimeout(() => timer.submit(formRef.current), 50);
+          }}
+          name={"speed"}
+        />
+      </div>
+    </timer.Form>
   );
 }

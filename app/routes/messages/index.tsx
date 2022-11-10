@@ -1,5 +1,4 @@
-import { LoaderArgs, SerializeFrom } from "@remix-run/node";
-import { Form, Link, NavLink, Outlet } from "@remix-run/react";
+import type { LoaderArgs } from "@remix-run/node";
 import { useEffect } from "react";
 import { json, useLoaderData } from "remix-supertyped";
 import { prisma } from "~/db.server";

@@ -12,7 +12,6 @@ import {
 import { MantineProvider, createEmotionCache } from "@mantine/core";
 import { StylesPlaceholder } from "@mantine/remix";
 import tailwindStylesheetUrl from "./styles/tailwind.css";
-// import { getUser } from "./session.server";
 import AppLayout from "./shared/components/AppLayout";
 import { SocketProvider } from "./shared/contexts/SocketContext";
 import type { Socket } from "socket.io-client";
