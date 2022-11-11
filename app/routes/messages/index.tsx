@@ -1,5 +1,6 @@
 import type { Message, User } from "@prisma/client";
 import type { LoaderArgs } from "@remix-run/node";
+import { Outlet } from "@remix-run/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { json, useLoaderData } from "remix-supertyped";
 import { db } from "~/db.server";
@@ -88,24 +89,29 @@ export default function Messages() {
   }
 
   return (
-    <ul
-      ref={listRef}
-      className="flex h-[400px] w-96 flex-shrink-0 flex-grow-0 flex-col items-start justify-start self-stretch overflow-y-scroll"
-      onWheel={onWheel}
-    >
-      {messages.map((message) => {
-        return (
-          <MessageBox
-            key={message.id}
-            messsage={message}
-            user={message.user}
-            onClick={async (message) =>
-              socket?.emit("event", `Message ping: ${message.message}`)
-            }
-          />
-        );
-      })}
-      <div ref={bottomLineRef}></div>
-    </ul>
+    <div className="flex h-[840px]">
+      <ul
+        ref={listRef}
+        className="flex w-1/3 flex-col items-start justify-start overflow-y-scroll bg-white"
+        onWheel={onWheel}
+      >
+        {messages.map((message) => {
+          return (
+            <MessageBox
+              key={message.id}
+              messsage={message}
+              user={message.user}
+              onClick={async (message) =>
+                socket?.emit("event", `Message ping: ${message.message}`)
+              }
+            />
+          );
+        })}
+        <div ref={bottomLineRef}></div>
+      </ul>
+
+      <div className="w-2/3 bg-slate-500"></div>
+      {/* <Outlet /> */}
+    </div>
   );
 }
