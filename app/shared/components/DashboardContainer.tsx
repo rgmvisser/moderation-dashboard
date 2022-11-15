@@ -12,7 +12,7 @@ export const DashboardContainer = ({
     <div
       className={classNames(
         className,
-        "flex flex-1 flex-col items-start justify-start rounded-lg border border-main bg-white"
+        "flex h-[840px] flex-1 flex-col items-start justify-start rounded-lg border border-main bg-white"
       )}
     >
       {children}

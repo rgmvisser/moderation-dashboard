@@ -47,6 +47,10 @@ export default function User() {
             },
           ]}
         />
+        <CMHeader title="User Reports" />
+        <div className="w-full border-t-0 border-r-0 border-b border-l-0 border-main py-2 px-4">
+          No reports
+        </div>
         <ActionButtons
           flagButton={message.status != "flagged"}
           hideButton={message.status != "hidden"}

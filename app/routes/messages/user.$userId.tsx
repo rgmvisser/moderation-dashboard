@@ -20,7 +20,6 @@ export async function loader({ request, params }: LoaderArgs) {
   }
   const messagesStats = await getUserMessagesStats(userId);
   const messages = await getUserMessages(userId);
-  messages.reverse(); // to make sure the messages are at the bottom
   return json({ user, messages, messagesStats });
 }
 
@@ -63,6 +62,10 @@ export default function User() {
             },
           ]}
         />
+        <CMHeader title="User Reports" />
+        <div className="w-full border-t-0 border-r-0 border-b border-l-0 border-main py-2 px-4">
+          No reports
+        </div>
         <CMHeader title="Messages status" />
         <MessagesStatus {...messagesStats}></MessagesStatus>
         <CMHeader title="Messages History" />

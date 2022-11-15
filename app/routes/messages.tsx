@@ -82,24 +82,51 @@ export default function Messages() {
   }
 
   return (
-    <div className="flex h-[840px] flex-row items-stretch justify-items-stretch gap-4">
-      <DashboardContainer className="overflow-y-scroll">
-        <ul className="w-full" ref={listRef} onWheel={onWheel}>
-          {messages.map((message) => {
-            return (
-              <MessageBox
-                key={message.id}
-                messsage={message}
-                project={message.project}
-                thread={message.thread}
-                user={message.user}
-                selected={currentMessageId === message.id}
+    <div className="flex  flex-row items-stretch justify-items-stretch gap-4">
+      <div className="relative flex-1">
+        <DashboardContainer className="overflow-y-scroll">
+          <ul className="w-full" ref={listRef} onWheel={onWheel}>
+            {messages.map((message) => {
+              return (
+                <MessageBox
+                  key={message.id}
+                  messsage={message}
+                  project={message.project}
+                  thread={message.thread}
+                  user={message.user}
+                  selected={currentMessageId === message.id}
+                />
+              );
+            })}
+            <div ref={bottomLineRef}></div>
+          </ul>
+        </DashboardContainer>
+        <div className="absolute left-0 right-0 bottom-3">
+          <button
+            className="m-auto flex items-center gap-1 rounded-lg bg-main px-2 py-1 text-xs font-semibold text-white hover:bg-main-dark"
+            onClick={() => {
+              shouldAutoScroll.current = true;
+              bottomLineRef.current?.scrollIntoView({ behavior: "auto" });
+            }}
+          >
+            Scroll to bottom
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="h-4 w-4"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 12.75l3 3m0 0l3-3m-3 3v-7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               />
-            );
-          })}
-          <div ref={bottomLineRef}></div>
-        </ul>
-      </DashboardContainer>
+            </svg>
+          </button>
+        </div>
+      </div>
       <Outlet />
     </div>
   );

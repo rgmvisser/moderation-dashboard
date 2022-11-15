@@ -7,7 +7,7 @@ interface MessageContentsProps {
 
 export const MessageContents = ({ contents }: MessageContentsProps) => {
   return (
-    <div className="box-border flex h-fit flex-col items-start justify-start gap-2.5 border-t-0 border-r-0 border-b border-l-0 border-main px-2.5 py-2">
+    <div className="box-border flex h-fit w-full flex-col items-start justify-start gap-2.5 border-t-0 border-r-0 border-b border-l-0 border-main px-2.5 py-2">
       {contents.map((item) => {
         return (
           <div key={item.title}>
