@@ -1,44 +1,70 @@
 import React from "react";
-import type { Message, User } from "@prisma/client";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import { Badge } from "@mantine/core";
-dayjs.extend(relativeTime);
+import type { Message, Project, Thread, User } from "@prisma/client";
+import { BGColorFromStatus, ButtonColorFromStatus } from "../utils.tsx/status";
+import { ProjectBadge } from "./CMBadge";
+import { GetDateFormatted, GetDateFromNow } from "../utils.tsx/date";
+import { Link } from "react-router-dom";
+import { MessagePath, UserPath } from "../utils.tsx/navigation";
 
 type Props = {
   messsage: Message;
-  user?: User;
-  onClick: (message: Message) => {};
+  project: Project;
+  thread: Thread;
+  user: User;
+  selected: boolean;
+  showUser?: boolean;
 };
 
-export default function MessageBox({ messsage, user, onClick }: Props) {
+export default function MessageBox({
+  messsage,
+  project,
+  thread,
+  user,
+  selected,
+  showUser = true,
+}: Props) {
+  const background = selected
+    ? "bg-slate-100"
+    : BGColorFromStatus(messsage.status);
+  const userStatusBG = ButtonColorFromStatus(user.status);
+
   return (
-    <li className="flex w-full flex-col items-start justify-start gap-1 border-t-0 border-r-0 border-b border-l-0 border-main bg-hidden p-3">
-      <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start gap-2 self-stretch">
-        {user ? (
-          <>
-            <div className="relative h-5 w-5 flex-shrink-0 flex-grow-0 overflow-hidden rounded-full bg-main" />
-            <p className="w-full flex-grow text-left text-base font-semibold text-black">
-              {user.name}
-            </p>
-          </>
+    <li
+      className={`flex w-full flex-col items-start justify-start gap-1 border-t-0 border-r-0 border-b border-l-0 border-main p-3 ${background} hover:bg-slate-50`}
+    >
+      <div className="flex flex-shrink-0 flex-grow-0 items-center justify-start gap-2 self-stretch">
+        {showUser ? (
+          <Link to={UserPath(user.id)} className="flex-auto ">
+            <div className="flex  items-center gap-2 hover:cursor-pointer hover:underline">
+              <div className="relative h-5 w-5 overflow-hidden rounded-full bg-main" />
+              <p className="flex-full text-left text-base font-semibold text-black">
+                {user.name}
+              </p>
+              <div
+                className={`h-2 w-2 overflow-hidden rounded-full ${userStatusBG}`}
+              />
+            </div>
+          </Link>
         ) : (
-          <div className="w-full"></div>
+          <div className="flex-auto"></div>
         )}
-        <Badge color={"blue"} variant={"filled"} size="sm" fullWidth>
-          Mysteryland / Main Stage
-        </Badge>
+        <ProjectBadge projectName={project.name} threadName={thread.name} />
       </div>
       <div className="relative flex flex-shrink-0 flex-grow-0 flex-col items-start justify-center gap-2.5 self-stretch">
-        <p className="flex-shrink-0 flex-grow-0 text-left text-xs text-secondary">
-          {dayjs(messsage.createdAt).fromNow()}
+        <p
+          className="flex-shrink-0 flex-grow-0 text-left text-xs text-secondary"
+          title={GetDateFormatted(messsage.createdAt)}
+        >
+          {GetDateFromNow(messsage.createdAt)}
         </p>
       </div>
-      <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start gap-2.5 self-stretch">
-        <p className="w-[587px] flex-grow text-left text-sm text-black">
-          {messsage.message}
-        </p>
-      </div>
+      <Link to={MessagePath(user.id, messsage.id)}>
+        <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start gap-2.5 self-stretch">
+          <p className="flex-grow text-left text-sm text-black">
+            {messsage.message}
+          </p>
+        </div>
+      </Link>
     </li>
   );
 }

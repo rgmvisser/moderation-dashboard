@@ -7,36 +7,73 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum Status {
+  allowed
+  flagged
+  hidden
+}
+
+enum SignInMethod {
+  email
+  google
+  facebook
+}
+
 model User {
-  id   String @id @default(cuid())
-  name String
+  id           String       @id @default(cuid())
+  name         String
+  signInMethod SignInMethod
+  location     String
+  status       Status
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  Message   Message[]
+  messages  Message[]
 }
 
 model BacklogMessage {
-  id      String @id @default(cuid())
-  message String
+  id                     String @id @default(cuid())
+  millisecondsAfterStart Int
+  message                String
+
+  userId    String
+  projectId String
+  threadId  String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  millisecondsAfterStart Int
-  userId                 String
+  status    Status
 }
 
 model Message {
-  id      String @id @default(cuid())
-  message String
+  id                     String @id @default(cuid())
+  millisecondsAfterStart Int
+  message                String
+  status                 Status
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  millisecondsAfterStart Int
-  user                   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId                 String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  project   Project @relation(fields: [projectId], references: [id])
+  projectId String
+  thread    Thread  @relation(fields: [threadId], references: [id])
+  threadId  String
+}
+
+model Project {
+  id   String @id @default(cuid())
+  name String
+
+  messages Message[]
+}
+
+model Thread {
+  id   String @id @default(cuid())
+  name String
+
+  messages Message[]
 }
 
 // model Password {

@@ -1,3 +1,6 @@
+import type { User } from "@prisma/client";
+import { db } from "~/db.server";
+
 export {};
 // import type { Password, User } from "@prisma/client";
 // import bcrypt from "bcryptjs";
@@ -6,9 +9,9 @@ export {};
 
 // export type { User } from "@prisma/client";
 
-// export async function getUserById(id: User["id"]) {
-//   return prisma.user.findUnique({ where: { id } });
-// }
+export async function getUserById(id: User["id"]) {
+  return db.user.findUnique({ where: { id } });
+}
 
 // export async function getUserByEmail(email: User["email"]) {
 //   return prisma.user.findUnique({ where: { email } });

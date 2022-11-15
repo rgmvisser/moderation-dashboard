@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, SignInMethod, Status } from "@prisma/client";
 import randomSentence from "random-sentence";
 import type { Config } from "unique-names-generator";
 import { uniqueNamesGenerator, names } from "unique-names-generator";
@@ -11,15 +11,72 @@ const prisma = new PrismaClient();
 
 async function seed() {
   await prisma.user.deleteMany(); // Messages get cascaded
+  await prisma.backlogMessage.deleteMany();
+  await prisma.project.deleteMany();
+  await prisma.thread.deleteMany();
 
   const numMessages = 10000;
-  const numUsers = 1000;
+  const numUsers = 100;
+
+  const projects = ["Mysterlyland"];
+  const threads = ["Main Stage", "Deephouse", "Food court", "Campground"];
+
+  // 10 times as many flagged/hidden messages
+  const statuses = Array(10).fill(Status.allowed);
+  statuses.push(Status.flagged);
+  statuses.push(Status.hidden);
 
   // Create users
+  const locations = [
+    "Amsterdam",
+    "Amsterdam",
+    "Amsterdam",
+    "Amsterdam",
+    "Amsterdam",
+    "Amsterdam",
+    "Amsterdam",
+    "Amsterdam",
+    "Amsterdam",
+    "Barcelona",
+    "Nigeria",
+  ];
+  const signInMethods = [
+    SignInMethod.email,
+    SignInMethod.email,
+    SignInMethod.email,
+    SignInMethod.google,
+    SignInMethod.facebook,
+  ];
+
+  await prisma.project.createMany({
+    data: projects.map((project) => {
+      return {
+        name: project,
+      };
+    }),
+  });
+  const projectIds = (
+    await prisma.project.findMany({ select: { id: true } })
+  ).map((obj) => obj.id);
+
+  await prisma.thread.createMany({
+    data: threads.map((thread) => {
+      return {
+        name: thread,
+      };
+    }),
+  });
+  const threadIds = (
+    await prisma.thread.findMany({ select: { id: true } })
+  ).map((obj) => obj.id);
+
   await prisma.user.createMany({
     data: Array.from(Array(numUsers).keys()).map((num) => {
       return {
         name: uniqueNamesGenerator(nameConfig),
+        location: sample(locations),
+        signInMethod: sample(signInMethods),
+        status: sample(statuses),
       };
     }),
   });
@@ -34,9 +91,13 @@ async function seed() {
   ).map((obj) => obj.id);
 
   let timeMiliseconds = 0;
+  const timeMilisecondsOptions = [
+    10, 20, 50, 100, 200, 500, 10, 20, 50, 100, 200, 500, 200, 500, 1000, 2000,
+    5000,
+  ];
   const randomTimes: number[] = [];
   for (let i = 0; i < numMessages; i++) {
-    timeMiliseconds += getRandomMillisecondsAfterStart();
+    timeMiliseconds += sample(timeMilisecondsOptions);
     randomTimes.push(timeMiliseconds);
   }
 
@@ -45,8 +106,11 @@ async function seed() {
     data: Array.from(Array(numMessages).keys()).map((num) => {
       return {
         message: randomSentence({ min: 1, max: 250 }),
-        userId: userIds[getRandomInt(userIds.length - 1)],
+        userId: sample(userIds),
         millisecondsAfterStart: randomTimes[num],
+        threadId: sample(threadIds),
+        projectId: sample(projectIds),
+        status: sample(statuses),
       };
     }),
   });
@@ -54,15 +118,7 @@ async function seed() {
   console.log(`Database has been seeded. 🌱`);
 }
 
-function getRandomInt(max: number) {
-  return Math.floor(Math.random() * max);
-}
-
-const options = [
-  10, 20, 50, 100, 200, 500, 10, 20, 50, 100, 200, 500, 200, 500, 1000, 2000,
-  5000,
-];
-function getRandomMillisecondsAfterStart() {
+function sample<T>(options: T[]) {
   return options[Math.floor(Math.random() * options.length)];
 }
 

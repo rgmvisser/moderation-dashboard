@@ -7,11 +7,18 @@ module.exports = {
     extend: {
       colors: {
         main: colors.blue[500],
+        "main-dark": colors.blue[700],
         allowed: colors.green[400],
       },
       backgroundColor: {
-        flagged: colors.amber[100],
-        hidden: colors.red[100],
+        allowed: colors.green[500],
+        "allowed-dark": colors.green[600],
+        "flagged-light": colors.amber[100],
+        flagged: colors.amber[500],
+        "flagged-dark": colors.amber[600],
+        "hidden-light": colors.red[100],
+        hidden: colors.red[500],
+        "hidden-dark": colors.red[600],
       },
       textColor: {
         secondary: colors.gray[400],

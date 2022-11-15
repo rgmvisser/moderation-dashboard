@@ -1,6 +1,7 @@
 import { json } from "remix-supertyped";
 import { ioServer } from "server";
 import { db } from "~/db.server";
+import { MessageWithInfo } from "~/models/message.server";
 import { intervalTimer } from "./timer.server";
 
 export function startBacklogQueue() {
@@ -58,10 +59,12 @@ async function updateBacklog(time: number) {
       createdAt: undefined,
       updateAt: undefined,
     };
-    const m = await db.message.create({
+    const m: MessageWithInfo = await db.message.create({
       data: data,
       include: {
         user: true,
+        project: true,
+        thread: true,
       },
     });
     ioServer.emit("new-message", JSON.stringify({ message: m }));
