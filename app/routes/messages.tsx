@@ -8,11 +8,16 @@ import { useSocket } from "~/shared/contexts/SocketContext";
 import { JSONParseWithDates } from "~/shared/utils.tsx/json";
 import { Outlet, useParams } from "@remix-run/react";
 import { DashboardContainer } from "~/shared/components/DashboardContainer";
+import { Selectors } from "~/shared/components/FilterSelectors";
+import { GetAdminFilter, GetFilterInfo } from "~/models/filter.server";
 
 export async function loader({ request }: LoaderArgs) {
-  const messages = await getMessages();
+  const filter = await GetAdminFilter();
+  const filterInfo = await GetFilterInfo();
+
+  const messages = await getMessages(filter);
   messages.reverse(); // to make sure the messages are at the bottom
-  return json({ messages });
+  return json({ messages, filterInfo, filter });
 }
 
 export default function Messages() {
@@ -22,6 +27,8 @@ export default function Messages() {
   const [messages, setMessages] = useState<MessageWithInfo[]>(
     data.messages ?? []
   );
+  const { filterInfo, filter } = data;
+
   const socket = useSocket();
   const bottomLineRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
@@ -66,7 +73,9 @@ export default function Messages() {
     };
   }, [socket, setMessages, scrollToBottom]);
 
-  scrollToBottom();
+  useEffect(() => {
+    setMessages(data.messages ?? []);
+  }, [data]);
 
   function onWheel(event: any) {
     const scrollY = listRef.current?.scrollTop ?? 0;
@@ -82,9 +91,12 @@ export default function Messages() {
   }
 
   return (
-    <div className="flex  flex-row items-stretch justify-items-stretch gap-4">
+    <div className="flex  h-[840px] flex-row justify-items-stretch gap-4">
       <div className="relative flex-1">
-        <DashboardContainer className="overflow-y-scroll">
+        <div className="flex  pb-4">
+          <Selectors filter={filter} {...filterInfo} />
+        </div>
+        <DashboardContainer className="h-[790px] overflow-y-scroll">
           <ul className="w-full" ref={listRef} onWheel={onWheel}>
             {messages.map((message) => {
               return (

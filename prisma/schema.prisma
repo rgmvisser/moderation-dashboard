@@ -76,6 +76,22 @@ model Thread {
   messages Message[]
 }
 
+model Admin {
+  id           String        @id @default(cuid())
+  name         String
+  AdminFilters AdminFilters?
+}
+
+model AdminFilters {
+  id       String @id @default(cuid())
+  projects String
+  threads  String
+  statuses String
+
+  admin   Admin  @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  adminId String @unique
+}
+
 // model Password {
 //   hash String
 

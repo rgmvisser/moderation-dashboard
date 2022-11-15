@@ -14,7 +14,11 @@ async function seed() {
   await prisma.backlogMessage.deleteMany();
   await prisma.project.deleteMany();
   await prisma.thread.deleteMany();
+  await prisma.admin.deleteMany();
 
+  await prisma.admin.create({
+    data: { name: "Ruud" },
+  });
   const numMessages = 10000;
   const numUsers = 100;
 

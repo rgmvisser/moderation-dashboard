@@ -1,5 +1,6 @@
 import { Message, Project, Status, Thread, User } from "@prisma/client";
 import { db } from "~/db.server";
+import { Filter } from "./filter.server";
 
 export type MessageWithInfo = Message & {
   user: User;
@@ -62,8 +63,37 @@ export async function getUserMessagesStats(id: User["id"]) {
   return counts;
 }
 
-export async function getMessages() {
+export async function getMessages(filter?: Filter) {
+  const projectFilter =
+    (filter?.projects.length ?? 0) > 0
+      ? {
+          projectId: {
+            in: filter?.projects,
+          },
+        }
+      : {};
+  const threadFilter =
+    (filter?.threads.length ?? 0) > 0
+      ? {
+          threadId: {
+            in: filter?.threads,
+          },
+        }
+      : {};
+  const statusFilter =
+    (filter?.statuses?.length ?? 0) > 0
+      ? {
+          status: {
+            in: filter?.statuses as Status[],
+          },
+        }
+      : {};
   const messages: MessageWithInfo[] = await db.message.findMany({
+    where: {
+      ...projectFilter,
+      ...threadFilter,
+      ...statusFilter,
+    },
     take: 30,
     include: messageInclude,
     orderBy: {

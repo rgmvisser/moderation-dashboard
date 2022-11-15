@@ -28,7 +28,6 @@ export default function User() {
   const currentMessageId = params["messageId"];
   const data = useLoaderData<typeof loader>();
   const { messages, user, messagesStats } = data;
-  console.log(messagesStats);
 
   return (
     <>
