@@ -24,10 +24,10 @@ export default function Messages() {
   const params = useParams();
   const currentMessageId = params["messageId"];
   const data = useLoaderData<typeof loader>();
+  const { filterInfo, filter, messages: dataMessages } = data;
   const [messages, setMessages] = useState<MessageWithInfo[]>(
-    data.messages ?? []
+    dataMessages ?? []
   );
-  const { filterInfo, filter } = data;
 
   const socket = useSocket();
   const bottomLineRef = useRef<HTMLDivElement>(null);
@@ -74,8 +74,11 @@ export default function Messages() {
   }, [socket, setMessages, scrollToBottom]);
 
   useEffect(() => {
-    setMessages(data.messages ?? []);
-  }, [data]);
+    // Make sure we check the length, otherwise we get an infinite loop
+    if (messages.length != dataMessages.length) {
+      setMessages(dataMessages);
+    }
+  }, [dataMessages, setMessages, messages]);
 
   function onWheel(event: any) {
     const scrollY = listRef.current?.scrollTop ?? 0;

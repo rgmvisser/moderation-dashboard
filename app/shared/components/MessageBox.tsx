@@ -50,19 +50,20 @@ export default function MessageBox({
         )}
         <ProjectBadge projectName={project.name} threadName={thread.name} />
       </div>
-      <div className="relative flex flex-shrink-0 flex-grow-0 flex-col items-start justify-center gap-2.5 self-stretch">
-        <p
-          className="flex-shrink-0 flex-grow-0 text-left text-xs text-secondary"
-          title={GetDateFormatted(messsage.createdAt)}
-        >
-          {GetDateFromNow(messsage.createdAt)}
-        </p>
-      </div>
       <Link to={MessagePath(user.id, messsage.id)}>
-        <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start gap-2.5 self-stretch">
-          <p className="flex-grow text-left text-sm text-black">
-            {messsage.message}
-          </p>
+        <div className="flex flex-col gap-1">
+          <div className="flex flex-col items-start justify-center self-stretch">
+            <p
+              className="flex-shrink-0 flex-grow-0 text-left text-xs text-secondary"
+              title={GetDateFormatted(messsage.createdAt)}
+            >
+              {GetDateFromNow(messsage.createdAt)}
+            </p>
+          </div>
+
+          <div className="flex  items-center justify-start gap-2.5 self-stretch">
+            <p className="flex-grow text-left text-sm">{messsage.message}</p>
+          </div>
         </div>
       </Link>
     </li>
