@@ -1,7 +1,8 @@
 import { json } from "remix-supertyped";
 import { ioServer } from "server";
 import { db } from "~/db.server";
-import { MessageWithInfo } from "~/models/message.server";
+import { GetAdminFilter, GetFilterInfo } from "~/models/filter.server";
+import { getMessage, MessageWithInfo } from "~/models/message.server";
 import { intervalTimer } from "./timer.server";
 
 export function startBacklogQueue() {
@@ -51,6 +52,8 @@ async function updateBacklog(time: number) {
   console.log("Found backlog messages:", backlogMessages.length);
   lastTime = time; // Update time to last fetched
 
+  const filter = await GetAdminFilter();
+
   // Create messages and emit them
   for (const bm of backlogMessages) {
     const data = {
@@ -59,14 +62,15 @@ async function updateBacklog(time: number) {
       createdAt: undefined,
       updateAt: undefined,
     };
-    const m: MessageWithInfo = await db.message.create({
+    const createdMessage = await db.message.create({
       data: data,
-      include: {
-        user: true,
-        project: true,
-        thread: true,
-      },
     });
-    ioServer.emit("new-message", JSON.stringify({ message: m }));
+    const m: MessageWithInfo | null = await getMessage(
+      createdMessage.id,
+      filter
+    );
+    if (m) {
+      ioServer.emit("new-message", JSON.stringify({ message: m }));
+    }
   }
 }

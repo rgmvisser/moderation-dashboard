@@ -25,9 +25,9 @@ export async function getUserMessages(id: User["id"]) {
   });
 }
 
-export async function getMessage(id: Message["id"]) {
-  return db.message.findUnique({
-    where: { id: id },
+export async function getMessage(id: Message["id"], filter?: Filter) {
+  return db.message.findFirst({
+    where: { id: id, ...GetFiltersObjects(filter) },
     include: messageInclude,
   });
 }
@@ -64,6 +64,20 @@ export async function getUserMessagesStats(id: User["id"]) {
 }
 
 export async function getMessages(filter?: Filter) {
+  const messages: MessageWithInfo[] = await db.message.findMany({
+    where: {
+      ...GetFiltersObjects(filter),
+    },
+    take: 30,
+    include: messageInclude,
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+  return messages;
+}
+
+function GetFiltersObjects(filter?: Filter) {
   const projectFilter =
     (filter?.projects.length ?? 0) > 0
       ? {
@@ -88,17 +102,5 @@ export async function getMessages(filter?: Filter) {
           },
         }
       : {};
-  const messages: MessageWithInfo[] = await db.message.findMany({
-    where: {
-      ...projectFilter,
-      ...threadFilter,
-      ...statusFilter,
-    },
-    take: 30,
-    include: messageInclude,
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
-  return messages;
+  return { ...projectFilter, ...threadFilter, ...statusFilter };
 }

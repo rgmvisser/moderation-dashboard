@@ -28,6 +28,7 @@ export default function Messages() {
   const [messages, setMessages] = useState<MessageWithInfo[]>(
     dataMessages ?? []
   );
+  const [showScrollBottomButton, setShowScrollBottomButton] = useState(false);
 
   const socket = useSocket();
   const bottomLineRef = useRef<HTMLDivElement>(null);
@@ -36,6 +37,7 @@ export default function Messages() {
   const shouldDoLastScroll = useRef(false);
   const prevScroll = useRef(0);
   const shouldAutoScroll = useRef(true);
+  const dataMessagesRef = useRef(dataMessages);
 
   const scrollToBottom = useCallback(() => {
     if (!bottomLineRef.current || !listRef.current) {
@@ -74,11 +76,16 @@ export default function Messages() {
   }, [socket, setMessages, scrollToBottom]);
 
   useEffect(() => {
-    // Make sure we check the length, otherwise we get an infinite loop
-    if (messages.length != dataMessages.length) {
+    if (!AreMessagesEqual(dataMessages, dataMessagesRef.current)) {
+      dataMessagesRef.current = dataMessages;
       setMessages(dataMessages);
     }
-  }, [dataMessages, setMessages, messages]);
+  }, [dataMessages, dataMessagesRef]);
+
+  // Scroll to bottom on first render
+  useEffect(() => {
+    scrollToBottom();
+  }, [scrollToBottom]);
 
   function onWheel(event: any) {
     const scrollY = listRef.current?.scrollTop ?? 0;
@@ -93,14 +100,29 @@ export default function Messages() {
     prevScroll.current = scrollY;
   }
 
+  function onScroll(event: any) {
+    const st = listRef.current?.scrollTop ?? 0;
+    const sh = listRef.current?.scrollHeight ?? 0;
+    const ch = listRef.current?.clientHeight ?? 0;
+    if (sh - st === ch || shouldAutoScroll.current) {
+      setShowScrollBottomButton(false);
+    } else {
+      setShowScrollBottomButton(true);
+    }
+  }
   return (
     <div className="flex  h-[840px] flex-row justify-items-stretch gap-4">
       <div className="relative flex-1">
         <div className="flex  pb-4">
           <Selectors filter={filter} {...filterInfo} />
         </div>
-        <DashboardContainer className="h-[790px] overflow-y-scroll">
-          <ul className="w-full" ref={listRef} onWheel={onWheel}>
+        <DashboardContainer className="h-[790px]">
+          <ul
+            className="h-full w-full overflow-y-scroll"
+            ref={listRef}
+            onWheel={onWheel}
+            onScroll={onScroll}
+          >
             {messages.map((message) => {
               return (
                 <MessageBox
@@ -116,7 +138,13 @@ export default function Messages() {
             <div ref={bottomLineRef}></div>
           </ul>
         </DashboardContainer>
-        <div className="absolute left-0 right-0 bottom-3">
+        <div
+          className={`absolute left-0 right-0 bottom-3 transition-all duration-200 ${
+            showScrollBottomButton
+              ? "visible opacity-100"
+              : "invisible opacity-0"
+          }`}
+        >
           <button
             className="m-auto flex items-center gap-1 rounded-lg bg-main px-2 py-1 text-xs font-semibold text-white hover:bg-main-dark"
             onClick={() => {
@@ -145,4 +173,20 @@ export default function Messages() {
       <Outlet />
     </div>
   );
+}
+
+function AreMessagesEqual(
+  messages: MessageWithInfo[],
+  messages2: MessageWithInfo[]
+) {
+  if (messages.length !== messages2.length) {
+    return false;
+  }
+
+  for (let i = 0; i < messages.length; i++) {
+    if (messages[i].id !== messages2[i].id) {
+      return false;
+    }
+  }
+  return true;
 }
