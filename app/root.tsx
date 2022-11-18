@@ -7,6 +7,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useCatch,
 } from "@remix-run/react";
 
 import { MantineProvider, createEmotionCache } from "@mantine/core";
@@ -23,6 +24,7 @@ import { AppProvider } from "./shared/contexts/AppContext";
 import { ActionModal } from "./shared/components/ActionModal";
 import { ModalProvider } from "./shared/contexts/ModalContext";
 import { GetStatusReasons } from "./models/reason.server";
+import { GetAdmin } from "./models/admin.server";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
@@ -44,6 +46,7 @@ export async function loader({ request }: LoaderArgs) {
       speed: intervalTimer.speed,
     },
     reasons: reasons,
+    admin: await GetAdmin(),
     // user: await getUser(request),
   });
 }
@@ -75,7 +78,11 @@ export default function App() {
           <Links />
         </head>
         <body className="h-full">
-          <AppProvider timer={data.timer} reasons={data.reasons}>
+          <AppProvider
+            timer={data.timer}
+            reasons={data.reasons}
+            admin={data.admin ?? undefined}
+          >
             <SocketProvider socket={socket}>
               <ModalProvider>
                 <AppLayout>
@@ -85,6 +92,35 @@ export default function App() {
               </ModalProvider>
             </SocketProvider>
           </AppProvider>
+          <ScrollRestoration />
+          <Scripts />
+          <LiveReload />
+        </body>
+      </html>
+    </MantineProvider>
+  );
+}
+
+export function CatchBoundary() {
+  const caught = useCatch();
+  return (
+    <MantineProvider withGlobalStyles withNormalizeCSS>
+      <html lang="en" className="h-full">
+        <head>
+          <StylesPlaceholder />
+          <Meta />
+          <Links />
+        </head>
+        <body className="h-full">
+          <AppLayout>
+            <div>
+              <h1>Oops that's an error!</h1>
+              <h2>
+                {caught.status} {caught.statusText}
+              </h2>
+            </div>
+            <ActionModal />
+          </AppLayout>
           <ScrollRestoration />
           <Scripts />
           <LiveReload />

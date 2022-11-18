@@ -18,7 +18,11 @@ async function seed() {
   await prisma.reason.deleteMany();
 
   await prisma.admin.create({
-    data: { name: "Ruud" },
+    data: {
+      name: "Ruud Visser",
+      avatar:
+        "https://en.gravatar.com/userimage/61402465/c8cdd02ae2207b22c6582d7716e5e8b0.jpeg",
+    },
   });
 
   // Created reasons per status
