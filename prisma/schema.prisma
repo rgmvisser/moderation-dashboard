@@ -130,13 +130,14 @@ model Action {
   id        String     @id @default(cuid())
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  info      Json       @default("{}")
   type      ActionType
 
-  reason           Reason  @relation(fields: [reasonId], references: [id], onDelete: Cascade)
-  reasonId         String
-  extraInformation String?
-  takenBy          Admin?  @relation(fields: [takenById], references: [id], onDelete: Cascade)
-  takenById        String?
+  reason            Reason  @relation(fields: [reasonId], references: [id], onDelete: Cascade)
+  reasonId          String
+  reasonInformation String?
+  takenBy           Admin?  @relation(fields: [takenById], references: [id], onDelete: Cascade)
+  takenById         String?
 
   message   Message? @relation(fields: [messageId], references: [id], onDelete: Cascade)
   messageId String?

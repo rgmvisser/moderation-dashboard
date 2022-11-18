@@ -11,6 +11,8 @@ import { PropertyContainer } from "~/shared/components/PropertyContainer";
 import { json, useLoaderData } from "remix-supertyped";
 import { Outlet, useParams } from "@remix-run/react";
 import { GetDateFromNow } from "~/shared/utils.tsx/date";
+import { ActionContainer } from "~/shared/components/ActionContainer";
+import { GetUserActions } from "~/controllers.ts/action.server";
 
 export async function loader({ request, params }: LoaderArgs) {
   const userId = params["userId"] ?? "";
@@ -20,14 +22,15 @@ export async function loader({ request, params }: LoaderArgs) {
   }
   const messagesStats = await getUserMessagesStats(userId);
   const messages = await getUserMessages(userId);
-  return json({ user, messages, messagesStats });
+  const actions = await GetUserActions(userId);
+  return json({ user, messages, messagesStats, actions });
 }
 
 export default function User() {
   const params = useParams();
   const currentMessageId = params["messageId"];
   const data = useLoaderData<typeof loader>();
-  const { messages, user, messagesStats } = data;
+  const { messages, user, messagesStats, actions } = data;
 
   return (
     <>
@@ -67,6 +70,9 @@ export default function User() {
         </div>
         <CMHeader title="Messages status" />
         <MessagesStatus {...messagesStats}></MessagesStatus>
+
+        <ActionContainer actions={actions} />
+
         <CMHeader title="Messages History" />
 
         <ul className="w-full flex-grow overflow-y-scroll">

@@ -71,7 +71,7 @@ export function ActionModal() {
               }))}
             />
             <TextInput
-              name="extraInformation"
+              name="reasonInformation"
               label="Extra information"
               description="Provide extra information if needed"
             />

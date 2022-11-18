@@ -1,5 +1,5 @@
 import type { LinksFunction, LoaderArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, useLoaderData } from "remix-supertyped";
 import {
   Links,
   LiveReload,
@@ -7,7 +7,6 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useLoaderData,
 } from "@remix-run/react";
 
 import { MantineProvider, createEmotionCache } from "@mantine/core";

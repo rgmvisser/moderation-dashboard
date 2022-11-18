@@ -14,7 +14,7 @@ export const validator = withZod(
     messageId: z.string().cuid({ message: "MessageId required" }),
     reasonId: z.string().cuid({ message: "Please fill out a reason" }),
     status: z.nativeEnum(Status),
-    extraInformation: z.string().optional(),
+    reasonInformation: z.string().optional(),
   })
 );
 
@@ -23,16 +23,13 @@ export const action: ActionFunction = async ({ request }) => {
   if (res.error) {
     return validationError(res.error);
   }
-  const { messageId, reasonId, extraInformation, status } = res.data;
+  const { messageId, reasonId, reasonInformation, status } = res.data;
   const message = await getMessage(messageId);
   if (!message) {
     throw new Error(`Could not find message: ${messageId}`);
-  } else if (message.status === status) {
-    return json({ message });
   }
-
   const admin = await db.admin.findFirstOrThrow();
-  await UpdateStatus(admin, status, reasonId, extraInformation, messageId);
+  await UpdateStatus(admin, status, reasonId, reasonInformation, message);
   const newMessage = await getMessage(messageId);
   return json({ message: newMessage });
 };

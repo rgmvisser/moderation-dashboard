@@ -30,3 +30,18 @@ export const StatusBadge = ({ status }: StatusProps) => {
     </Badge>
   );
 };
+type ActionStatusProps = {
+  toStatus: Status;
+  fromStatus: Status;
+};
+export const ActionStatusBadge = ({
+  toStatus,
+  fromStatus,
+}: ActionStatusProps) => {
+  const color = MantineColorFromStatus(toStatus);
+  return (
+    <Badge color={color} variant={"filled"} size="sm">
+      {TextFromStatus(fromStatus, true)} {"->"} {TextFromStatus(toStatus, true)}
+    </Badge>
+  );
+};

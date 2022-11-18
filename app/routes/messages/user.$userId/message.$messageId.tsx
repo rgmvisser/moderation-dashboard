@@ -7,6 +7,8 @@ import { CMHeader } from "~/shared/components/CMHeader";
 import { DashboardContainer } from "~/shared/components/DashboardContainer";
 import { json, useLoaderData } from "remix-supertyped";
 import { MessageContents } from "~/shared/components/MessageContents";
+import { GetMessageActions } from "~/controllers.ts/action.server";
+import { ActionContainer } from "~/shared/components/ActionContainer";
 
 export async function loader({ request, params }: LoaderArgs) {
   const userId = params["userId"] ?? "";
@@ -19,12 +21,13 @@ export async function loader({ request, params }: LoaderArgs) {
   if (!message) {
     throw new Error(`Could nog find message:  ${messageId}`);
   }
-  return json({ user, message });
+  const actions = await GetMessageActions(messageId);
+  return json({ user, message, actions });
 }
 
 export default function User() {
   const data = useLoaderData<typeof loader>();
-  const { message, user } = data;
+  const { message, actions } = data;
   return (
     <>
       <DashboardContainer>
@@ -35,6 +38,12 @@ export default function User() {
             threadName={message.thread.name}
           />
         </CMHeader>
+        <ActionButtons
+          flagButton={message.status != "flagged"}
+          hideButton={message.status != "hidden"}
+          allowButton={message.status != "allowed"}
+          message={message}
+        />
         <MessageContents
           contents={[
             {
@@ -51,12 +60,7 @@ export default function User() {
         <div className="w-full border-t-0 border-r-0 border-b border-l-0 border-main py-2 px-4">
           No reports
         </div>
-        <ActionButtons
-          flagButton={message.status != "flagged"}
-          hideButton={message.status != "hidden"}
-          allowButton={message.status != "allowed"}
-          message={message}
-        />
+        <ActionContainer actions={actions} />
       </DashboardContainer>
     </>
   );

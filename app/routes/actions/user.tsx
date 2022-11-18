@@ -18,7 +18,7 @@ export const validator = withZod(
     userId: z.string().cuid({ message: "userId required" }),
     reasonId: z.string().cuid({ message: "Please fill out a reason" }),
     status: z.nativeEnum(Status),
-    extraInformation: z.string().optional(),
+    reasonInformation: z.string().optional(),
     allowAllMessages: zx.CheckboxAsString,
     flagAllMessages: zx.CheckboxAsString,
     hideAllMessages: zx.CheckboxAsString,
@@ -33,7 +33,7 @@ export const action: ActionFunction = async ({ request }) => {
   const {
     userId,
     reasonId,
-    extraInformation,
+    reasonInformation,
     status,
     allowAllMessages,
     flagAllMessages,
@@ -45,8 +45,6 @@ export const action: ActionFunction = async ({ request }) => {
   const user = await getUserById(userId);
   if (!user) {
     throw new Error(`Could not find user: ${user}`);
-  } else if (user.status === status) {
-    return json({ user });
   }
 
   const admin = await db.admin.findFirstOrThrow();
@@ -54,9 +52,9 @@ export const action: ActionFunction = async ({ request }) => {
     admin,
     status,
     reasonId,
-    extraInformation,
+    reasonInformation,
     undefined,
-    userId
+    user
   );
   const updatedUser = await getUserById(userId);
   if (allowAllMessages || flagAllMessages || hideAllMessages) {
@@ -70,7 +68,7 @@ export const action: ActionFunction = async ({ request }) => {
       status,
       reasonId,
       userId,
-      extraInformation
+      reasonInformation
     );
   }
 
