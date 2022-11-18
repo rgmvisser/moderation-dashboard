@@ -40,7 +40,7 @@ export default function User() {
           flagButton={user.status != "flagged"}
           hideButton={user.status != "hidden"}
           allowButton={user.status != "allowed"}
-          type="user"
+          user={user}
         />
         <PropertyContainer
           properties={[

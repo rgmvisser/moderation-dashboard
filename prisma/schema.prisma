@@ -20,15 +20,17 @@ enum SignInMethod {
 }
 
 model User {
-  id           String       @id @default(cuid())
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   name         String
   signInMethod SignInMethod
   location     String
   status       Status
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  messages  Message[]
+  messages Message[]
+  Action   Action[]
 }
 
 model BacklogMessage {
@@ -54,42 +56,92 @@ model Message {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
-  project   Project @relation(fields: [projectId], references: [id])
+  project   Project  @relation(fields: [projectId], references: [id])
   projectId String
-  thread    Thread  @relation(fields: [threadId], references: [id])
+  thread    Thread   @relation(fields: [threadId], references: [id])
   threadId  String
+  Action    Action[]
 }
 
 model Project {
-  id   String @id @default(cuid())
-  name String
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String
 
   messages Message[]
 }
 
 model Thread {
-  id   String @id @default(cuid())
-  name String
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String
 
   messages Message[]
 }
 
 model Admin {
   id           String        @id @default(cuid())
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
   name         String
   AdminFilters AdminFilters?
+  Action       Action[]
 }
 
 model AdminFilters {
-  id       String @id @default(cuid())
-  projects String
-  threads  String
-  statuses String
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  projects  String
+  threads   String
+  statuses  String
 
   admin   Admin  @relation(fields: [adminId], references: [id], onDelete: Cascade)
   adminId String @unique
+}
+
+model Reason {
+  id            String          @id @default(cuid())
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  name          String
+  StatusReasons StatusReasons[]
+  Action        Action[]
+}
+
+model StatusReasons {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  status    Status
+  reason    Reason   @relation(fields: [reasonId], references: [id], onDelete: Cascade)
+  reasonId  String
+}
+
+enum ActionType {
+  ChangeStatus
+}
+
+model Action {
+  id        String     @id @default(cuid())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  type      ActionType
+
+  reason           Reason  @relation(fields: [reasonId], references: [id], onDelete: Cascade)
+  reasonId         String
+  extraInformation String?
+  takenBy          Admin?  @relation(fields: [takenById], references: [id], onDelete: Cascade)
+  takenById        String?
+
+  message   Message? @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  messageId String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String?
 }
 
 // model Password {

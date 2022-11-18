@@ -15,10 +15,50 @@ async function seed() {
   await prisma.project.deleteMany();
   await prisma.thread.deleteMany();
   await prisma.admin.deleteMany();
+  await prisma.reason.deleteMany();
 
   await prisma.admin.create({
     data: { name: "Ruud" },
   });
+
+  // Created reasons per status
+  await prisma.reason.createMany({
+    data: [
+      { name: "Allowed" },
+      { name: "Off-topic" },
+      { name: "Inappropriate" },
+      { name: "Other" },
+    ],
+  });
+  const reasons = await prisma.reason.findMany();
+  for (const reason of reasons) {
+    await prisma.statusReasons.create({
+      data: {
+        status: Status.flagged,
+        reason: { connect: { id: reason.id } },
+      },
+    });
+    await prisma.statusReasons.create({
+      data: {
+        status: Status.hidden,
+        reason: { connect: { id: reason.id } },
+      },
+    });
+  }
+  await prisma.statusReasons.create({
+    data: {
+      status: Status.allowed,
+      reason: { create: { name: "Inaccurate flag" } },
+    },
+  });
+  await prisma.statusReasons.create({
+    data: {
+      status: Status.allowed,
+      reason: { create: { name: "Inaccurate hide" } },
+    },
+  });
+
+  // Create messages
   const numMessages = 10000;
   const numUsers = 100;
 

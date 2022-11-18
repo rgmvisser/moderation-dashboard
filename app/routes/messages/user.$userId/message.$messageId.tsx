@@ -29,7 +29,7 @@ export default function User() {
     <>
       <DashboardContainer>
         <CMHeader title="Message">
-          <StatusBadge status={user.status} />
+          <StatusBadge status={message.status} />
           <ProjectBadge
             projectName={message.project.name}
             threadName={message.thread.name}
@@ -55,7 +55,7 @@ export default function User() {
           flagButton={message.status != "flagged"}
           hideButton={message.status != "hidden"}
           allowButton={message.status != "allowed"}
-          type="message"
+          message={message}
         />
       </DashboardContainer>
     </>

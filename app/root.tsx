@@ -21,6 +21,9 @@ import { useEffect, useState } from "react";
 
 import { intervalTimer } from "./controllers.ts/timer.server";
 import { AppProvider } from "./shared/contexts/AppContext";
+import { ActionModal } from "./shared/components/ActionModal";
+import { ModalProvider } from "./shared/contexts/ModalContext";
+import { GetStatusReasons } from "./models/reason.server";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
@@ -35,11 +38,13 @@ export const meta: MetaFunction = () => ({
 createEmotionCache({ key: "mantine" });
 
 export async function loader({ request }: LoaderArgs) {
+  const reasons = await GetStatusReasons();
   return json({
     timer: {
       enabled: intervalTimer.enabled,
       speed: intervalTimer.speed,
     },
+    reasons: reasons,
     // user: await getUser(request),
   });
 }
@@ -71,11 +76,14 @@ export default function App() {
           <Links />
         </head>
         <body className="h-full">
-          <AppProvider timer={data.timer}>
+          <AppProvider timer={data.timer} reasons={data.reasons}>
             <SocketProvider socket={socket}>
-              <AppLayout>
-                <Outlet />
-              </AppLayout>
+              <ModalProvider>
+                <AppLayout>
+                  <Outlet />
+                  <ActionModal />
+                </AppLayout>
+              </ModalProvider>
             </SocketProvider>
           </AppProvider>
           <ScrollRestoration />

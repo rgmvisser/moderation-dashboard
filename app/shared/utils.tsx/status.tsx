@@ -51,3 +51,25 @@ export function TextFromStatus(status: Status, caps = false) {
   }
   return status.charAt(0).toUpperCase() + status.slice(1);
 }
+
+export function ActionTextFromStatus(status: Status, caps = false) {
+  switch (status) {
+    case Status.allowed:
+      return "Allow";
+    case Status.flagged:
+      return "Flag";
+    case Status.hidden:
+      return "Hide";
+  }
+}
+
+export function ActivaTextFromStatus(status: Status, caps = false) {
+  switch (status) {
+    case Status.allowed:
+      return "Allowing";
+    case Status.flagged:
+      return "Flagging";
+    case Status.hidden:
+      return "Hiding";
+  }
+}
