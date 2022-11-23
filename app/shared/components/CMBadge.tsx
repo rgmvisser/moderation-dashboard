@@ -1,4 +1,4 @@
-import { Badge } from "@mantine/core";
+import { Badge, MantineColor } from "@mantine/core";
 import type { Status } from "@prisma/client";
 import { MantineColorFromStatus, TextFromStatus } from "../utils.tsx/status";
 
@@ -42,6 +42,35 @@ export const ActionStatusBadge = ({
   return (
     <Badge color={color} variant={"filled"} size="sm">
       {TextFromStatus(fromStatus, true)} {"->"} {TextFromStatus(toStatus, true)}
+    </Badge>
+  );
+};
+
+export const PercentageBadge = ({
+  status,
+  percentage,
+}: {
+  status: Status;
+  percentage: number;
+}) => {
+  let color: MantineColor = "green";
+  if (status === "allowed") {
+    if (percentage < 95 && percentage >= 75) {
+      color = "orange";
+    } else if (percentage < 75) {
+      color = "red";
+    }
+  } else {
+    if (percentage < 5 && percentage >= 2) {
+      color = "orange";
+    } else if (percentage >= 5) {
+      color = "red";
+    }
+  }
+
+  return (
+    <Badge color={color} variant={"filled"} size="sm">
+      {percentage.toFixed(1)}%
     </Badge>
   );
 };

@@ -1,7 +1,6 @@
 import type { User } from "@prisma/client";
 import { db } from "~/db.server";
 
-export {};
 // import type { Password, User } from "@prisma/client";
 // import bcrypt from "bcryptjs";
 
@@ -11,6 +10,28 @@ export {};
 
 export async function getUserById(id: User["id"]) {
   return db.user.findUnique({ where: { id } });
+}
+
+export async function getUsers({
+  page = 1,
+  perPage = 20,
+  orderBy = "createdAt",
+  order,
+}: {
+  page?: number;
+  perPage?: number;
+  orderBy?: keyof User;
+  order?: "asc" | "desc";
+}) {
+  return db.user.findMany({
+    skip: (page - 1) * perPage,
+    take: perPage,
+    orderBy: { [orderBy]: order },
+  });
+}
+
+export async function getAllUsersCount() {
+  return db.user.count();
 }
 
 // export async function getUserByEmail(email: User["email"]) {
