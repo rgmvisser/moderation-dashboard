@@ -16,7 +16,7 @@ import Logo from "./Logo";
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
     <AppShell
-      padding="md"
+      padding={0}
       navbar={
         <Navbar width={{ base: 200 }} p="md">
           <Navbar.Section>
@@ -67,7 +67,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         </Header>
       }
     >
-      {children}
+      <div className="h-full w-full bg-slate-50 p-4">{children}</div>
     </AppShell>
   );
 }
