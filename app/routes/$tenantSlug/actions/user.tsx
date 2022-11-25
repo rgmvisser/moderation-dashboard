@@ -8,7 +8,7 @@ import { validationError } from "remix-validated-form";
 import { ActionController } from "~/controllers.ts/action.server";
 
 import { Status } from "@prisma/client";
-import { TenantUserController } from "~/controllers.ts/tenantUser.server";
+import { ModeratorController } from "~/controllers.ts/tenantUser.server";
 import { GetTenant } from "~/middleware/tenant";
 import { UserController } from "~/controllers.ts/user.server";
 
@@ -48,11 +48,11 @@ export const action: ActionFunction = async ({ request, params }) => {
     throw new Error(`Could not find user: ${user}`);
   }
 
-  const tenantUserController = new TenantUserController(tenant);
-  const admin = await tenantUserController.getAdmin();
+  const tenantUserController = new ModeratorController(tenant);
+  const moderator = await tenantUserController.getModerator();
   const actionController = new ActionController(tenant);
   await actionController.updateStatus(
-    admin,
+    moderator,
     status,
     reasonId,
     reasonInformation,
@@ -69,7 +69,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     const actionController = new ActionController(tenant);
 
     await actionController.updateMessagesStatus(
-      admin,
+      moderator,
       status,
       reasonId,
       userId,

@@ -1,9 +1,15 @@
 import { BaseTenantController } from "./baseController.server";
 
-export class TenantUserController extends BaseTenantController {
-  async getAdmin() {
-    return this.db.admin.findFirstOrThrow({
-      include: { tenant: true },
+export class ModeratorController extends BaseTenantController {
+  async getModerator() {
+    return this.db.moderator.findFirstOrThrow({
+      include: {
+        roles: {
+          include: {
+            tenant: true,
+          },
+        },
+      },
     });
   }
 }

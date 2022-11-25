@@ -10,7 +10,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   const selectedThreads = formData.get("threads")?.toString() ?? "";
   const selectedStatuses = formData.get("statuses")?.toString() ?? "";
   const filterController = new FilterController(tenant);
-  const filter = await filterController.setAdminFilters(
+  const filter = await filterController.setmoderatorFilters(
     selectedProjects,
     selectedThreads,
     selectedStatuses

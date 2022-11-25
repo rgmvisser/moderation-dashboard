@@ -10,40 +10,41 @@ export type Filter = {
 export type FilterInfo = { id: string; name: string }[];
 
 export class FilterController extends BaseTenantController {
-  async setAdminFilters(
+  async setmoderatorFilters(
     selectedProjects: string | null,
     selectedThreads: string | null,
     selectedStatuses: string | null
   ) {
-    const admin = await this.db.admin.findFirstOrThrow();
-    let adminFilter = await this.db.adminFilters.findUnique({
-      where: { adminId: admin.id },
+    // TODO do this with the actual logged in user
+    const moderator = await this.db.moderator.findFirstOrThrow();
+    let moderatorFilter = await this.db.moderatorFilters.findUnique({
+      where: { moderatorId: moderator.id },
     });
     if (
       selectedProjects != null ||
       selectedThreads != null ||
       selectedStatuses != null
     ) {
-      if (adminFilter) {
+      if (moderatorFilter) {
         if (
-          adminFilter.projects != selectedProjects ||
-          adminFilter.threads != selectedThreads ||
-          adminFilter.statuses != selectedStatuses
+          moderatorFilter.projects != selectedProjects ||
+          moderatorFilter.threads != selectedThreads ||
+          moderatorFilter.statuses != selectedStatuses
         ) {
-          adminFilter = await this.db.adminFilters.update({
-            where: { id: adminFilter.id },
+          moderatorFilter = await this.db.moderatorFilters.update({
+            where: { id: moderatorFilter.id },
             data: {
-              projects: selectedProjects ?? adminFilter.projects,
-              threads: selectedThreads ?? adminFilter.threads,
-              statuses: selectedStatuses ?? adminFilter.statuses,
+              projects: selectedProjects ?? moderatorFilter.projects,
+              threads: selectedThreads ?? moderatorFilter.threads,
+              statuses: selectedStatuses ?? moderatorFilter.statuses,
             },
           });
         }
       } else {
-        adminFilter = await this.db.adminFilters.create({
+        moderatorFilter = await this.db.moderatorFilters.create({
           data: {
             tenantId: this.tenant.id,
-            adminId: admin.id,
+            moderatorId: moderator.id,
             projects: selectedProjects ?? "",
             threads: selectedThreads ?? "",
             statuses: selectedStatuses ?? "",
@@ -53,23 +54,26 @@ export class FilterController extends BaseTenantController {
     }
   }
 
-  async getAdminFilter(): Promise<Filter> {
-    const admin = await this.db.admin.findFirstOrThrow();
-    let adminFilter = await this.db.adminFilters.findUnique({
-      where: { adminId: admin.id },
+  async getModeratorFilter(): Promise<Filter> {
+    // TODO do this with the actual logged in user
+    const moderator = await this.db.moderator.findFirstOrThrow();
+    let moderatorFilter = await this.db.moderatorFilters.findUnique({
+      where: { moderatorId: moderator.id },
     });
-    if (adminFilter) {
+    if (moderatorFilter) {
       return {
         // make sure that "" => [] instead of [""]
         projects:
-          adminFilter.projects.length > 0
-            ? adminFilter.projects.split(",")
+          moderatorFilter.projects.length > 0
+            ? moderatorFilter.projects.split(",")
             : [],
         threads:
-          adminFilter.threads.length > 0 ? adminFilter.threads.split(",") : [],
+          moderatorFilter.threads.length > 0
+            ? moderatorFilter.threads.split(",")
+            : [],
         statuses:
-          adminFilter.statuses.length > 0
-            ? adminFilter.statuses.split(",")
+          moderatorFilter.statuses.length > 0
+            ? moderatorFilter.statuses.split(",")
             : [],
       };
     }

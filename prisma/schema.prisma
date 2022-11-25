@@ -25,9 +25,9 @@ model Tenant {
   name String
   slug String @unique
 
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  Admin         Admin[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   User          User[]
   Message       Message[]
   Project       Project[]
@@ -35,19 +35,37 @@ model Tenant {
   StatusReasons StatusReasons[]
   Action        Action[]
   Thread        Thread[]
-  AdminFilters  AdminFilters[]
+
+  ModeratorFilters ModeratorFilters[]
+  TenantRole       TenantRole[]
 }
 
-model Admin {
-  id           String        @id @default(cuid())
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  name         String
-  avatar       String?
-  AdminFilters AdminFilters?
-  Action       Action[]
-  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  tenantId     String
+enum Role {
+  admin
+  moderator
+}
+
+model TenantRole {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  role      Role
+
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId    String
+  Moderator   Moderator @relation(fields: [moderatorId], references: [id])
+  moderatorId String
+}
+
+model Moderator {
+  id               String            @id @default(cuid())
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  name             String
+  avatar           String?
+  ModeratorFilters ModeratorFilters?
+  Action           Action[]
+  roles            TenantRole[]
 }
 
 model User {
@@ -123,7 +141,7 @@ model Thread {
   tenantId String
 }
 
-model AdminFilters {
+model ModeratorFilters {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -131,10 +149,10 @@ model AdminFilters {
   threads   String
   statuses  String
 
-  admin    Admin  @relation(fields: [adminId], references: [id], onDelete: Cascade)
-  adminId  String @unique
-  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  tenantId String
+  moderator   Moderator @relation(fields: [moderatorId], references: [id], onDelete: Cascade)
+  moderatorId String    @unique
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId    String
 }
 
 model Reason {
@@ -170,12 +188,12 @@ model Action {
   info      Json       @default("{}")
   type      ActionType
 
-  tenant            Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant            Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   tenantId          String
-  reason            Reason  @relation(fields: [reasonId], references: [id], onDelete: Cascade)
+  reason            Reason     @relation(fields: [reasonId], references: [id], onDelete: Cascade)
   reasonId          String
   reasonInformation String?
-  takenBy           Admin?  @relation(fields: [takenById], references: [id], onDelete: Cascade)
+  takenBy           Moderator? @relation(fields: [takenById], references: [id], onDelete: Cascade)
   takenById         String?
 
   message   Message? @relation(fields: [messageId], references: [id], onDelete: Cascade)

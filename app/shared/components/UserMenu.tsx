@@ -17,14 +17,16 @@ export default function UserMenu() {
     <Menu shadow="md" width={250} position="bottom-end" offset={8}>
       <Menu.Target>
         <div className="group mr-4 flex flex-row items-center gap-2 hover:cursor-pointer">
-          <div className="text-md font-semibold">{appContext.admin?.name}</div>
+          <div className="text-md font-semibold">
+            {appContext.moderator?.name}
+          </div>
           <div className="h-8 w-8 overflow-clip rounded-full bg-main transition-all ease-in group-hover:outline group-hover:ring-1 group-hover:ring-main">
-            {appContext.admin?.avatar ? (
+            {appContext.moderator?.avatar ? (
               <img
                 width="100%"
                 height="100%"
-                src={appContext.admin.avatar}
-                alt={`${appContext.admin?.name}'s avatar`}
+                src={appContext.moderator.avatar}
+                alt={`${appContext.moderator?.name}'s avatar`}
               />
             ) : (
               <UserIcon className="m-1  text-white" />

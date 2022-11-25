@@ -7,7 +7,7 @@ import { validationError } from "remix-validated-form";
 import { ActionController } from "~/controllers.ts/action.server";
 import { Status } from "@prisma/client";
 
-import { TenantUserController } from "~/controllers.ts/tenantUser.server";
+import { ModeratorController } from "~/controllers.ts/tenantUser.server";
 import { GetTenant } from "~/middleware/tenant";
 import { MessageController } from "~/controllers.ts/message.server";
 
@@ -32,11 +32,11 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (!message) {
     throw new Error(`Could not find message: ${messageId}`);
   }
-  const tenantUserController = new TenantUserController(tenant);
-  const admin = await tenantUserController.getAdmin();
+  const tenantUserController = new ModeratorController(tenant);
+  const moderator = await tenantUserController.getModerator();
   const actionController = new ActionController(tenant);
   await actionController.updateStatus(
-    admin,
+    moderator,
     status,
     reasonId,
     reasonInformation,

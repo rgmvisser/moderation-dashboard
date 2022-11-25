@@ -1,7 +1,7 @@
 import type {
   Action,
-  Admin,
   Message,
+  Moderator,
   PrismaPromise,
   Reason,
   Status,
@@ -13,7 +13,7 @@ import { BaseTenantController } from "./baseController.server";
 import { MessageController } from "./message.server";
 
 export type ActionWithReasonAndExecutor = Action & {
-  takenBy: Admin | null;
+  takenBy: Moderator | null;
   reason: Reason;
 };
 
@@ -39,7 +39,7 @@ export class ActionController extends BaseTenantController {
   }
 
   async updateStatus(
-    takenBy: Admin,
+    takenBy: Moderator,
     status: Status,
     reasonId: Reason["id"],
     reasonInformation?: string,
@@ -51,7 +51,7 @@ export class ActionController extends BaseTenantController {
     const updates: PrismaPromise<any>[] = [
       this.db.action.create({
         data: {
-          tenantId: takenBy.tenantId,
+          tenantId: this.tenant.id,
           takenById: takenBy.id,
           messageId: message?.id,
           userId: user?.id,
@@ -83,7 +83,7 @@ export class ActionController extends BaseTenantController {
   }
 
   async updateMessagesStatus(
-    takenBy: Admin,
+    takenBy: Moderator,
     status: Status,
     reasonId: Reason["id"],
     userId: User["id"],

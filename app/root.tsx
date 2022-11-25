@@ -18,7 +18,7 @@ import AppLayout from "./shared/components/AppLayout";
 import { intervalTimer } from "./controllers.ts/timer.server";
 import { AppProvider } from "./shared/contexts/AppContext";
 import { ActionModal } from "./shared/components/ActionModal";
-import { TenantUserController } from "./controllers.ts/tenantUser.server";
+import { ModeratorController } from "./controllers.ts/tenantUser.server";
 import { getGeneralClient } from "./db.server";
 
 export const links: LinksFunction = () => {
@@ -36,13 +36,13 @@ createEmotionCache({ key: "mantine" });
 export async function loader({ request }: LoaderArgs) {
   // TODO: load tenant in another way
   const tenant = await getGeneralClient().tenant.findFirstOrThrow();
-  const tenantUserController = new TenantUserController(tenant);
+  const tenantUserController = new ModeratorController(tenant);
   return json({
     timer: {
       enabled: intervalTimer.enabled,
       speed: intervalTimer.speed,
     },
-    admin: await tenantUserController.getAdmin(),
+    moderator: await tenantUserController.getModerator(),
   });
 }
 
@@ -57,7 +57,7 @@ export default function App() {
           <Links />
         </head>
         <body className="h-full">
-          <AppProvider timer={data.timer} admin={data.admin ?? undefined}>
+          <AppProvider {...data}>
             <Outlet />
           </AppProvider>
           <ScrollRestoration />

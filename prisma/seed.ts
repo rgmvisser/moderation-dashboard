@@ -21,12 +21,17 @@ async function seed() {
     },
   });
 
-  await prisma.admin.create({
+  await prisma.moderator.create({
     data: {
-      tenantId: tenant.id,
       name: "Ruud Visser",
       avatar:
         "https://en.gravatar.com/userimage/61402465/c8cdd02ae2207b22c6582d7716e5e8b0.jpeg",
+      roles: {
+        create: {
+          tenantId: tenant.id,
+          role: "admin",
+        },
+      },
     },
   });
 

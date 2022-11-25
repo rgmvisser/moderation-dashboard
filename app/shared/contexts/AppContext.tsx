@@ -1,4 +1,4 @@
-import type { Admin } from "@prisma/client";
+import type { Moderator } from "@prisma/client";
 import type { ReactNode } from "react";
 import { useContext } from "react";
 import { createContext } from "react";
@@ -9,7 +9,7 @@ type AppContext = {
     speed: number;
   };
 
-  admin?: Admin;
+  moderator?: Moderator;
 };
 
 const defaultState: AppContext = {
@@ -26,9 +26,9 @@ type Props = {
   children: ReactNode;
 } & AppContext;
 
-export const AppProvider = ({ children, timer, admin }: Props) => {
+export const AppProvider = ({ children, timer, moderator }: Props) => {
   return (
-    <appContext.Provider value={{ timer, admin }}>
+    <appContext.Provider value={{ timer, moderator }}>
       {children}
     </appContext.Provider>
   );

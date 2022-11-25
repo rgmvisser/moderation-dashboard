@@ -19,10 +19,10 @@ export function startBacklogQueue() {
 
 let lastTime: number;
 async function updateBacklog(time: number) {
-  const admin = await getGeneralClient().admin.findFirstOrThrow({
-    include: { tenant: true },
+  const moderator = await getGeneralClient().moderator.findFirstOrThrow({
+    include: { roles: { include: { tenant: true } } },
   });
-  const tenant = admin.tenant;
+  const tenant = moderator.roles[0].tenant;
   const db = getTenantClient(tenant);
   // console.log("Updating backlog: ", time);
   if (!lastTime) {
@@ -59,7 +59,7 @@ async function updateBacklog(time: number) {
   lastTime = time; // Update time to last fetched
 
   const filterController = new FilterController(tenant);
-  const filter = await filterController.getAdminFilter();
+  const filter = await filterController.getModeratorFilter();
 
   // Create messages and emit them
   for (const bm of backlogMessages) {
