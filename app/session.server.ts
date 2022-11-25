@@ -36,7 +36,7 @@ authenticator.use(
 
     const user = await ModeratorController.FindModerator(email, password);
     if (!user) {
-      throw new Error("Invalid username or password");
+      throw new Error("Invalid email or password");
     }
 
     // And return the user as the Authenticator expects it

@@ -84,10 +84,7 @@ export default function Users() {
     navigate(url);
   }
 
-  const loading = useSpinDelay(transition.state !== "idle", {
-    delay: 200,
-    minDuration: 400,
-  });
+  const loading = useLoadingDelay(transition.state !== "idle");
 
   return (
     <DataTable

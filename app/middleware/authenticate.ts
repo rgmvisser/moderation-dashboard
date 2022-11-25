@@ -21,8 +21,8 @@ export async function AuthenticateModerator(
   request: Request
 ) {
   return authenticator.authenticate(strategy, request, {
+    throwOnError: true,
     successRedirect: DashboardPath(),
-    failureRedirect: LoginPath(),
   });
 }
 
