@@ -11,16 +11,16 @@ const nameConfig: Config = {
 const prisma = new PrismaClient();
 
 async function seed() {
-  await prisma.tenant.deleteMany(); // Everything should cascade
-  await prisma.backlogMessage.deleteMany();
+  // await prisma.tenant.deleteMany(); // Everything should cascade
+  // await prisma.backlogMessage.deleteMany();
 
-  const tenant = await prisma.tenant.create({
-    data: {
-      name: "Woov",
-      slug: "woov",
-    },
-  });
-
+  // const tenant = await prisma.tenant.create({
+  //   data: {
+  //     name: "Woov",
+  //     slug: "woov",
+  //   },
+  // });
+  const tenant = await prisma.tenant.findFirstOrThrow();
   await prisma.moderator.create({
     data: {
       name: "Ruud Visser",
@@ -34,6 +34,7 @@ async function seed() {
       },
     },
   });
+  return;
 
   // Created reasons per status
   await prisma.reason.createMany({

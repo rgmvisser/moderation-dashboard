@@ -37,7 +37,7 @@ model Tenant {
   Thread        Thread[]
 
   ModeratorFilters ModeratorFilters[]
-  TenantRole       TenantRole[]
+  ModeratorRole    ModeratorRole[]
 }
 
 enum Role {
@@ -45,7 +45,7 @@ enum Role {
   moderator
 }
 
-model TenantRole {
+model ModeratorRole {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -65,7 +65,7 @@ model Moderator {
   avatar           String?
   ModeratorFilters ModeratorFilters?
   Action           Action[]
-  roles            TenantRole[]
+  roles            ModeratorRole[]
 }
 
 model User {

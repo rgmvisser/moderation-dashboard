@@ -24,7 +24,6 @@ import {
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const tenant = useTenantContext();
-  console.log(tenant);
   const tenantSlug = tenant.tenantSlug;
   return (
     <AppShell

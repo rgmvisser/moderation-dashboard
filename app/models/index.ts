@@ -1,1 +1,1 @@
-export const ModelsWithoutTenant = ["Tenant", "BacklogMessage"];
+export const ModelsWithoutTenant = ["Tenant", "BacklogMessage", "Moderator"];

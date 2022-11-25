@@ -50,7 +50,7 @@ export function ActionModal() {
       >
         <fetcher.Form
           method="post"
-          action={`${tenantContext.tenantSlug}/actions/${type}`}
+          action={`/${tenantContext.tenantSlug}/actions/${type}`}
           ref={formRef}
         >
           <div className="flex flex-col gap-2">
