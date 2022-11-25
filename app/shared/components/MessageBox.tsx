@@ -36,7 +36,7 @@ export default function MessageBox({
       <div className="flex flex-shrink-0 flex-grow-0 items-center justify-start gap-2 self-stretch">
         {showUser ? (
           <Link
-            to={UserPath(tenantContext.tenantSlug, user.id)}
+            to={UserPath(tenantContext.tenant.slug, user.id)}
             className="flex-auto "
           >
             <div className="flex  items-center gap-2 hover:cursor-pointer hover:underline">
@@ -54,7 +54,7 @@ export default function MessageBox({
         )}
         <ProjectBadge projectName={project.name} threadName={thread.name} />
       </div>
-      <Link to={MessagePath(tenantContext.tenantSlug, user.id, messsage.id)}>
+      <Link to={MessagePath(tenantContext.tenant.slug, user.id, messsage.id)}>
         <div className="flex flex-col gap-1">
           <div className="flex flex-col items-start justify-center self-stretch">
             <p

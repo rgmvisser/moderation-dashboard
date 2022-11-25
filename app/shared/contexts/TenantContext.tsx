@@ -1,15 +1,16 @@
+import type { Tenant } from "@prisma/client";
 import type { ReactNode } from "react";
 import { useContext } from "react";
 import { createContext } from "react";
 import type { ReasonsForStatus } from "~/models/reason";
 
 type TenantContext = {
-  tenantSlug: string;
+  tenant: Tenant;
   reasons: ReasonsForStatus;
 };
 
 const defaultState: TenantContext = {
-  tenantSlug: "",
+  tenant: {} as Tenant,
   reasons: {
     allowed: [],
     flagged: [],
@@ -24,9 +25,9 @@ type Props = {
   children: ReactNode;
 } & TenantContext;
 
-export const TenantProvider = ({ children, reasons, tenantSlug }: Props) => {
+export const TenantProvider = ({ children, ...rest }: Props) => {
   return (
-    <tenantContext.Provider value={{ reasons, tenantSlug }}>
+    <tenantContext.Provider value={{ ...rest }}>
       {children}
     </tenantContext.Provider>
   );

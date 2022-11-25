@@ -19,7 +19,7 @@ export async function loader({ request, params }: LoaderArgs) {
   const reasonController = new ReasonController(tenant);
   const reasons = await reasonController.getStatusReasons();
   return json({
-    tenantSlug: tenant.slug,
+    tenant: tenant,
     reasons: reasons,
   });
 }

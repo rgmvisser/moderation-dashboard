@@ -7,10 +7,10 @@ import { PercentageBadge, StatusBadge } from "~/shared/components/CMBadge";
 import { GetDateFormatted } from "~/shared/utils.tsx/date";
 import { useNavigate, useTransition } from "@remix-run/react";
 import { numericString } from "~/shared/utils.tsx/validate";
-import { useSpinDelay } from "spin-delay";
 import { GetTenant } from "~/middleware/tenant";
 import { MessageController } from "~/controllers.ts/message.server";
 import { UserController } from "~/controllers.ts/user.server";
+import { useLoadingDelay } from "~/shared/hooks/useLoadingDelay";
 
 export const validator = withZod(
   z.object({
@@ -84,7 +84,7 @@ export default function Users() {
     navigate(url);
   }
 
-  const loading = useLoadingDelay(transition.state !== "idle");
+  const loading = useLoadingDelay(transition.state !== "idle", {});
 
   return (
     <DataTable

@@ -6,7 +6,7 @@ import {
   MagnifyingGlassIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
-import { Link, useNavigate } from "@remix-run/react";
+import { useNavigate } from "@remix-run/react";
 import { useAppContext } from "../contexts/AppContext";
 import { LogoutPath, SettingsPath } from "../utils.tsx/navigation";
 

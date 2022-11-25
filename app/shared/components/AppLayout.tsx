@@ -23,8 +23,8 @@ import {
 } from "../utils.tsx/navigation";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
-  const tenant = useTenantContext();
-  const tenantSlug = tenant.tenantSlug;
+  const tenantContext = useTenantContext();
+  const tenantSlug = tenantContext.tenant.slug;
   return (
     <AppShell
       padding={0}
@@ -81,7 +81,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       header={
         <Header height={60} p="md">
           <div className="flex items-center justify-between">
-            <Logo />
+            <Logo
+              logoURL="https://global-uploads.webflow.com/612e0e79f82694f1de746286/6135e40cd050652fcb9a3a49_Logo%20Woov.svg"
+              name={tenantContext.tenant.name}
+            />
             <UserMenu />
           </div>
         </Header>
