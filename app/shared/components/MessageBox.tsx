@@ -5,6 +5,7 @@ import { ProjectBadge } from "./CMBadge";
 import { GetDateFormatted, GetDateFromNow } from "../utils.tsx/date";
 import { Link } from "react-router-dom";
 import { MessagePath, UserPath } from "../utils.tsx/navigation";
+import { useTenantContext } from "../contexts/TenantContext";
 
 type Props = {
   messsage: Message;
@@ -27,14 +28,17 @@ export default function MessageBox({
     ? "bg-slate-100"
     : BGColorFromStatus(messsage.status);
   const userStatusBG = ButtonColorFromStatus(user.status);
-
+  const tenantContext = useTenantContext();
   return (
     <li
       className={`flex w-full flex-col items-start justify-start gap-1 border-t-0 border-r-0 border-b border-l-0 border-main p-3 ${background} hover:bg-slate-50`}
     >
       <div className="flex flex-shrink-0 flex-grow-0 items-center justify-start gap-2 self-stretch">
         {showUser ? (
-          <Link to={UserPath(user.id)} className="flex-auto ">
+          <Link
+            to={UserPath(tenantContext.tenantSlug, user.id)}
+            className="flex-auto "
+          >
             <div className="flex  items-center gap-2 hover:cursor-pointer hover:underline">
               <div className="relative h-5 w-5 overflow-hidden rounded-full bg-main" />
               <p className="flex-full text-left text-base font-semibold text-black">
@@ -50,7 +54,7 @@ export default function MessageBox({
         )}
         <ProjectBadge projectName={project.name} threadName={thread.name} />
       </div>
-      <Link to={MessagePath(user.id, messsage.id)}>
+      <Link to={MessagePath(tenantContext.tenantSlug, user.id, messsage.id)}>
         <div className="flex flex-col gap-1">
           <div className="flex flex-col items-start justify-center self-stretch">
             <p

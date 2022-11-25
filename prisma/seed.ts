@@ -2,6 +2,7 @@ import { PrismaClient, SignInMethod, Status } from "@prisma/client";
 import randomSentence from "random-sentence";
 import type { Config } from "unique-names-generator";
 import { uniqueNamesGenerator, names } from "unique-names-generator";
+import { ModelsWithoutTenant } from "~/models";
 
 const nameConfig: Config = {
   dictionaries: [names],
@@ -10,15 +11,19 @@ const nameConfig: Config = {
 const prisma = new PrismaClient();
 
 async function seed() {
-  await prisma.user.deleteMany(); // Messages get cascaded
+  await prisma.tenant.deleteMany(); // Everything should cascade
   await prisma.backlogMessage.deleteMany();
-  await prisma.project.deleteMany();
-  await prisma.thread.deleteMany();
-  await prisma.admin.deleteMany();
-  await prisma.reason.deleteMany();
+
+  const tenant = await prisma.tenant.create({
+    data: {
+      name: "Woov",
+      slug: "woov",
+    },
+  });
 
   await prisma.admin.create({
     data: {
+      tenantId: tenant.id,
       name: "Ruud Visser",
       avatar:
         "https://en.gravatar.com/userimage/61402465/c8cdd02ae2207b22c6582d7716e5e8b0.jpeg",
@@ -28,10 +33,10 @@ async function seed() {
   // Created reasons per status
   await prisma.reason.createMany({
     data: [
-      { name: "Allowed" },
-      { name: "Off-topic" },
-      { name: "Inappropriate" },
-      { name: "Other" },
+      { tenantId: tenant.id, name: "Allowed" },
+      { tenantId: tenant.id, name: "Off-topic" },
+      { tenantId: tenant.id, name: "Inappropriate" },
+      { tenantId: tenant.id, name: "Other" },
     ],
   });
   const reasons = await prisma.reason.findMany();
@@ -40,25 +45,29 @@ async function seed() {
       data: {
         status: Status.flagged,
         reason: { connect: { id: reason.id } },
+        tenant: { connect: { id: tenant.id } },
       },
     });
     await prisma.statusReasons.create({
       data: {
         status: Status.hidden,
         reason: { connect: { id: reason.id } },
+        tenant: { connect: { id: tenant.id } },
       },
     });
   }
   await prisma.statusReasons.create({
     data: {
       status: Status.allowed,
-      reason: { create: { name: "Inaccurate flag" } },
+      reason: { create: { tenantId: tenant.id, name: "Inaccurate flag" } },
+      tenant: { connect: { id: tenant.id } },
     },
   });
   await prisma.statusReasons.create({
     data: {
       status: Status.allowed,
-      reason: { create: { name: "Inaccurate hide" } },
+      reason: { create: { tenantId: tenant.id, name: "Inaccurate hide" } },
+      tenant: { connect: { id: tenant.id } },
     },
   });
 
@@ -99,6 +108,7 @@ async function seed() {
   await prisma.project.createMany({
     data: projects.map((project) => {
       return {
+        tenantId: tenant.id,
         name: project,
       };
     }),
@@ -110,6 +120,7 @@ async function seed() {
   await prisma.thread.createMany({
     data: threads.map((thread) => {
       return {
+        tenantId: tenant.id,
         name: thread,
       };
     }),
@@ -121,6 +132,7 @@ async function seed() {
   await prisma.user.createMany({
     data: Array.from(Array(numUsers).keys()).map((num) => {
       return {
+        tenantId: tenant.id,
         name: uniqueNamesGenerator(nameConfig),
         location: sample(locations),
         signInMethod: sample(signInMethods),
@@ -149,7 +161,7 @@ async function seed() {
     randomTimes.push(timeMiliseconds);
   }
 
-  // Create messages
+  // Create backlog messages
   await prisma.backlogMessage.createMany({
     data: Array.from(Array(numMessages).keys()).map((num) => {
       return {

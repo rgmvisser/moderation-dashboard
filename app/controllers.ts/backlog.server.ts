@@ -1,8 +1,9 @@
-import { json } from "remix-supertyped";
 import { ioServer } from "server";
-import { db } from "~/db.server";
-import { GetAdminFilter, GetFilterInfo } from "~/models/filter.server";
-import { getMessage, MessageWithInfo } from "~/models/message.server";
+import { getTenantClient, getGeneralClient } from "~/db.server";
+import { GetAdminFilter } from "~/models/filter.server";
+import type { MessageWithInfo } from "~/models/message.server";
+import { getMessage } from "~/models/message.server";
+import { GetAdmin } from "./tenantUser.server";
 import { intervalTimer } from "./timer.server";
 
 export function startBacklogQueue() {
@@ -18,10 +19,12 @@ export function startBacklogQueue() {
 
 let lastTime: number;
 async function updateBacklog(time: number) {
+  const admin = await GetAdmin();
+  const tenant = admin.tenant;
   // console.log("Updating backlog: ", time);
   if (!lastTime) {
     // Find the last message so we can continue from there on server restart
-    const lastMessage = await db.message.findFirst({
+    const lastMessage = await getTenantClient(tenant).message.findFirst({
       orderBy: {
         createdAt: "desc",
       },
@@ -38,7 +41,7 @@ async function updateBacklog(time: number) {
   // console.log("New time: ", time);
 
   // Move backlog messages to messages
-  const backlogMessages = await db.backlogMessage.findMany({
+  const backlogMessages = await getGeneralClient().backlogMessage.findMany({
     where: {
       millisecondsAfterStart: {
         gt: lastTime,
@@ -52,20 +55,22 @@ async function updateBacklog(time: number) {
   console.log("Found backlog messages:", backlogMessages.length);
   lastTime = time; // Update time to last fetched
 
-  const filter = await GetAdminFilter();
+  const filter = await GetAdminFilter(tenant);
 
   // Create messages and emit them
   for (const bm of backlogMessages) {
     const data = {
       ...bm,
+      tenantId: tenant.id,
       id: undefined,
       createdAt: undefined,
       updateAt: undefined,
     };
-    const createdMessage = await db.message.create({
+    const createdMessage = await getTenantClient(tenant).message.create({
       data: data,
     });
     const m: MessageWithInfo | null = await getMessage(
+      tenant,
       createdMessage.id,
       filter
     );

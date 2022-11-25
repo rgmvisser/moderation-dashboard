@@ -5,9 +5,10 @@ import { json } from "remix-supertyped";
 import { withZod } from "@remix-validated-form/with-zod";
 import { validationError } from "remix-validated-form";
 import { UpdateStatus } from "~/controllers.ts/action.server";
-import { db } from "~/db.server";
 import { Status } from "@prisma/client";
 import { getMessage } from "~/models/message.server";
+import { GetAdmin } from "~/controllers.ts/tenantUser.server";
+import { GetTenant } from "~/middleware/tenant";
 
 export const validator = withZod(
   z.object({
@@ -18,18 +19,26 @@ export const validator = withZod(
   })
 );
 
-export const action: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ request, params }) => {
+  const tenant = await GetTenant(params);
   const res = await validator.validate(await request.formData());
   if (res.error) {
     return validationError(res.error);
   }
   const { messageId, reasonId, reasonInformation, status } = res.data;
-  const message = await getMessage(messageId);
+  const message = await getMessage(tenant, messageId);
   if (!message) {
     throw new Error(`Could not find message: ${messageId}`);
   }
-  const admin = await db.admin.findFirstOrThrow();
-  await UpdateStatus(admin, status, reasonId, reasonInformation, message);
-  const newMessage = await getMessage(messageId);
+  const admin = await GetAdmin();
+  await UpdateStatus(
+    tenant,
+    admin,
+    status,
+    reasonId,
+    reasonInformation,
+    message
+  );
+  const newMessage = await getMessage(tenant, messageId);
   return json({ message: newMessage });
 };

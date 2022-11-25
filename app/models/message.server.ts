@@ -1,6 +1,7 @@
-import { Message, Project, Status, Thread, User } from "@prisma/client";
-import { db } from "~/db.server";
-import { Filter } from "./filter.server";
+import type { Message, Project, Tenant, Thread, User } from "@prisma/client";
+import { Status } from "@prisma/client";
+import { getTenantClient } from "~/db.server";
+import type { Filter } from "./filter.server";
 
 export type MessageWithInfo = Message & {
   user: User;
@@ -14,8 +15,8 @@ const messageInclude = {
   thread: true,
 };
 
-export async function getUserMessages(id: User["id"]) {
-  return db.message.findMany({
+export async function getUserMessages(tenant: Tenant, id: User["id"]) {
+  return getTenantClient(tenant).message.findMany({
     where: { userId: id },
     take: 30,
     include: messageInclude,
@@ -25,15 +26,19 @@ export async function getUserMessages(id: User["id"]) {
   });
 }
 
-export async function getMessage(id: Message["id"], filter?: Filter) {
-  return db.message.findFirst({
+export async function getMessage(
+  tenant: Tenant,
+  id: Message["id"],
+  filter?: Filter
+) {
+  return getTenantClient(tenant).message.findFirst({
     where: { id: id, ...GetFiltersObjects(filter) },
     include: messageInclude,
   });
 }
 
-export async function getUserMessagesStats(id: User["id"]) {
-  const grouping = await db.message.groupBy({
+export async function getUserMessagesStats(tenant: Tenant, id: User["id"]) {
+  const grouping = await getTenantClient(tenant).message.groupBy({
     where: {
       userId: id,
     },
@@ -42,7 +47,7 @@ export async function getUserMessagesStats(id: User["id"]) {
       _all: true,
     },
   });
-  const total = await db.message.count({
+  const total = await getTenantClient(tenant).message.count({
     where: {
       userId: id,
     },
@@ -63,8 +68,10 @@ export async function getUserMessagesStats(id: User["id"]) {
   return counts;
 }
 
-export async function getMessages(filter?: Filter) {
-  const messages: MessageWithInfo[] = await db.message.findMany({
+export async function getMessages(tenant: Tenant, filter?: Filter) {
+  const messages: MessageWithInfo[] = await getTenantClient(
+    tenant
+  ).message.findMany({
     where: {
       ...GetFiltersObjects(filter),
     },

@@ -9,19 +9,21 @@ import { json, useLoaderData } from "remix-supertyped";
 import { MessageContents } from "~/shared/components/MessageContents";
 import { GetMessageActions } from "~/controllers.ts/action.server";
 import { ActionContainer } from "~/shared/components/ActionContainer";
+import { GetTenant } from "~/middleware/tenant";
 
 export async function loader({ request, params }: LoaderArgs) {
+  const tenant = await GetTenant(params);
   const userId = params["userId"] ?? "";
-  const user = await getUserById(userId);
+  const user = await getUserById(tenant, userId);
   if (!user) {
     throw new Error(`Could nog find user:  ${userId}`);
   }
   const messageId = params["messageId"] ?? "";
-  const message = await getMessage(messageId);
+  const message = await getMessage(tenant, messageId);
   if (!message) {
     throw new Error(`Could nog find message:  ${messageId}`);
   }
-  const actions = await GetMessageActions(messageId);
+  const actions = await GetMessageActions(tenant, messageId);
   return json({ user, message, actions });
 }
 

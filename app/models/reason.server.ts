@@ -1,10 +1,10 @@
-import type { Reason, Status } from "@prisma/client";
-import { db } from "~/db.server";
+import type { Reason, Status, Tenant } from "@prisma/client";
+import { getTenantClient } from "~/db.server";
 
 export type ReasonsForStatus = Record<Status, Reason[]>;
 
-export async function GetStatusReasons() {
-  const statusReasons = await db.statusReasons.findMany({
+export async function GetStatusReasons(tetant: Tenant) {
+  const statusReasons = await getTenantClient(tetant).statusReasons.findMany({
     include: {
       reason: true,
     },

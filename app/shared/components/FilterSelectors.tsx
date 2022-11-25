@@ -2,6 +2,7 @@ import { MultiSelect } from "@mantine/core";
 import { useFetcher } from "@remix-run/react";
 import { useRef } from "react";
 import type { Filter, FilterInfo } from "~/models/filter.server";
+import { useTenantContext } from "../contexts/TenantContext";
 import { CapitalizeFirst } from "../utils.tsx/strings";
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export const Selectors = ({ statuses, projects, threads, filter }: Props) => {
+  const tenantContext = useTenantContext();
   const filterFetcher = useFetcher();
   const projectData = GetFormData(projects);
   const threadData = GetFormData(threads);
@@ -29,7 +31,7 @@ export const Selectors = ({ statuses, projects, threads, filter }: Props) => {
     <filterFetcher.Form
       method="post"
       ref={formRef}
-      action="/settings/filter"
+      action={`${tenantContext}/settings/filter`}
       reloadDocument
       className="w-full"
     >

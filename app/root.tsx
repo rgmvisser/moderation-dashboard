@@ -14,17 +14,11 @@ import { MantineProvider, createEmotionCache } from "@mantine/core";
 import { StylesPlaceholder } from "@mantine/remix";
 import tailwindStylesheetUrl from "./styles/tailwind.css";
 import AppLayout from "./shared/components/AppLayout";
-import { SocketProvider } from "./shared/contexts/SocketContext";
-import type { Socket } from "socket.io-client";
-import { io } from "socket.io-client";
-import { useEffect, useState } from "react";
 
 import { intervalTimer } from "./controllers.ts/timer.server";
 import { AppProvider } from "./shared/contexts/AppContext";
 import { ActionModal } from "./shared/components/ActionModal";
-import { ModalProvider } from "./shared/contexts/ModalContext";
-import { GetStatusReasons } from "./models/reason.server";
-import { GetAdmin } from "./models/admin.server";
+import { GetAdmin } from "./controllers.ts/tenantUser.server";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
@@ -39,13 +33,11 @@ export const meta: MetaFunction = () => ({
 createEmotionCache({ key: "mantine" });
 
 export async function loader({ request }: LoaderArgs) {
-  const reasons = await GetStatusReasons();
   return json({
     timer: {
       enabled: intervalTimer.enabled,
       speed: intervalTimer.speed,
     },
-    reasons: reasons,
     admin: await GetAdmin(),
     // user: await getUser(request),
   });
@@ -53,22 +45,6 @@ export async function loader({ request }: LoaderArgs) {
 
 export default function App() {
   const data = useLoaderData<typeof loader>();
-  const [socket, setSocket] = useState<Socket>();
-  useEffect(() => {
-    const socket = io();
-    setSocket(socket);
-    return () => {
-      socket.close();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!socket) return;
-    socket.on("confirmation", (data: any) => {
-      console.log(data);
-    });
-  }, [socket]);
-
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS>
       <html lang="en" className="h-full">
@@ -78,19 +54,8 @@ export default function App() {
           <Links />
         </head>
         <body className="h-full">
-          <AppProvider
-            timer={data.timer}
-            reasons={data.reasons}
-            admin={data.admin ?? undefined}
-          >
-            <SocketProvider socket={socket}>
-              <ModalProvider>
-                <AppLayout>
-                  <Outlet />
-                  <ActionModal />
-                </AppLayout>
-              </ModalProvider>
-            </SocketProvider>
+          <AppProvider timer={data.timer} admin={data.admin ?? undefined}>
+            <Outlet />
           </AppProvider>
           <ScrollRestoration />
           <Scripts />

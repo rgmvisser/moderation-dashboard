@@ -1,10 +1,12 @@
+import type { Tenant } from "@prisma/client";
 import { PrismaClient } from "@prisma/client";
 import invariant from "tiny-invariant";
+import { ModelsWithoutTenant } from "./models";
 
-let db: PrismaClient;
+let tenantDBs: Record<string, PrismaClient> = {};
 
 declare global {
-  var __db__: PrismaClient;
+  var __tenantDBs__: Record<string, PrismaClient>;
 }
 
 // this is needed because in development we don't want to restart
@@ -12,15 +14,30 @@ declare global {
 // create a new connection to the DB with every change either.
 // in production we'll have a single connection to the DB.
 if (process.env.NODE_ENV === "production") {
-  db = getClient();
+  getGeneralClient();
 } else {
-  if (!global.__db__) {
-    global.__db__ = getClient();
+  if (!global.__tenantDBs__) {
+    getGeneralClient();
+    global.__tenantDBs__ = tenantDBs;
   }
-  db = global.__db__;
+  tenantDBs = global.__tenantDBs__;
 }
 
-function getClient() {
+function getTenantClient(tenant: Tenant) {
+  if (!tenantDBs[tenant.id]) {
+    tenantDBs[tenant.id] = getClient(tenant.id);
+  }
+  return tenantDBs[tenant.id];
+}
+
+function getGeneralClient() {
+  if (!tenantDBs.general) {
+    tenantDBs.general = getClient();
+  }
+  return tenantDBs.general;
+}
+
+function getClient(tenantId?: string) {
   const { DATABASE_URL } = process.env;
   invariant(typeof DATABASE_URL === "string", "DATABASE_URL env var not set");
 
@@ -53,10 +70,30 @@ function getClient() {
       },
     },
   });
+  if (tenantId) {
+    client.$use(async (params, next) => {
+      if (params.model && ModelsWithoutTenant.includes(params.model)) {
+        return next(params);
+      }
+      if (["findUnique", "findFirst", "findMany"].includes(params.action)) {
+        if (params.args?.where?.tenantId) {
+          return next(params);
+        } else if (params.args?.where) {
+          params.args.where = { ...params.args.where, tenantId: tenantId };
+        } else if (params.args) {
+          params.args.where = { tenantId: tenantId };
+        } else {
+          params.args = { where: { tenantId: tenantId } };
+        }
+      }
+      return next(params);
+    });
+  }
+
   // connect eagerly
   client.$connect();
 
   return client;
 }
 
-export { db };
+export { getTenantClient, getGeneralClient };

@@ -12,40 +12,61 @@ import {
 } from "@heroicons/react/24/outline";
 import UserMenu from "./UserMenu";
 import Logo from "./Logo";
+import { useTenantContext } from "../contexts/TenantContext";
+import {
+  ActionsPath,
+  ListsPath,
+  QueuePath,
+  ReportsPath,
+  RulesPath,
+  UsersPath,
+} from "../utils.tsx/navigation";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
+  const tenant = useTenantContext();
+  console.log(tenant);
+  const tenantSlug = tenant.tenantSlug;
   return (
     <AppShell
       padding={0}
       navbar={
         <Navbar width={{ base: 200 }} p="md">
           <Navbar.Section>
-            <CMNavLink icon={<ChatBubbleLeftRightIcon />} to={"/messages"}>
+            <CMNavLink
+              icon={<ChatBubbleLeftRightIcon />}
+              to={QueuePath(tenantSlug)}
+            >
               Messages
             </CMNavLink>
           </Navbar.Section>
           <Navbar.Section>
-            <CMNavLink icon={<ClipboardDocumentListIcon />} to={"/rules"}>
+            <CMNavLink
+              icon={<ClipboardDocumentListIcon />}
+              to={RulesPath(tenantSlug)}
+            >
               Rules
             </CMNavLink>
           </Navbar.Section>
           <Navbar.Section>
-            <CMNavLink icon={<ListBulletIcon />} to={"/lists"}>
+            <CMNavLink icon={<ListBulletIcon />} to={ListsPath(tenantSlug)}>
               Lists
             </CMNavLink>
           </Navbar.Section>
           <Navbar.Section>
-            <CMNavLink icon={<UsersIcon />} to={"/users"}>
+            <CMNavLink icon={<UsersIcon />} to={UsersPath(tenantSlug)}>
               Users
             </CMNavLink>
           </Navbar.Section>
           <Navbar.Section>
-            <CMNavLink icon={<MegaphoneIcon />} to={"/reports"}>
+            <CMNavLink icon={<MegaphoneIcon />} to={ReportsPath(tenantSlug)}>
               Reports
             </CMNavLink>
           </Navbar.Section>
           <Navbar.Section>
-            <CMNavLink icon={<ClipboardDocumentCheckIcon />} to={"/actions"}>
+            <CMNavLink
+              icon={<ClipboardDocumentCheckIcon />}
+              to={ActionsPath(tenantSlug)}
+            >
               Actions
             </CMNavLink>
           </Navbar.Section>

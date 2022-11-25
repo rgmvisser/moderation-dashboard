@@ -10,6 +10,7 @@ import { useNavigate, useTransition } from "@remix-run/react";
 import { numericString } from "~/shared/utils.tsx/validate";
 import { useSpinDelay } from "spin-delay";
 import { getUserMessagesStats } from "~/models/message.server";
+import { GetTenant } from "~/middleware/tenant";
 
 export const validator = withZod(
   z.object({
@@ -22,7 +23,8 @@ export const validator = withZod(
   })
 );
 
-export async function loader({ request }: LoaderArgs) {
+export async function loader({ request, params }: LoaderArgs) {
+  const tenant = await GetTenant(params);
   const url = new URL(request.url);
   const res = await validator.validate(url.searchParams);
   if (res.error) {
@@ -30,13 +32,13 @@ export async function loader({ request }: LoaderArgs) {
   }
   const { order, orderBy, perPage } = res.data;
   let page = res.data.page;
-  const allUsersCount = await getAllUsersCount();
+  const allUsersCount = await getAllUsersCount(tenant);
   if (page * perPage > allUsersCount) {
     page = 1;
   }
-  const users = await getUsers({ order, orderBy, page, perPage });
+  const users = await getUsers(tenant, { order, orderBy, page, perPage });
   const userStats = await Promise.all(
-    users.map((u) => getUserMessagesStats(u.id))
+    users.map((u) => getUserMessagesStats(tenant, u.id))
   );
   const usersWithStats = users.map((u, i) => ({ ...u, stats: userStats[i] }));
   return json({

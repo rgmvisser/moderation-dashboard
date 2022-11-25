@@ -115,10 +115,10 @@ export default function Rules() {
             </p>
           </div>
           <div className="relative h-7 w-[229.11px] flex-grow self-stretch overflow-hidden" />
-          <img
+          {/* <img
             src="screen-shot-2022-11-24-at-12.38-2.png"
             className="h-6 w-[19.89px] flex-shrink-0 flex-grow-0 object-cover"
-          />
+          /> */}
           <div className="relative flex flex-shrink-0 flex-grow-0 items-start justify-start gap-1">
             <p className="flex-shrink-0 flex-grow-0 text-left text-lg font-bold text-black">
               v
@@ -454,10 +454,10 @@ export default function Rules() {
               <p className="flex-shrink-0 flex-grow-0 text-center text-lg font-semibold text-black">
                 Terminate if matches this rule
               </p>
-              <img
+              {/* <img
                 src="screen-shot-2022-11-24-at-12.38-2.png"
                 className="h-6 w-[19.89px] flex-shrink-0 flex-grow-0 object-cover"
-              />
+              /> */}
             </div>
             <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start gap-2">
               <div className="relative h-4 w-4 flex-shrink-0 flex-grow-0">

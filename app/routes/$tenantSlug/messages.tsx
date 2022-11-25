@@ -10,12 +10,14 @@ import { Outlet, useParams } from "@remix-run/react";
 import { DashboardContainer } from "~/shared/components/DashboardContainer";
 import { Selectors } from "~/shared/components/FilterSelectors";
 import { GetAdminFilter, GetFilterInfo } from "~/models/filter.server";
+import { GetTenant } from "~/middleware/tenant";
 
-export async function loader({ request }: LoaderArgs) {
-  const filter = await GetAdminFilter();
-  const filterInfo = await GetFilterInfo();
+export async function loader({ request, params }: LoaderArgs) {
+  const tenant = await GetTenant(params);
+  const filter = await GetAdminFilter(tenant);
+  const filterInfo = await GetFilterInfo(tenant);
 
-  const messages = await getMessages(filter);
+  const messages = await getMessages(tenant, filter);
   messages.reverse(); // to make sure the messages are at the bottom
   return json({ messages, filterInfo, filter });
 }

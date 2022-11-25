@@ -9,7 +9,7 @@ type AppContext = {
     enabled: boolean;
     speed: number;
   };
-  reasons: ReasonsForStatus;
+
   admin?: Admin;
 };
 
@@ -17,11 +17,6 @@ const defaultState: AppContext = {
   timer: {
     enabled: true,
     speed: 1,
-  },
-  reasons: {
-    allowed: [],
-    flagged: [],
-    hidden: [],
   },
 };
 
@@ -32,9 +27,9 @@ type Props = {
   children: ReactNode;
 } & AppContext;
 
-export const AppProvider = ({ children, timer, reasons, admin }: Props) => {
+export const AppProvider = ({ children, timer, admin }: Props) => {
   return (
-    <appContext.Provider value={{ timer, reasons, admin }}>
+    <appContext.Provider value={{ timer, admin }}>
       {children}
     </appContext.Provider>
   );

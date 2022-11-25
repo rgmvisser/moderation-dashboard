@@ -81,6 +81,11 @@ app.use(morgan("tiny"));
 const MODE = process.env.NODE_ENV;
 const BUILD_DIR = path.join(process.cwd(), "build");
 
+app.use((req, res, next) => {
+  console.log(req.url);
+  next();
+});
+
 app.all(
   "*",
   MODE === "production"

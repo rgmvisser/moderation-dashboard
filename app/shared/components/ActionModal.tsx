@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Modal, Select, TextInput, Checkbox } from "@mantine/core";
-import { useAppContext } from "../contexts/AppContext";
 import { useModalContex } from "../contexts/ModalContext";
 import {
   ActionTextFromStatus,
@@ -8,9 +7,10 @@ import {
 } from "../utils.tsx/status";
 import { useFetcher } from "@remix-run/react";
 import { CMButton } from "./CMButton";
+import { useTenantContext } from "../contexts/TenantContext";
 
 export function ActionModal() {
-  const appContext = useAppContext();
+  const tenantContext = useTenantContext();
   const { opened, status, message, user, closeModal } = useModalContex();
   const [isLoading, setIsLoading] = useState(false);
   const actionText = ActionTextFromStatus(status);
@@ -48,7 +48,11 @@ export function ActionModal() {
         centered
         size={"lg"}
       >
-        <fetcher.Form method="post" action={`/actions/${type}`} ref={formRef}>
+        <fetcher.Form
+          method="post"
+          action={`${tenantContext.tenantSlug}/actions/${type}`}
+          ref={formRef}
+        >
           <div className="flex flex-col gap-2">
             <input name="status" type="hidden" value={status} readOnly />
             {user && <input name="userId" readOnly value={user.id} hidden />}
@@ -65,7 +69,7 @@ export function ActionModal() {
               name="reasonId"
               label={`Reason for ${actionText}`}
               placeholder={`Select reason for ${activeText}`}
-              data={appContext.reasons[status].map((reason) => ({
+              data={tenantContext.reasons[status].map((reason) => ({
                 label: reason.name,
                 value: reason.id,
               }))}

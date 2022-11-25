@@ -13,16 +13,18 @@ import { Outlet, useParams } from "@remix-run/react";
 import { GetDateFromNow } from "~/shared/utils.tsx/date";
 import { ActionContainer } from "~/shared/components/ActionContainer";
 import { GetUserActions } from "~/controllers.ts/action.server";
+import { GetTenant } from "~/middleware/tenant";
 
 export async function loader({ request, params }: LoaderArgs) {
+  const tenant = await GetTenant(params);
   const userId = params["userId"] ?? "";
-  const user = await getUserById(userId);
+  const user = await getUserById(tenant, userId);
   if (!user) {
     throw new Error(`Could nog find user:  ${userId}`);
   }
-  const messagesStats = await getUserMessagesStats(userId);
-  const messages = await getUserMessages(userId);
-  const actions = await GetUserActions(userId);
+  const messagesStats = await getUserMessagesStats(tenant, userId);
+  const messages = await getUserMessages(tenant, userId);
+  const actions = await GetUserActions(tenant, userId);
   return json({ user, messages, messagesStats, actions });
 }
 

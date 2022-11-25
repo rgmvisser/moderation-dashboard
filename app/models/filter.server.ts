@@ -1,5 +1,5 @@
-import { Status } from "@prisma/client";
-import { db } from "~/db.server";
+import { Status, Tenant } from "@prisma/client";
+import { getTenantClient } from "~/db.server";
 
 export type Filter = {
   projects: string[];
@@ -10,12 +10,13 @@ export type Filter = {
 export type FilterInfo = { id: string; name: string }[];
 
 export async function SetAdminFilters(
+  tenant: Tenant,
   selectedProjects: string | null,
   selectedThreads: string | null,
   selectedStatuses: string | null
 ) {
-  const admin = await db.admin.findFirstOrThrow();
-  let adminFilter = await db.adminFilters.findUnique({
+  const admin = await getTenantClient(tenant).admin.findFirstOrThrow();
+  let adminFilter = await getTenantClient(tenant).adminFilters.findUnique({
     where: { adminId: admin.id },
   });
   if (
@@ -29,7 +30,7 @@ export async function SetAdminFilters(
         adminFilter.threads != selectedThreads ||
         adminFilter.statuses != selectedStatuses
       ) {
-        adminFilter = await db.adminFilters.update({
+        adminFilter = await getTenantClient(tenant).adminFilters.update({
           where: { id: adminFilter.id },
           data: {
             projects: selectedProjects ?? adminFilter.projects,
@@ -39,8 +40,9 @@ export async function SetAdminFilters(
         });
       }
     } else {
-      adminFilter = await db.adminFilters.create({
+      adminFilter = await getTenantClient(tenant).adminFilters.create({
         data: {
+          tenantId: tenant.id,
           adminId: admin.id,
           projects: selectedProjects ?? "",
           threads: selectedThreads ?? "",
@@ -51,9 +53,9 @@ export async function SetAdminFilters(
   }
 }
 
-export async function GetAdminFilter(): Promise<Filter> {
-  const admin = await db.admin.findFirstOrThrow();
-  let adminFilter = await db.adminFilters.findUnique({
+export async function GetAdminFilter(tenant: Tenant): Promise<Filter> {
+  const admin = await getTenantClient(tenant).admin.findFirstOrThrow();
+  let adminFilter = await getTenantClient(tenant).adminFilters.findUnique({
     where: { adminId: admin.id },
   });
   if (adminFilter) {
@@ -74,11 +76,11 @@ export async function GetAdminFilter(): Promise<Filter> {
   };
 }
 
-export async function GetFilterInfo() {
-  const projects = await db.project.findMany({
+export async function GetFilterInfo(tenant: Tenant) {
+  const projects = await getTenantClient(tenant).project.findMany({
     select: { id: true, name: true },
   });
-  const threads = await db.thread.findMany({
+  const threads = await getTenantClient(tenant).thread.findMany({
     select: { id: true, name: true },
   });
 
