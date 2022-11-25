@@ -1,6 +1,6 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json, useLoaderData } from "remix-supertyped";
-import { Outlet, useCatch, useNavigate } from "@remix-run/react";
+import { Outlet } from "@remix-run/react";
 
 import type { Socket } from "socket.io-client";
 import { io } from "socket.io-client";
@@ -9,15 +9,15 @@ import { useEffect, useState } from "react";
 import { GetTenant } from "~/middleware/tenant";
 import { TenantProvider } from "~/shared/contexts/TenantContext";
 import AppLayout from "~/shared/components/AppLayout";
-import { GetStatusReasons } from "~/models/reason.server";
 import { SocketProvider } from "~/shared/contexts/SocketContext";
 import { ModalProvider } from "~/shared/contexts/ModalContext";
 import { ActionModal } from "~/shared/components/ActionModal";
-import { CMError } from "~/models/error";
+import { ReasonController } from "~/controllers.ts/reason.server";
 
 export async function loader({ request, params }: LoaderArgs) {
   const tenant = await GetTenant(params);
-  const reasons = await GetStatusReasons(tenant);
+  const reasonController = new ReasonController(tenant);
+  const reasons = await reasonController.getStatusReasons();
   return json({
     tenantSlug: tenant.slug,
     reasons: reasons,

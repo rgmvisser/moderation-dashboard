@@ -1,7 +1,9 @@
-import { getGeneralClient } from "~/db.server";
+import { BaseTenantController } from "./baseController.server";
 
-export async function GetAdmin() {
-  return getGeneralClient().admin.findFirstOrThrow({
-    include: { tenant: true },
-  });
+export class TenantUserController extends BaseTenantController {
+  async getAdmin() {
+    return this.db.admin.findFirstOrThrow({
+      include: { tenant: true },
+    });
+  }
 }

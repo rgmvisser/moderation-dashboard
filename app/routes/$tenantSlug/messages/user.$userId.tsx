@@ -1,6 +1,4 @@
 import type { LoaderArgs } from "@remix-run/node";
-import { getUserMessages, getUserMessagesStats } from "~/models/message.server";
-import { getUserById } from "~/models/user.server";
 import { ActionButtons } from "~/shared/components/ActionButtons";
 import { StatusBadge } from "~/shared/components/CMBadge";
 import { CMHeader } from "~/shared/components/CMHeader";
@@ -12,19 +10,24 @@ import { json, useLoaderData } from "remix-supertyped";
 import { Outlet, useParams } from "@remix-run/react";
 import { GetDateFromNow } from "~/shared/utils.tsx/date";
 import { ActionContainer } from "~/shared/components/ActionContainer";
-import { GetUserActions } from "~/controllers.ts/action.server";
+import { ActionController } from "~/controllers.ts/action.server";
 import { GetTenant } from "~/middleware/tenant";
+import { MessageController } from "~/controllers.ts/message.server";
+import { UserController } from "~/controllers.ts/user.server";
 
 export async function loader({ request, params }: LoaderArgs) {
   const tenant = await GetTenant(params);
   const userId = params["userId"] ?? "";
-  const user = await getUserById(tenant, userId);
+  const userController = new UserController(tenant);
+  const user = await userController.getUserById(tenant, userId);
   if (!user) {
     throw new Error(`Could nog find user:  ${userId}`);
   }
-  const messagesStats = await getUserMessagesStats(tenant, userId);
-  const messages = await getUserMessages(tenant, userId);
-  const actions = await GetUserActions(tenant, userId);
+  const messageController = new MessageController(tenant);
+  const messagesStats = await messageController.getUserMessagesStats(userId);
+  const messages = await messageController.getUserMessages(userId);
+  const actionController = new ActionController(tenant);
+  const actions = await actionController.getUserActions(userId);
   return json({ user, messages, messagesStats, actions });
 }
 

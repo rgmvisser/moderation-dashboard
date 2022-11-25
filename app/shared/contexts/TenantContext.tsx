@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { useContext } from "react";
 import { createContext } from "react";
-import type { ReasonsForStatus } from "~/models/reason.server";
+import type { ReasonsForStatus } from "~/models/reason";
 
 type TenantContext = {
   tenantSlug: string;

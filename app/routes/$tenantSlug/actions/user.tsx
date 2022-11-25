@@ -5,16 +5,12 @@ import { json } from "remix-supertyped";
 
 import { withZod } from "@remix-validated-form/with-zod";
 import { validationError } from "remix-validated-form";
-import {
-  UpdateMessagesStatus,
-  UpdateStatus,
-} from "~/controllers.ts/action.server";
+import { ActionController } from "~/controllers.ts/action.server";
 
 import { Status } from "@prisma/client";
-import { getUserById } from "~/models/user.server";
-import { getGeneralClient } from "~/db.server";
-import { GetAdmin } from "~/controllers.ts/tenantUser.server";
+import { TenantUserController } from "~/controllers.ts/tenantUser.server";
 import { GetTenant } from "~/middleware/tenant";
+import { UserController } from "~/controllers.ts/user.server";
 
 export const validator = withZod(
   z.object({
@@ -46,14 +42,16 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (flagAllMessages && hideAllMessages) {
     throw new Error("Cannot flag and hide all messages at the same time");
   }
-  const user = await getUserById(tenant, userId);
+  const userController = new UserController(tenant);
+  const user = await userController.getUserById(tenant, userId);
   if (!user) {
     throw new Error(`Could not find user: ${user}`);
   }
 
-  const admin = await GetAdmin();
-  await UpdateStatus(
-    tenant,
+  const tenantUserController = new TenantUserController(tenant);
+  const admin = await tenantUserController.getAdmin();
+  const actionController = new ActionController(tenant);
+  await actionController.updateStatus(
     admin,
     status,
     reasonId,
@@ -61,15 +59,16 @@ export const action: ActionFunction = async ({ request, params }) => {
     undefined,
     user
   );
-  const updatedUser = await getUserById(tenant, userId);
+  const updatedUser = await userController.getUserById(tenant, userId);
   if (allowAllMessages || flagAllMessages || hideAllMessages) {
     const status: Status = allowAllMessages
       ? "allowed"
       : flagAllMessages
       ? "flagged"
       : "hidden";
-    await UpdateMessagesStatus(
-      tenant,
+    const actionController = new ActionController(tenant);
+
+    await actionController.updateMessagesStatus(
       admin,
       status,
       reasonId,

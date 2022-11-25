@@ -1,8 +1,7 @@
-import { Admin } from "@prisma/client";
+import type { Admin } from "@prisma/client";
 import type { ReactNode } from "react";
 import { useContext } from "react";
 import { createContext } from "react";
-import type { ReasonsForStatus } from "~/models/reason.server";
 
 type AppContext = {
   timer: {

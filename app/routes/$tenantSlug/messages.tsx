@@ -1,23 +1,25 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { json, useLoaderData } from "remix-supertyped";
-import type { MessageWithInfo } from "~/models/message.server";
-import { getMessages } from "~/models/message.server";
 import MessageBox from "~/shared/components/MessageBox";
 import { useSocket } from "~/shared/contexts/SocketContext";
 import { JSONParseWithDates } from "~/shared/utils.tsx/json";
 import { Outlet, useParams } from "@remix-run/react";
 import { DashboardContainer } from "~/shared/components/DashboardContainer";
 import { Selectors } from "~/shared/components/FilterSelectors";
-import { GetAdminFilter, GetFilterInfo } from "~/models/filter.server";
+import { FilterController } from "~/controllers.ts/filter.server";
 import { GetTenant } from "~/middleware/tenant";
+import { MessageController } from "~/controllers.ts/message.server";
+import type { MessageWithInfo } from "~/models/message";
+import { AreMessagesEqual } from "~/models/message";
 
 export async function loader({ request, params }: LoaderArgs) {
   const tenant = await GetTenant(params);
-  const filter = await GetAdminFilter(tenant);
-  const filterInfo = await GetFilterInfo(tenant);
-
-  const messages = await getMessages(tenant, filter);
+  const filterController = new FilterController(tenant);
+  const filter = await filterController.getAdminFilter();
+  const filterInfo = await filterController.getFilterInfo();
+  const messageController = new MessageController(tenant);
+  const messages = await messageController.getMessages(filter);
   messages.reverse(); // to make sure the messages are at the bottom
   return json({ messages, filterInfo, filter });
 }
@@ -175,20 +177,4 @@ export default function Messages() {
       <Outlet />
     </div>
   );
-}
-
-function AreMessagesEqual(
-  messages: MessageWithInfo[],
-  messages2: MessageWithInfo[]
-) {
-  if (messages.length !== messages2.length) {
-    return false;
-  }
-
-  for (let i = 0; i < messages.length; i++) {
-    if (messages[i].id !== messages2[i].id) {
-      return false;
-    }
-  }
-  return true;
 }

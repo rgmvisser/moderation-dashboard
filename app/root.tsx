@@ -18,7 +18,8 @@ import AppLayout from "./shared/components/AppLayout";
 import { intervalTimer } from "./controllers.ts/timer.server";
 import { AppProvider } from "./shared/contexts/AppContext";
 import { ActionModal } from "./shared/components/ActionModal";
-import { GetAdmin } from "./controllers.ts/tenantUser.server";
+import { TenantUserController } from "./controllers.ts/tenantUser.server";
+import { getGeneralClient } from "./db.server";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
@@ -33,13 +34,15 @@ export const meta: MetaFunction = () => ({
 createEmotionCache({ key: "mantine" });
 
 export async function loader({ request }: LoaderArgs) {
+  // TODO: load tenant in another way
+  const tenant = await getGeneralClient().tenant.findFirstOrThrow();
+  const tenantUserController = new TenantUserController(tenant);
   return json({
     timer: {
       enabled: intervalTimer.enabled,
       speed: intervalTimer.speed,
     },
-    admin: await GetAdmin(),
-    // user: await getUser(request),
+    admin: await tenantUserController.getAdmin(),
   });
 }
 

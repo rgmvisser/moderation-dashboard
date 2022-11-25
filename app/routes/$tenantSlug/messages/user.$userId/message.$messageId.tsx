@@ -1,29 +1,32 @@
 import type { LoaderArgs } from "@remix-run/node";
-import { getMessage } from "~/models/message.server";
-import { getUserById } from "~/models/user.server";
 import { ActionButtons } from "~/shared/components/ActionButtons";
 import { ProjectBadge, StatusBadge } from "~/shared/components/CMBadge";
 import { CMHeader } from "~/shared/components/CMHeader";
 import { DashboardContainer } from "~/shared/components/DashboardContainer";
 import { json, useLoaderData } from "remix-supertyped";
 import { MessageContents } from "~/shared/components/MessageContents";
-import { GetMessageActions } from "~/controllers.ts/action.server";
+import { ActionController } from "~/controllers.ts/action.server";
 import { ActionContainer } from "~/shared/components/ActionContainer";
 import { GetTenant } from "~/middleware/tenant";
+import { UserController } from "~/controllers.ts/user.server";
+import { MessageController } from "~/controllers.ts/message.server";
 
 export async function loader({ request, params }: LoaderArgs) {
   const tenant = await GetTenant(params);
   const userId = params["userId"] ?? "";
-  const user = await getUserById(tenant, userId);
+  const userController = new UserController(tenant);
+  const user = await userController.getUserById(tenant, userId);
   if (!user) {
     throw new Error(`Could nog find user:  ${userId}`);
   }
   const messageId = params["messageId"] ?? "";
-  const message = await getMessage(tenant, messageId);
+  const messageController = new MessageController(tenant);
+  const message = await messageController.getMessage(messageId);
   if (!message) {
     throw new Error(`Could nog find message:  ${messageId}`);
   }
-  const actions = await GetMessageActions(tenant, messageId);
+  const actionController = new ActionController(tenant);
+  const actions = await actionController.getMessageActions(messageId);
   return json({ user, message, actions });
 }
 

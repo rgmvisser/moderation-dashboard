@@ -1,5 +1,5 @@
 import type { Tenant, User } from "@prisma/client";
-import { getTenantClient } from "~/db.server";
+import { BaseTenantController } from "./baseController.server";
 
 // import type { Password, User } from "@prisma/client";
 // import bcrypt from "bcryptjs";
@@ -8,13 +8,12 @@ import { getTenantClient } from "~/db.server";
 
 // export type { User } from "@prisma/client";
 
-export async function getUserById(tenant: Tenant, id: User["id"]) {
-  return getTenantClient(tenant).user.findUnique({ where: { id } });
-}
+export class UserController extends BaseTenantController {
+  async getUserById(tenant: Tenant, id: User["id"]) {
+    return this.db.user.findUnique({ where: { id } });
+  }
 
-export async function getUsers(
-  tenant: Tenant,
-  {
+  async getUsers({
     page = 1,
     perPage = 20,
     orderBy = "createdAt",
@@ -24,19 +23,18 @@ export async function getUsers(
     perPage?: number;
     orderBy?: keyof User;
     order?: "asc" | "desc";
+  }) {
+    return this.db.user.findMany({
+      skip: (page - 1) * perPage,
+      take: perPage,
+      orderBy: { [orderBy]: order },
+    });
   }
-) {
-  return getTenantClient(tenant).user.findMany({
-    skip: (page - 1) * perPage,
-    take: perPage,
-    orderBy: { [orderBy]: order },
-  });
-}
 
-export async function getAllUsersCount(tenant: Tenant) {
-  return getTenantClient(tenant).user.count();
+  async getAllUsersCount() {
+    return this.db.user.count();
+  }
 }
-
 // export async function getUserByEmail(email: User["email"]) {
 //   return prisma.user.findUnique({ where: { email } });
 // }

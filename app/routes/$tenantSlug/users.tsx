@@ -2,15 +2,15 @@ import type { LoaderArgs } from "@remix-run/node";
 import { z } from "zod";
 import { json, useLoaderData } from "remix-supertyped";
 import { withZod } from "@remix-validated-form/with-zod";
-import { getAllUsersCount, getUsers } from "~/models/user.server";
 import { DataTable } from "mantine-datatable";
 import { PercentageBadge, StatusBadge } from "~/shared/components/CMBadge";
 import { GetDateFormatted } from "~/shared/utils.tsx/date";
 import { useNavigate, useTransition } from "@remix-run/react";
 import { numericString } from "~/shared/utils.tsx/validate";
 import { useSpinDelay } from "spin-delay";
-import { getUserMessagesStats } from "~/models/message.server";
 import { GetTenant } from "~/middleware/tenant";
+import { MessageController } from "~/controllers.ts/message.server";
+import { UserController } from "~/controllers.ts/user.server";
 
 export const validator = withZod(
   z.object({
@@ -32,13 +32,20 @@ export async function loader({ request, params }: LoaderArgs) {
   }
   const { order, orderBy, perPage } = res.data;
   let page = res.data.page;
-  const allUsersCount = await getAllUsersCount(tenant);
+  const userController = new UserController(tenant);
+  const allUsersCount = await userController.getAllUsersCount();
   if (page * perPage > allUsersCount) {
     page = 1;
   }
-  const users = await getUsers(tenant, { order, orderBy, page, perPage });
+  const users = await userController.getUsers({
+    order,
+    orderBy,
+    page,
+    perPage,
+  });
+  const messageController = new MessageController(tenant);
   const userStats = await Promise.all(
-    users.map((u) => getUserMessagesStats(tenant, u.id))
+    users.map((u) => messageController.getUserMessagesStats(u.id))
   );
   const usersWithStats = users.map((u, i) => ({ ...u, stats: userStats[i] }));
   return json({
