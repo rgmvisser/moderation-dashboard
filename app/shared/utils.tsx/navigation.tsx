@@ -1,3 +1,19 @@
+export function LoginPath() {
+  return "/login";
+}
+
+export function DashboardPath() {
+  return "/dashboard";
+}
+
+export function LogoutPath() {
+  return "/logout";
+}
+
+export function SettingsPath() {
+  return "/settings";
+}
+
 export function QueuePath(tenantSlug: string) {
   return `/${tenantSlug}/messages`;
 }

@@ -15,7 +15,7 @@ import { ActionModal } from "~/shared/components/ActionModal";
 import { ReasonController } from "~/controllers.ts/reason.server";
 
 export async function loader({ request, params }: LoaderArgs) {
-  const tenant = await GetTenant(params);
+  const tenant = await GetTenant(request, params);
   const reasonController = new ReasonController(tenant);
   const reasons = await reasonController.getStatusReasons();
   return json({

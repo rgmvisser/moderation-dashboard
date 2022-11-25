@@ -16,7 +16,7 @@ import { MessageController } from "~/controllers.ts/message.server";
 import { UserController } from "~/controllers.ts/user.server";
 
 export async function loader({ request, params }: LoaderArgs) {
-  const tenant = await GetTenant(params);
+  const tenant = await GetTenant(request, params);
   const userId = params["userId"] ?? "";
   const userController = new UserController(tenant);
   const user = await userController.getUserById(tenant, userId);

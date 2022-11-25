@@ -18,7 +18,7 @@ import AppLayout from "./shared/components/AppLayout";
 import { intervalTimer } from "./controllers.ts/timer.server";
 import { AppProvider } from "./shared/contexts/AppContext";
 import { ActionModal } from "./shared/components/ActionModal";
-import { ModeratorController } from "./controllers.ts/tenantUser.server";
+import { ModeratorController } from "./controllers.ts/moderator.server";
 import { getGeneralClient } from "./db.server";
 
 export const links: LinksFunction = () => {
@@ -56,7 +56,7 @@ export default function App() {
           <Meta />
           <Links />
         </head>
-        <body className="h-full">
+        <body className="h-full bg-slate-50">
           <AppProvider {...data}>
             <Outlet />
           </AppProvider>

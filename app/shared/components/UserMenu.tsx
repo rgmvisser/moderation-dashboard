@@ -6,12 +6,14 @@ import {
   MagnifyingGlassIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
-import { Link } from "@remix-run/react";
+import { Link, useNavigate } from "@remix-run/react";
 import { useAppContext } from "../contexts/AppContext";
+import { LogoutPath, SettingsPath } from "../utils.tsx/navigation";
 
 // Menu with avatar and dropdown to show user options
 export default function UserMenu() {
   const appContext = useAppContext();
+  const navigate = useNavigate();
 
   return (
     <Menu shadow="md" width={250} position="bottom-end" offset={8}>
@@ -37,14 +39,14 @@ export default function UserMenu() {
 
       <Menu.Dropdown>
         <Menu.Item
-          icon={<Cog8ToothIcon className="h-4 w-4" />}
           className="text-base"
+          icon={<Cog8ToothIcon className="h-4 w-4" />}
+          onClick={() => navigate(SettingsPath())}
         >
-          <Link to="/settings" className="text-base">
-            Settings
-          </Link>
+          Settings
         </Menu.Item>
         <Menu.Item
+          className="text-base"
           icon={<MagnifyingGlassIcon className="h-4 w-4" />}
           rightSection={
             <Text size="sm" color="dimmed">
@@ -52,12 +54,15 @@ export default function UserMenu() {
             </Text>
           }
         >
-          <span className="text-base">Search</span>
+          Search
         </Menu.Item>
-        <Menu.Item icon={<ArrowRightOnRectangleIcon className="h-4 w-4" />}>
-          <Link to="/settings" className="text-base">
-            Logout
-          </Link>
+
+        <Menu.Item
+          className="text-base"
+          onClick={() => navigate(LogoutPath())}
+          icon={<ArrowRightOnRectangleIcon className="h-4 w-4" />}
+        >
+          Logout
         </Menu.Item>
 
         {/* <Menu.Divider /> */}

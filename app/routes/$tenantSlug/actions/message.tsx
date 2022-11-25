@@ -7,7 +7,7 @@ import { validationError } from "remix-validated-form";
 import { ActionController } from "~/controllers.ts/action.server";
 import { Status } from "@prisma/client";
 
-import { ModeratorController } from "~/controllers.ts/tenantUser.server";
+import { ModeratorController } from "~/controllers.ts/moderator.server";
 import { GetTenant } from "~/middleware/tenant";
 import { MessageController } from "~/controllers.ts/message.server";
 
@@ -21,7 +21,7 @@ export const validator = withZod(
 );
 
 export const action: ActionFunction = async ({ request, params }) => {
-  const tenant = await GetTenant(params);
+  const tenant = await GetTenant(request, params);
   const res = await validator.validate(await request.formData());
   if (res.error) {
     return validationError(res.error);

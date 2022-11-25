@@ -2,6 +2,7 @@ import { PrismaClient, SignInMethod, Status } from "@prisma/client";
 import randomSentence from "random-sentence";
 import type { Config } from "unique-names-generator";
 import { uniqueNamesGenerator, names } from "unique-names-generator";
+import { ModeratorController } from "~/controllers.ts/moderator.server";
 import { ModelsWithoutTenant } from "~/models";
 
 const nameConfig: Config = {
@@ -11,30 +12,35 @@ const nameConfig: Config = {
 const prisma = new PrismaClient();
 
 async function seed() {
-  // await prisma.tenant.deleteMany(); // Everything should cascade
-  // await prisma.backlogMessage.deleteMany();
-
-  // const tenant = await prisma.tenant.create({
-  //   data: {
-  //     name: "Woov",
-  //     slug: "woov",
-  //   },
+  // const tenant = await prisma.tenant.findFirstOrThrow();
+  // ModeratorController.CreateModerator(tenant, {
+  //   name: "Ruud Visser",
+  //   email: "visser.rgm@gmail.com",
+  //   password: "password",
+  //   avatar:
+  //     "https://en.gravatar.com/userimage/61402465/c8cdd02ae2207b22c6582d7716e5e8b0.jpeg",
+  //   role: "admin",
   // });
-  const tenant = await prisma.tenant.findFirstOrThrow();
-  await prisma.moderator.create({
+  // return;
+
+  await prisma.tenant.deleteMany(); // Everything should cascade
+  await prisma.backlogMessage.deleteMany();
+
+  const tenant = await prisma.tenant.create({
     data: {
-      name: "Ruud Visser",
-      avatar:
-        "https://en.gravatar.com/userimage/61402465/c8cdd02ae2207b22c6582d7716e5e8b0.jpeg",
-      roles: {
-        create: {
-          tenantId: tenant.id,
-          role: "admin",
-        },
-      },
+      name: "Woov",
+      slug: "woov",
     },
   });
-  return;
+
+  ModeratorController.CreateModerator(tenant, {
+    name: "Ruud Visser",
+    email: "visser.rgm@gmail.com",
+    password: "password",
+    avatar:
+      "https://en.gravatar.com/userimage/61402465/c8cdd02ae2207b22c6582d7716e5e8b0.jpeg",
+    role: "admin",
+  });
 
   // Created reasons per status
   await prisma.reason.createMany({

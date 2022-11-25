@@ -24,7 +24,7 @@ export const validator = withZod(
 );
 
 export async function loader({ request, params }: LoaderArgs) {
-  const tenant = await GetTenant(params);
+  const tenant = await GetTenant(request, params);
   const url = new URL(request.url);
   const res = await validator.validate(url.searchParams);
   if (res.error) {

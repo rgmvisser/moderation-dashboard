@@ -14,7 +14,7 @@ import type { MessageWithInfo } from "~/models/message";
 import { AreMessagesEqual } from "~/models/message";
 
 export async function loader({ request, params }: LoaderArgs) {
-  const tenant = await GetTenant(params);
+  const tenant = await GetTenant(request, params);
   const filterController = new FilterController(tenant);
   const filter = await filterController.getModeratorFilter();
   const filterInfo = await filterController.getFilterInfo();
