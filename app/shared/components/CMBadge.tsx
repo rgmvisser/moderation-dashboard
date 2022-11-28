@@ -50,6 +50,13 @@ export const PercentageBadge = ({
   status: Status;
   percentage: number;
 }) => {
+  if (isNaN(percentage)) {
+    return (
+      <Badge color="gray" variant={"filled"} size="sm">
+        ?
+      </Badge>
+    );
+  }
   let color: MantineColor = "green";
   if (status === "allowed") {
     if (percentage < 95 && percentage >= 75) {
