@@ -20,8 +20,7 @@ export class APIKeyController extends BaseTenantController {
 
   async createKey(moderator: Moderator, name: string) {
     const keySecret = `cm.${crypto.randomBytes(16).toString("hex")}`;
-    const salt = await bcrypt.genSalt(10);
-    const hashedKey = await bcrypt.hash(keySecret, salt);
+    const hashedKey = await APIKeyController.HashKey(keySecret);
     const hint = `${keySecret.slice(0, 5)}...${keySecret.slice(-3)}`;
 
     const key = await this.db.apiKey.create({
@@ -40,5 +39,13 @@ export class APIKeyController extends BaseTenantController {
 
   async deleteKey(id: string) {
     await this.db.apiKey.delete({ where: { id } });
+  }
+
+  static async HashKey(keySecret: string) {
+    const hashedKey = crypto
+      .createHash("sha256")
+      .update(keySecret)
+      .digest("base64");
+    return hashedKey;
   }
 }

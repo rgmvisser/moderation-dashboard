@@ -8,6 +8,7 @@ import { ActionController } from "~/controllers.ts/action.server";
 
 import { GetModeratorAndTenant } from "~/middleware/tenant";
 import { ContentController } from "~/controllers.ts/content.server";
+import { GetAuthenticatedAPIKey } from "~/middleware/authenticate";
 
 export const validator = withZod(
   z.object({
@@ -44,7 +45,9 @@ export const validator = withZod(
   })
 );
 
-export const action: ActionFunction = async ({ request, params }) => {
+export const action: ActionFunction = async ({ request }) => {
+  const apiKey = await GetAuthenticatedAPIKey(request);
+  return json({ message: "Hello " + apiKey.tenant.name });
   // const { tenant, moderator } = await GetModeratorAndTenant(request, params);
   // const res = await validator.validate(await request.formData());
   // if (res.error) {

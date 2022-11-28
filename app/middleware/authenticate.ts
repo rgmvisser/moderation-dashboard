@@ -1,4 +1,6 @@
 import { redirect } from "remix-supertyped";
+import { APIKeyController } from "~/controllers.ts/apikey.server";
+import { getGeneralClient } from "~/db.server";
 import type { AuhtenticationStrategy } from "~/session.server";
 import { authenticator } from "~/session.server";
 import { DashboardPath, LoginPath } from "~/shared/utils.tsx/navigation";
@@ -34,4 +36,29 @@ export async function Logout(request: Request) {
   return authenticator.logout(request, {
     redirectTo: LoginPath(),
   });
+}
+
+export async function GetAuthenticatedAPIKey(request: Request) {
+  // Get bearer token from request
+  const token = request.headers.get("Authorization")?.replace("Bearer ", "");
+  if (!token) {
+    throw new Error(
+      "No API key provided, please provide a 'Authorization' header 'Bearer' token"
+    );
+  }
+  const hashedAPIkey = await APIKeyController.HashKey(token);
+  const apiKey = await getGeneralClient().apiKey.findUnique({
+    where: {
+      hashedKey: hashedAPIkey,
+    },
+    include: {
+      tenant: true,
+    },
+  });
+  if (!apiKey) {
+    throw new Error(
+      "Invalid API key provided, please provide a valid 'Authorization' header"
+    );
+  }
+  return apiKey;
 }
