@@ -54,7 +54,7 @@ export default function Rules() {
           </div>
           <div className="relative flex flex-shrink-0 flex-grow-0 items-start justify-start gap-2.5">
             <p className="w-[500px] flex-shrink-0 flex-grow-0 text-left text-base text-black">
-              Flag message if user is flagged
+              Flag content if user is flagged
             </p>
           </div>
           <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start gap-2.5">
@@ -93,7 +93,7 @@ export default function Rules() {
           </div>
           <div className="relative flex flex-shrink-0 flex-grow-0 items-start justify-start gap-2.5">
             <p className="w-[500px] flex-shrink-0 flex-grow-0 text-left text-base text-black">
-              Flag message if user is hidden
+              Flag content if user is hidden
             </p>
           </div>
           <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start gap-2.5">

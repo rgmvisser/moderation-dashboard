@@ -11,11 +11,11 @@ import { useTenantContext } from "../contexts/TenantContext";
 
 export function ActionModal() {
   const tenantContext = useTenantContext();
-  const { opened, status, message, user, closeModal } = useModalContex();
+  const { opened, status, content, user, closeModal } = useModalContex();
   const [isLoading, setIsLoading] = useState(false);
   const actionText = ActionTextFromStatus(status);
   const activeText = ActivaTextFromStatus(status);
-  const type = message ? "message" : "user";
+  const type = content ? "content" : "user";
   const fetcher = useFetcher();
   const formRef = useRef(null);
   const errors: string[] = Object.values(fetcher.data?.fieldErrors ?? []);
@@ -40,7 +40,7 @@ export function ActionModal() {
         onClose={() => closeModal()}
         title={
           <span className="text-xl font-bold">
-            {actionText} {user?.name ?? "Message"}
+            {actionText} {user?.name ?? "Content"}
           </span>
         }
         transitionDuration={150}
@@ -56,13 +56,13 @@ export function ActionModal() {
           <div className="flex flex-col gap-2">
             <input name="status" type="hidden" value={status} readOnly />
             {user && <input name="userId" readOnly value={user.id} hidden />}
-            {message && (
-              <input name="messageId" readOnly value={message.id} hidden />
+            {content && (
+              <input name="contentId" readOnly value={content.id} hidden />
             )}
-            {message && (
+            {content && (
               <>
-                <h2>Message</h2>
-                <p className="text-xs font-light">{message?.message}</p>
+                <h2>Content</h2>
+                <p className="text-xs font-light">{content?.content}</p>
               </>
             )}
             <Select
@@ -83,21 +83,21 @@ export function ActionModal() {
               <>
                 {status === "allowed" && (
                   <Checkbox
-                    label={`Allow all user's messages`}
-                    name="allowAllMessages"
+                    label={`Allow all user's contents`}
+                    name="allowAllContents"
                     defaultChecked={true}
                   />
                 )}
                 {(status === "flagged" || status === "hidden") && (
                   <>
                     <Checkbox
-                      label={`Flag all user's messages`}
-                      name="flagAllMessages"
+                      label={`Flag all user's contents`}
+                      name="flagAllContents"
                       defaultChecked={status === "flagged"}
                     />
                     <Checkbox
-                      label={`Hide all user's messages`}
-                      name="hideAllMessages"
+                      label={`Hide all user's contents`}
+                      name="hideAllContents"
                       defaultChecked={status === "hidden"}
                     />
                   </>

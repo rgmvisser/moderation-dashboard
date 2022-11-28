@@ -75,7 +75,18 @@ function getClient(tenantId?: string) {
       if (params.model && ModelsWithoutTenant.includes(params.model)) {
         return next(params);
       }
-      if (["findUnique", "findFirst", "findMany"].includes(params.action)) {
+      if (
+        [
+          "findUnique",
+          "findFirst",
+          "findMany",
+          "update",
+          "updateMany",
+          "upsert",
+          "delete",
+          "deleteMany",
+        ].includes(params.action)
+      ) {
         if (params.args?.where?.tenantId) {
           return next(params);
         } else if (params.args?.where) {

@@ -7,16 +7,16 @@ import { CapitalizeFirst } from "../utils.tsx/strings";
 
 type Props = {
   projects: FilterInfo;
-  threads: FilterInfo;
+  topics: FilterInfo;
   statuses: FilterInfo;
   filter: Filter;
 };
 
-export const Selectors = ({ statuses, projects, threads, filter }: Props) => {
+export const Selectors = ({ statuses, projects, topics, filter }: Props) => {
   const tenantContext = useTenantContext();
   const filterFetcher = useFetcher();
   const projectData = GetFormData(projects);
-  const threadData = GetFormData(threads);
+  const topicData = GetFormData(topics);
   const statusData = GetFormData(statuses);
   const formRef = useRef(null);
 
@@ -45,12 +45,12 @@ export const Selectors = ({ statuses, projects, threads, filter }: Props) => {
           className="flex-grow"
         />
         <MultiSelect
-          data={[...threadData]}
-          placeholder="Select Threads"
-          name="threads"
+          data={[...topicData]}
+          placeholder="Select Topics"
+          name="topics"
           onChange={onChange}
           className="flex-grow"
-          defaultValue={filter.threads}
+          defaultValue={filter.topics}
         />
         <MultiSelect
           data={[...statusData]}

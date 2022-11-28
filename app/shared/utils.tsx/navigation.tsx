@@ -15,7 +15,7 @@ export function SettingsPath() {
 }
 
 export function QueuePath(tenantSlug: string) {
-  return `/${tenantSlug}/messages`;
+  return `/${tenantSlug}/contents`;
 }
 export function RulesPath(tenantSlug: string) {
   return `/${tenantSlug}/rules`;
@@ -38,10 +38,10 @@ export function UserPath(tenantSlug: string, userId: string) {
   return `${QueuePath(tenantSlug)}/user/${userId}`;
 }
 
-export function MessagePath(
+export function ContentPath(
   tenantSlug: string,
   userId: string,
-  messageId: string
+  contentId: string
 ) {
-  return `${UserPath(tenantSlug, userId)}/message/${messageId}`;
+  return `${UserPath(tenantSlug, userId)}/content/${contentId}`;
 }

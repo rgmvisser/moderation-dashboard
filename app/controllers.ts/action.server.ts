@@ -1,6 +1,6 @@
 import type {
   Action,
-  Message,
+  Content,
   Moderator,
   PrismaPromise,
   Reason,
@@ -10,7 +10,7 @@ import type {
 
 import pLimit from "p-limit";
 import { BaseTenantController } from "./baseController.server";
-import { MessageController } from "./message.server";
+import { ContentController } from "./content.server";
 
 export type ActionWithReasonAndExecutor = Action & {
   takenBy: Moderator | null;
@@ -18,11 +18,11 @@ export type ActionWithReasonAndExecutor = Action & {
 };
 
 export class ActionController extends BaseTenantController {
-  async getMessageActions(
-    messageId: Message["id"]
+  async getContentActions(
+    contentId: Content["id"]
   ): Promise<ActionWithReasonAndExecutor[]> {
     return this.db.action.findMany({
-      where: { messageId },
+      where: { contentId },
       orderBy: { createdAt: "desc" },
       include: { takenBy: true, reason: true },
     });
@@ -43,17 +43,17 @@ export class ActionController extends BaseTenantController {
     status: Status,
     reasonId: Reason["id"],
     reasonInformation?: string,
-    message?: Message,
+    content?: Content,
     user?: User
   ) {
-    const oldStatus = message?.status ?? user?.status;
+    const oldStatus = content?.status ?? user?.status;
     if (oldStatus === status) return;
     const updates: PrismaPromise<any>[] = [
       this.db.action.create({
         data: {
           tenantId: this.tenant.id,
           takenById: takenBy.id,
-          messageId: message?.id,
+          contentId: content?.id,
           userId: user?.id,
           reasonInformation,
           reasonId,
@@ -62,10 +62,10 @@ export class ActionController extends BaseTenantController {
         },
       }),
     ];
-    if (message) {
+    if (content) {
       updates.push(
-        this.db.message.update({
-          where: { id: message.id },
+        this.db.content.update({
+          where: { id: content.id },
           data: { status },
         })
       );
@@ -82,21 +82,21 @@ export class ActionController extends BaseTenantController {
     return this.db.$transaction(updates);
   }
 
-  async updateMessagesStatus(
+  async updateContentsStatus(
     takenBy: Moderator,
     status: Status,
     reasonId: Reason["id"],
     userId: User["id"],
     reasonInformation?: string
   ) {
-    const messageController = new MessageController(this.tenant);
-    const messages = await messageController.getUserMessages(userId);
+    const contentController = new ContentController(this.tenant);
+    const contents = await contentController.getUserContents(userId);
     const limit = pLimit(10);
-    messages.map((m) =>
+    contents.map((m) =>
       limit(() =>
         this.updateStatus(takenBy, status, reasonId, reasonInformation, m)
       )
     );
-    await Promise.all(messages);
+    await Promise.all(contents);
   }
 }

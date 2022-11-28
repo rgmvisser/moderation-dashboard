@@ -1,4 +1,4 @@
-import type { Message, User } from "@prisma/client";
+import type { Content, User } from "@prisma/client";
 import { useModalContex } from "../contexts/ModalContext";
 import { CMButton } from "./CMButton";
 
@@ -7,25 +7,25 @@ interface ActionButtonProps {
   flagButton?: boolean;
   hideButton?: boolean;
   user?: User;
-  message?: Message;
+  content?: Content;
 }
 
 export const ActionButtons = ({
   allowButton,
   flagButton,
   hideButton,
-  message,
+  content,
   user,
 }: ActionButtonProps) => {
   const { setOpened } = useModalContex();
-  let type = message ? "message" : "user";
+  let type = content ? "content" : "user";
   return (
     <div className="flex h-fit w-full items-stretch justify-center gap-4 p-4">
       {allowButton && (
         <CMButton
           status="allowed"
           className="flex-grow"
-          onClick={() => setOpened(true, "allowed", message, user)}
+          onClick={() => setOpened(true, "allowed", content, user)}
         >
           Allow {type}
         </CMButton>
@@ -34,7 +34,7 @@ export const ActionButtons = ({
         <CMButton
           status="flagged"
           className="flex-grow"
-          onClick={() => setOpened(true, "flagged", message, user)}
+          onClick={() => setOpened(true, "flagged", content, user)}
         >
           Flag {type}
         </CMButton>
@@ -43,7 +43,7 @@ export const ActionButtons = ({
         <CMButton
           status="hidden"
           className="flex-grow"
-          onClick={() => setOpened(true, "hidden", message, user)}
+          onClick={() => setOpened(true, "hidden", content, user)}
         >
           Hide {type}
         </CMButton>

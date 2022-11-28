@@ -1,7 +1,7 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { json, useLoaderData } from "remix-supertyped";
-import MessageBox from "~/shared/components/MessageBox";
+import ContentBox from "~/shared/components/ContentBox";
 import { useSocket } from "~/shared/contexts/SocketContext";
 import { JSONParseWithDates } from "~/shared/utils.tsx/json";
 import { Outlet, useParams } from "@remix-run/react";
@@ -9,28 +9,28 @@ import { DashboardContainer } from "~/shared/components/DashboardContainer";
 import { Selectors } from "~/shared/components/FilterSelectors";
 import { FilterController } from "~/controllers.ts/filter.server";
 import { GetModeratorAndTenant } from "~/middleware/tenant";
-import { MessageController } from "~/controllers.ts/message.server";
-import type { MessageWithInfo } from "~/models/message";
-import { AreMessagesEqual } from "~/models/message";
+import { ContentController } from "~/controllers.ts/content.server";
+import type { ContentWithInfo } from "~/models/content";
+import { AreContentsEqual } from "~/models/content";
 
 export async function loader({ request, params }: LoaderArgs) {
   const { moderator, tenant } = await GetModeratorAndTenant(request, params);
   const filterController = new FilterController(tenant, moderator);
   const filter = await filterController.getModeratorFilter();
   const filterInfo = await filterController.getFilterInfo();
-  const messageController = new MessageController(tenant);
-  const messages = await messageController.getMessages(filter);
-  messages.reverse(); // to make sure the messages are at the bottom
-  return json({ messages, filterInfo, filter });
+  const contentController = new ContentController(tenant);
+  const contents = await contentController.getContents(filter);
+  contents.reverse(); // to make sure the contents are at the bottom
+  return json({ contents, filterInfo, filter });
 }
 
-export default function Messages() {
+export default function Contents() {
   const params = useParams();
-  const currentMessageId = params["messageId"];
+  const currentContentId = params["contentId"];
   const data = useLoaderData<typeof loader>();
-  const { filterInfo, filter, messages: dataMessages } = data;
-  const [messages, setMessages] = useState<MessageWithInfo[]>(
-    dataMessages ?? []
+  const { filterInfo, filter, contents: dataContents } = data;
+  const [contents, setContents] = useState<ContentWithInfo[]>(
+    dataContents ?? []
   );
   const [showScrollBottomButton, setShowScrollBottomButton] = useState(false);
 
@@ -41,7 +41,7 @@ export default function Messages() {
   const shouldDoLastScroll = useRef(false);
   const prevScroll = useRef(0);
   const shouldAutoScroll = useRef(true);
-  const dataMessagesRef = useRef(dataMessages);
+  const dataContentsRef = useRef(dataContents);
 
   const scrollToBottom = useCallback(() => {
     if (!bottomLineRef.current || !listRef.current) {
@@ -67,24 +67,24 @@ export default function Messages() {
 
   useEffect(() => {
     if (!socket) return;
-    const handler = socket.on("new-message", (newMessageData) => {
-      const newMessage = JSONParseWithDates(newMessageData)
-        .message as MessageWithInfo;
-      setMessages((messages) => [...messages, newMessage]);
+    const handler = socket.on("new-content", (newContentData) => {
+      const newContent = JSONParseWithDates(newContentData)
+        .content as ContentWithInfo;
+      setContents((contents) => [...contents, newContent]);
       scrollToBottom();
     });
     return () => {
       console.log("Disconnect handler");
       handler.disconnect();
     };
-  }, [socket, setMessages, scrollToBottom]);
+  }, [socket, setContents, scrollToBottom]);
 
   useEffect(() => {
-    if (!AreMessagesEqual(dataMessages, dataMessagesRef.current)) {
-      dataMessagesRef.current = dataMessages;
-      setMessages(dataMessages);
+    if (!AreContentsEqual(dataContents, dataContentsRef.current)) {
+      dataContentsRef.current = dataContents;
+      setContents(dataContents);
     }
-  }, [dataMessages, dataMessagesRef]);
+  }, [dataContents, dataContentsRef]);
 
   // Scroll to bottom on first render
   useEffect(() => {
@@ -127,15 +127,15 @@ export default function Messages() {
             onWheel={onWheel}
             onScroll={onScroll}
           >
-            {messages.map((message) => {
+            {contents.map((content) => {
               return (
-                <MessageBox
-                  key={message.id}
-                  messsage={message}
-                  project={message.project}
-                  thread={message.thread}
-                  user={message.user}
-                  selected={currentMessageId === message.id}
+                <ContentBox
+                  key={content.id}
+                  messsage={content}
+                  project={content.project}
+                  topic={content.topic}
+                  user={content.user}
+                  selected={currentContentId === content.id}
                 />
               );
             })}

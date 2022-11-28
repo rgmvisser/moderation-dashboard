@@ -4,12 +4,12 @@ import { ProjectBadge, StatusBadge } from "~/shared/components/CMBadge";
 import { CMHeader } from "~/shared/components/CMHeader";
 import { DashboardContainer } from "~/shared/components/DashboardContainer";
 import { json, useLoaderData } from "remix-supertyped";
-import { MessageContents } from "~/shared/components/MessageContents";
 import { ActionController } from "~/controllers.ts/action.server";
 import { ActionContainer } from "~/shared/components/ActionContainer";
 import { GetTenant } from "~/middleware/tenant";
 import { UserController } from "~/controllers.ts/user.server";
-import { MessageController } from "~/controllers.ts/message.server";
+import { ContentController } from "~/controllers.ts/content.server";
+import { ContentContainer } from "~/shared/components/ContentContainer";
 
 export async function loader({ request, params }: LoaderArgs) {
   const tenant = await GetTenant(request, params);
@@ -19,45 +19,45 @@ export async function loader({ request, params }: LoaderArgs) {
   if (!user) {
     throw new Error(`Could nog find user:  ${userId}`);
   }
-  const messageId = params["messageId"] ?? "";
-  const messageController = new MessageController(tenant);
-  const message = await messageController.getMessage(messageId);
-  if (!message) {
-    throw new Error(`Could nog find message:  ${messageId}`);
+  const contentId = params["contentId"] ?? "";
+  const contentController = new ContentController(tenant);
+  const content = await contentController.getContent(contentId);
+  if (!content) {
+    throw new Error(`Could nog find content:  ${contentId}`);
   }
   const actionController = new ActionController(tenant);
-  const actions = await actionController.getMessageActions(messageId);
-  return json({ user, message, actions });
+  const actions = await actionController.getContentActions(contentId);
+  return json({ user, content, actions });
 }
 
 export default function User() {
   const data = useLoaderData<typeof loader>();
-  const { message, actions } = data;
+  const { content, actions } = data;
   return (
     <>
       <DashboardContainer>
-        <CMHeader title="Message">
-          <StatusBadge status={message.status} />
+        <CMHeader title="Content">
+          <StatusBadge status={content.status} />
           <ProjectBadge
-            projectName={message.project.name}
-            threadName={message.thread.name}
+            projectName={content.project.name}
+            topicName={content.topic.name}
           />
         </CMHeader>
         <ActionButtons
-          flagButton={message.status != "flagged"}
-          hideButton={message.status != "hidden"}
-          allowButton={message.status != "allowed"}
-          message={message}
+          flagButton={content.status != "flagged"}
+          hideButton={content.status != "hidden"}
+          allowButton={content.status != "allowed"}
+          content={content}
         />
-        <MessageContents
+        <ContentContainer
           contents={[
             {
               title: "Original content",
-              content: message.message,
+              content: content.content,
             },
             {
               title: "Parsed content",
-              content: message.message,
+              content: content.content,
             },
           ]}
         />

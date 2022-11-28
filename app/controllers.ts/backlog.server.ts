@@ -3,8 +3,8 @@ import { getTenantClient, getGeneralClient } from "~/db.server";
 import { FilterController } from "~/controllers.ts/filter.server";
 
 import { intervalTimer } from "./timer.server";
-import { MessageController } from "./message.server";
-import { MessageWithInfo } from "~/models/message";
+import { ContentController } from "./content.server";
+import { ContentWithInfo } from "~/models/content";
 
 export function startBacklogQueue() {
   intervalTimer.setListener(async ({ time }) => {
@@ -26,15 +26,15 @@ async function updateBacklog(time: number) {
   const db = getTenantClient(tenant);
   // console.log("Updating backlog: ", time);
   if (!lastTime) {
-    // Find the last message so we can continue from there on server restart
-    const lastMessage = await db.message.findFirst({
+    // Find the last content so we can continue from there on server restart
+    const lastContent = await db.content.findFirst({
       orderBy: {
         createdAt: "desc",
       },
     });
-    if (lastMessage) {
-      lastTime = lastMessage.millisecondsAfterStart;
-      intervalTimer.setTime(lastMessage.millisecondsAfterStart);
+    if (lastContent) {
+      lastTime = lastContent.millisecondsAfterStart;
+      intervalTimer.setTime(lastContent.millisecondsAfterStart);
       return;
     } else {
       lastTime = 0;
@@ -43,7 +43,7 @@ async function updateBacklog(time: number) {
   // console.log("Lasttime: ", lastTime);
   // console.log("New time: ", time);
 
-  // Move backlog messages to messages
+  // Move backlog contents to contents
   const backlogMessages = await db.backlogMessage.findMany({
     where: {
       millisecondsAfterStart: {
@@ -55,13 +55,13 @@ async function updateBacklog(time: number) {
       createdAt: "asc",
     },
   });
-  console.log("Found backlog messages:", backlogMessages.length);
+  console.log("Found backlog contents:", backlogMessages.length);
   lastTime = time; // Update time to last fetched
 
   const filterController = new FilterController(tenant, moderator);
   const filter = await filterController.getModeratorFilter();
 
-  // Create messages and emit them
+  // Create contents and emit them
   for (const bm of backlogMessages) {
     const data = {
       ...bm,
@@ -70,16 +70,16 @@ async function updateBacklog(time: number) {
       createdAt: undefined,
       updateAt: undefined,
     };
-    const createdMessage = await db.message.create({
+    const createdContent = await db.content.create({
       data: data,
     });
-    const messageController = new MessageController(tenant);
-    const m: MessageWithInfo | null = await messageController.getMessage(
-      createdMessage.id,
+    const contentController = new ContentController(tenant);
+    const m: ContentWithInfo | null = await contentController.getContent(
+      createdContent.id,
       filter
     );
     if (m) {
-      ioServer.emit("new-message", JSON.stringify({ message: m }));
+      ioServer.emit("new-content", JSON.stringify({ content: m }));
     }
   }
 }

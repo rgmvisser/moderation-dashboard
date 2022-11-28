@@ -17,9 +17,9 @@ export const validator = withZod(
     reasonId: z.string().cuid({ message: "Please fill out a reason" }),
     status: z.nativeEnum(Status),
     reasonInformation: z.string().optional(),
-    allowAllMessages: zx.CheckboxAsString,
-    flagAllMessages: zx.CheckboxAsString,
-    hideAllMessages: zx.CheckboxAsString,
+    allowAllContents: zx.CheckboxAsString,
+    flagAllContents: zx.CheckboxAsString,
+    hideAllContents: zx.CheckboxAsString,
   })
 );
 
@@ -34,12 +34,12 @@ export const action: ActionFunction = async ({ request, params }) => {
     reasonId,
     reasonInformation,
     status,
-    allowAllMessages,
-    flagAllMessages,
-    hideAllMessages,
+    allowAllContents,
+    flagAllContents,
+    hideAllContents,
   } = res.data;
-  if (flagAllMessages && hideAllMessages) {
-    throw new Error("Cannot flag and hide all messages at the same time");
+  if (flagAllContents && hideAllContents) {
+    throw new Error("Cannot flag and hide all contents at the same time");
   }
   const userController = new UserController(tenant);
   const user = await userController.getUserById(tenant, userId);
@@ -56,15 +56,15 @@ export const action: ActionFunction = async ({ request, params }) => {
     user
   );
   const updatedUser = await userController.getUserById(tenant, userId);
-  if (allowAllMessages || flagAllMessages || hideAllMessages) {
-    const status: Status = allowAllMessages
+  if (allowAllContents || flagAllContents || hideAllContents) {
+    const status: Status = allowAllContents
       ? "allowed"
-      : flagAllMessages
+      : flagAllContents
       ? "flagged"
       : "hidden";
     const actionController = new ActionController(tenant);
 
-    await actionController.updateMessagesStatus(
+    await actionController.updateContentsStatus(
       moderator,
       status,
       reasonId,

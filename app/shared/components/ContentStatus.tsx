@@ -1,7 +1,7 @@
 import type { Status } from "@prisma/client";
 import { ButtonColorFromStatus, TextFromStatus } from "../utils.tsx/status";
 
-export const MessagesStatus = ({
+export const ContentsStatus = ({
   allowed,
   flagged,
   hidden,

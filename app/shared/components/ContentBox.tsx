@@ -1,25 +1,25 @@
 import React from "react";
-import type { Message, Project, Thread, User } from "@prisma/client";
+import type { Content, Project, Topic, User } from "@prisma/client";
 import { BGColorFromStatus, ButtonColorFromStatus } from "../utils.tsx/status";
 import { ProjectBadge } from "./CMBadge";
 import { GetDateFormatted, GetDateFromNow } from "../utils.tsx/date";
 import { Link } from "react-router-dom";
-import { MessagePath, UserPath } from "../utils.tsx/navigation";
+import { ContentPath, UserPath } from "../utils.tsx/navigation";
 import { useTenantContext } from "../contexts/TenantContext";
 
 type Props = {
-  messsage: Message;
+  messsage: Content;
   project: Project;
-  thread: Thread;
+  topic: Topic;
   user: User;
   selected: boolean;
   showUser?: boolean;
 };
 
-export default function MessageBox({
+export default function ContentBox({
   messsage,
   project,
-  thread,
+  topic,
   user,
   selected,
   showUser = true,
@@ -52,9 +52,9 @@ export default function MessageBox({
         ) : (
           <div className="flex-auto"></div>
         )}
-        <ProjectBadge projectName={project.name} threadName={thread.name} />
+        <ProjectBadge projectName={project.name} topicName={topic.name} />
       </div>
-      <Link to={MessagePath(tenantContext.tenant.slug, user.id, messsage.id)}>
+      <Link to={ContentPath(tenantContext.tenant.slug, user.id, messsage.id)}>
         <div className="flex flex-col gap-1">
           <div className="flex flex-col items-start justify-center self-stretch">
             <p
@@ -66,7 +66,7 @@ export default function MessageBox({
           </div>
 
           <div className="flex  items-center justify-start gap-2.5 self-stretch">
-            <p className="flex-grow text-left text-sm">{messsage.message}</p>
+            <p className="flex-grow text-left text-sm">{messsage.content}</p>
           </div>
         </div>
       </Link>

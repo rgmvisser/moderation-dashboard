@@ -4,7 +4,7 @@ import { BaseTenantController } from "./baseController.server";
 
 export type Filter = {
   projects: string[];
-  threads: string[];
+  topics: string[];
   statuses: string[];
 };
 
@@ -20,7 +20,7 @@ export class FilterController extends BaseTenantController {
 
   async setModeratorFilters(
     selectedProjects: string | null,
-    selectedThreads: string | null,
+    selectedTopics: string | null,
     selectedStatuses: string | null
   ) {
     let moderatorFilter = await this.db.moderatorFilters.findUnique({
@@ -28,20 +28,20 @@ export class FilterController extends BaseTenantController {
     });
     if (
       selectedProjects != null ||
-      selectedThreads != null ||
+      selectedTopics != null ||
       selectedStatuses != null
     ) {
       if (moderatorFilter) {
         if (
           moderatorFilter.projects != selectedProjects ||
-          moderatorFilter.threads != selectedThreads ||
+          moderatorFilter.topics != selectedTopics ||
           moderatorFilter.statuses != selectedStatuses
         ) {
           moderatorFilter = await this.db.moderatorFilters.update({
             where: { id: moderatorFilter.id },
             data: {
               projects: selectedProjects ?? moderatorFilter.projects,
-              threads: selectedThreads ?? moderatorFilter.threads,
+              topics: selectedTopics ?? moderatorFilter.topics,
               statuses: selectedStatuses ?? moderatorFilter.statuses,
             },
           });
@@ -52,7 +52,7 @@ export class FilterController extends BaseTenantController {
             tenantId: this.tenant.id,
             moderatorId: this.moderator.id,
             projects: selectedProjects ?? "",
-            threads: selectedThreads ?? "",
+            topics: selectedTopics ?? "",
             statuses: selectedStatuses ?? "",
           },
         });
@@ -71,9 +71,9 @@ export class FilterController extends BaseTenantController {
           moderatorFilter.projects.length > 0
             ? moderatorFilter.projects.split(",")
             : [],
-        threads:
-          moderatorFilter.threads.length > 0
-            ? moderatorFilter.threads.split(",")
+        topics:
+          moderatorFilter.topics.length > 0
+            ? moderatorFilter.topics.split(",")
             : [],
         statuses:
           moderatorFilter.statuses.length > 0
@@ -83,7 +83,7 @@ export class FilterController extends BaseTenantController {
     }
     return {
       projects: [],
-      threads: [],
+      topics: [],
       statuses: [],
     };
   }
@@ -92,7 +92,7 @@ export class FilterController extends BaseTenantController {
     const projects = await this.db.project.findMany({
       select: { id: true, name: true },
     });
-    const threads = await this.db.thread.findMany({
+    const topics = await this.db.topic.findMany({
       select: { id: true, name: true },
     });
 
@@ -101,7 +101,7 @@ export class FilterController extends BaseTenantController {
     });
     const filterInfo = {
       projects,
-      threads,
+      topics,
       statuses,
     };
     return filterInfo;

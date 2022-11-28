@@ -29,12 +29,12 @@ model Tenant {
   updatedAt DateTime @updatedAt
 
   User          User[]
-  Message       Message[]
+  Content       Content[]
   Project       Project[]
   Reason        Reason[]
   StatusReasons StatusReasons[]
   Action        Action[]
-  Thread        Thread[]
+  Topic         Topic[]
 
   ModeratorFilters ModeratorFilters[]
   ModeratorRole    ModeratorRole[]
@@ -95,7 +95,7 @@ model User {
   location     String
   status       Status
 
-  messages Message[]
+  contents Content[]
   Action   Action[]
   tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   tenantId String
@@ -104,21 +104,21 @@ model User {
 model BacklogMessage {
   id                     String @id @default(cuid())
   millisecondsAfterStart Int
-  message                String
+  content                String
 
   userId    String
   projectId String
-  threadId  String
+  topicId   String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   status    Status
 }
 
-model Message {
+model Content {
   id                     String @id @default(cuid())
   millisecondsAfterStart Int
-  message                String
+  content                String
   status                 Status
 
   createdAt DateTime @default(now())
@@ -130,8 +130,8 @@ model Message {
   userId    String
   project   Project  @relation(fields: [projectId], references: [id])
   projectId String
-  thread    Thread   @relation(fields: [threadId], references: [id])
-  threadId  String
+  topic     Topic    @relation(fields: [topicId], references: [id])
+  topicId   String
   Action    Action[]
 }
 
@@ -141,18 +141,18 @@ model Project {
   updatedAt DateTime @updatedAt
   name      String
 
-  messages Message[]
+  contents Content[]
   tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   tenantId String
 }
 
-model Thread {
+model Topic {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   name      String
 
-  messages Message[]
+  contents Content[]
   tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   tenantId String
 }
@@ -162,7 +162,7 @@ model ModeratorFilters {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   projects  String
-  threads   String
+  topics    String
   statuses  String
 
   moderator   Moderator @relation(fields: [moderatorId], references: [id], onDelete: Cascade)
@@ -212,8 +212,8 @@ model Action {
   takenBy           Moderator? @relation(fields: [takenById], references: [id], onDelete: Cascade)
   takenById         String?
 
-  message   Message? @relation(fields: [messageId], references: [id], onDelete: Cascade)
-  messageId String?
+  content   Content? @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  contentId String?
   user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String?
 }

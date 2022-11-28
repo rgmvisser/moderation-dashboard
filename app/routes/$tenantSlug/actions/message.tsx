@@ -8,11 +8,11 @@ import { ActionController } from "~/controllers.ts/action.server";
 import { Status } from "@prisma/client";
 
 import { GetModeratorAndTenant } from "~/middleware/tenant";
-import { MessageController } from "~/controllers.ts/message.server";
+import { ContentController } from "~/controllers.ts/content.server";
 
 export const validator = withZod(
   z.object({
-    messageId: z.string().cuid({ message: "MessageId required" }),
+    contentId: z.string().cuid({ message: "ContentId required" }),
     reasonId: z.string().cuid({ message: "Please fill out a reason" }),
     status: z.nativeEnum(Status),
     reasonInformation: z.string().optional(),
@@ -25,11 +25,11 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (res.error) {
     return validationError(res.error);
   }
-  const { messageId, reasonId, reasonInformation, status } = res.data;
-  const messageController = new MessageController(tenant);
-  const message = await messageController.getMessage(messageId);
-  if (!message) {
-    throw new Error(`Could not find message: ${messageId}`);
+  const { contentId, reasonId, reasonInformation, status } = res.data;
+  const contentController = new ContentController(tenant);
+  const content = await contentController.getContent(contentId);
+  if (!content) {
+    throw new Error(`Could not find content: ${contentId}`);
   }
   const actionController = new ActionController(tenant);
   await actionController.updateStatus(
@@ -37,8 +37,8 @@ export const action: ActionFunction = async ({ request, params }) => {
     status,
     reasonId,
     reasonInformation,
-    message
+    content
   );
-  const newMessage = await messageController.getMessage(messageId);
-  return json({ message: newMessage });
+  const newContent = await contentController.getContent(contentId);
+  return json({ content: newContent });
 };

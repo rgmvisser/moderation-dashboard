@@ -3,8 +3,8 @@ import { ActionButtons } from "~/shared/components/ActionButtons";
 import { StatusBadge } from "~/shared/components/CMBadge";
 import { CMHeader } from "~/shared/components/CMHeader";
 import { DashboardContainer } from "~/shared/components/DashboardContainer";
-import MessageBox from "~/shared/components/MessageBox";
-import { MessagesStatus } from "~/shared/components/MessageStatus";
+import ContentBox from "~/shared/components/ContentBox";
+import { ContentsStatus } from "~/shared/components/ContentStatus";
 import { PropertyContainer } from "~/shared/components/PropertyContainer";
 import { json, useLoaderData } from "remix-supertyped";
 import { Outlet, useParams } from "@remix-run/react";
@@ -12,7 +12,7 @@ import { GetDateFromNow } from "~/shared/utils.tsx/date";
 import { ActionContainer } from "~/shared/components/ActionContainer";
 import { ActionController } from "~/controllers.ts/action.server";
 import { GetTenant } from "~/middleware/tenant";
-import { MessageController } from "~/controllers.ts/message.server";
+import { ContentController } from "~/controllers.ts/content.server";
 import { UserController } from "~/controllers.ts/user.server";
 
 export async function loader({ request, params }: LoaderArgs) {
@@ -23,19 +23,19 @@ export async function loader({ request, params }: LoaderArgs) {
   if (!user) {
     throw new Error(`Could nog find user:  ${userId}`);
   }
-  const messageController = new MessageController(tenant);
-  const messagesStats = await messageController.getUserMessagesStats(userId);
-  const messages = await messageController.getUserMessages(userId);
+  const contentController = new ContentController(tenant);
+  const contentsStats = await contentController.getUserContentsStats(userId);
+  const contents = await contentController.getUserContents(userId);
   const actionController = new ActionController(tenant);
   const actions = await actionController.getUserActions(userId);
-  return json({ user, messages, messagesStats, actions });
+  return json({ user, contents, contentsStats, actions });
 }
 
 export default function User() {
   const params = useParams();
-  const currentMessageId = params["messageId"];
+  const currentContentId = params["contentId"];
   const data = useLoaderData<typeof loader>();
-  const { messages, user, messagesStats, actions } = data;
+  const { contents, user, contentsStats, actions } = data;
 
   return (
     <>
@@ -73,23 +73,23 @@ export default function User() {
         <div className="w-full border-t-0 border-r-0 border-b border-l-0 border-main py-2 px-4">
           No reports
         </div>
-        <CMHeader title="Messages status" />
-        <MessagesStatus {...messagesStats}></MessagesStatus>
+        <CMHeader title="Contents status" />
+        <ContentsStatus {...contentsStats}></ContentsStatus>
 
         <ActionContainer actions={actions} />
 
-        <CMHeader title="Messages History" />
+        <CMHeader title="Contents History" />
 
         <ul className="w-full flex-grow overflow-y-scroll">
-          {messages.map((message) => {
+          {contents.map((content) => {
             return (
-              <MessageBox
-                key={message.id}
-                messsage={message}
-                project={message.project}
-                thread={message.thread}
-                user={message.user}
-                selected={message.id === currentMessageId}
+              <ContentBox
+                key={content.id}
+                messsage={content}
+                project={content.project}
+                topic={content.topic}
+                user={content.user}
+                selected={content.id === currentContentId}
                 showUser={false}
               />
             );

@@ -82,14 +82,14 @@ async function seed() {
     },
   });
 
-  // Create messages
-  const numMessages = 10000;
+  // Create contents
+  const numContents = 10000;
   const numUsers = 100;
 
   const projects = ["Mysterlyland"];
-  const threads = ["Main Stage", "Deephouse", "Food court", "Campground"];
+  const topics = ["Main Stage", "Deephouse", "Food court", "Campground"];
 
-  // 10 times as many flagged/hidden messages
+  // 10 times as many flagged/hidden contents
   const statuses = Array(10).fill(Status.allowed);
   statuses.push(Status.flagged);
   statuses.push(Status.hidden);
@@ -128,17 +128,17 @@ async function seed() {
     await prisma.project.findMany({ select: { id: true } })
   ).map((obj) => obj.id);
 
-  await prisma.thread.createMany({
-    data: threads.map((thread) => {
+  await prisma.topic.createMany({
+    data: topics.map((topic) => {
       return {
         tenantId: tenant.id,
-        name: thread,
+        name: topic,
       };
     }),
   });
-  const threadIds = (
-    await prisma.thread.findMany({ select: { id: true } })
-  ).map((obj) => obj.id);
+  const topicIds = (await prisma.topic.findMany({ select: { id: true } })).map(
+    (obj) => obj.id
+  );
 
   await prisma.user.createMany({
     data: Array.from(Array(numUsers).keys()).map((num) => {
@@ -167,19 +167,19 @@ async function seed() {
     5000,
   ];
   const randomTimes: number[] = [];
-  for (let i = 0; i < numMessages; i++) {
+  for (let i = 0; i < numContents; i++) {
     timeMiliseconds += sample(timeMilisecondsOptions);
     randomTimes.push(timeMiliseconds);
   }
 
-  // Create backlog messages
+  // Create backlog contents
   await prisma.backlogMessage.createMany({
-    data: Array.from(Array(numMessages).keys()).map((num) => {
+    data: Array.from(Array(numContents).keys()).map((num) => {
       return {
-        message: randomSentence({ min: 1, max: 250 }),
+        content: randomSentence({ min: 1, max: 250 }),
         userId: sample(userIds),
         millisecondsAfterStart: randomTimes[num],
-        threadId: sample(threadIds),
+        topicId: sample(topicIds),
         projectId: sample(projectIds),
         status: sample(statuses),
       };

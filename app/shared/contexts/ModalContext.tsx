@@ -1,4 +1,4 @@
-import type { Message, Status, User } from "@prisma/client";
+import type { Content, Status, User } from "@prisma/client";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { useContext } from "react";
@@ -6,7 +6,7 @@ import { createContext } from "react";
 
 type ModalContexState = {
   opened: boolean;
-  message?: Message;
+  content?: Content;
   user?: User;
   status: Status;
 };
@@ -15,7 +15,7 @@ type ModalContex = {
   setOpened: (
     opened: boolean,
     status: Status,
-    message?: Message,
+    content?: Content,
     user?: User
   ) => void;
   closeModal: () => void;
@@ -24,13 +24,13 @@ type ModalContex = {
 const defaultState: ModalContexState = {
   opened: false,
   status: "allowed",
-  message: undefined,
+  content: undefined,
   user: undefined,
 };
 
 const modalContex = createContext<ModalContex>({
   ...defaultState,
-  setOpened: (opened, status, message, user) => {},
+  setOpened: (opened, status, content, user) => {},
   closeModal: () => {},
 });
 export const useModalContex = () => useContext(modalContex);
@@ -45,10 +45,10 @@ export const ModalProvider = ({ children }: Props) => {
   function setOpened(
     opened: boolean,
     status: Status,
-    message?: Message,
+    content?: Content,
     user?: User
   ) {
-    setState({ opened, status, message, user });
+    setState({ opened, status, content, user });
   }
 
   function closeModal() {

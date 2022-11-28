@@ -1,36 +1,36 @@
-import type { Message, Project, Thread, User } from "@prisma/client";
+import type { Content, Project, Topic, User } from "@prisma/client";
 import { Status } from "@prisma/client";
-import { MessageWithInfo } from "~/models/message";
+import { ContentWithInfo } from "~/models/content";
 import { BaseTenantController } from "./baseController.server";
 import type { Filter } from "./filter.server";
 
-export class MessageController extends BaseTenantController {
-  messageInclude = {
+export class ContentController extends BaseTenantController {
+  contentInclude = {
     user: true,
     project: true,
-    thread: true,
+    topic: true,
   };
 
-  async getUserMessages(id: User["id"]) {
-    return this.db.message.findMany({
+  async getUserContents(id: User["id"]) {
+    return this.db.content.findMany({
       where: { userId: id },
       take: 30,
-      include: this.messageInclude,
+      include: this.contentInclude,
       orderBy: {
         createdAt: "desc",
       },
     });
   }
 
-  async getMessage(id: Message["id"], filter?: Filter) {
-    return this.db.message.findFirst({
+  async getContent(id: Content["id"], filter?: Filter) {
+    return this.db.content.findFirst({
       where: { id: id, ...this.getFiltersObjects(filter) },
-      include: this.messageInclude,
+      include: this.contentInclude,
     });
   }
 
-  async getUserMessagesStats(id: User["id"]) {
-    const grouping = await this.db.message.groupBy({
+  async getUserContentsStats(id: User["id"]) {
+    const grouping = await this.db.content.groupBy({
       where: {
         userId: id,
       },
@@ -39,7 +39,7 @@ export class MessageController extends BaseTenantController {
         _all: true,
       },
     });
-    const total = await this.db.message.count({
+    const total = await this.db.content.count({
       where: {
         userId: id,
       },
@@ -60,18 +60,18 @@ export class MessageController extends BaseTenantController {
     return counts;
   }
 
-  async getMessages(filter?: Filter) {
-    const messages: MessageWithInfo[] = await this.db.message.findMany({
+  async getContents(filter?: Filter) {
+    const contents: ContentWithInfo[] = await this.db.content.findMany({
       where: {
         ...this.getFiltersObjects(filter),
       },
       take: 30,
-      include: this.messageInclude,
+      include: this.contentInclude,
       orderBy: {
         createdAt: "desc",
       },
     });
-    return messages;
+    return contents;
   }
 
   private getFiltersObjects(filter?: Filter) {
@@ -83,11 +83,11 @@ export class MessageController extends BaseTenantController {
             },
           }
         : {};
-    const threadFilter =
-      (filter?.threads.length ?? 0) > 0
+    const topicFilter =
+      (filter?.topics.length ?? 0) > 0
         ? {
-            threadId: {
-              in: filter?.threads,
+            topicId: {
+              in: filter?.topics,
             },
           }
         : {};
@@ -99,6 +99,6 @@ export class MessageController extends BaseTenantController {
             },
           }
         : {};
-    return { ...projectFilter, ...threadFilter, ...statusFilter };
+    return { ...projectFilter, ...topicFilter, ...statusFilter };
   }
 }

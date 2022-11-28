@@ -66,6 +66,24 @@ export default function App() {
   );
 }
 
+export function ErrorBoundary({ error }: { error: Error }) {
+  console.error(error);
+  return (
+    <html>
+      <head>
+        <title>Oh no!</title>
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        Something went wrong. Please try again later.
+        {/* add the UI you want your users to see */}
+        <Scripts />
+      </body>
+    </html>
+  );
+}
+
 export function CatchBoundary() {
   const caught = useCatch();
   return (

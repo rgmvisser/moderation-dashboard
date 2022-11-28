@@ -7,12 +7,12 @@ export const action: ActionFunction = async ({ request, params }) => {
   const { moderator, tenant } = await GetModeratorAndTenant(request, params);
   const formData = await request.formData();
   const selectedProjects = formData.get("projects")?.toString() ?? "";
-  const selectedThreads = formData.get("threads")?.toString() ?? "";
+  const selectedTopics = formData.get("topics")?.toString() ?? "";
   const selectedStatuses = formData.get("statuses")?.toString() ?? "";
   const filterController = new FilterController(tenant, moderator);
   const filter = await filterController.setModeratorFilters(
     selectedProjects,
-    selectedThreads,
+    selectedTopics,
     selectedStatuses
   );
 

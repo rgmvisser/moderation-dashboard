@@ -8,7 +8,7 @@ import { GetDateFormatted } from "~/shared/utils.tsx/date";
 import { useNavigate, useTransition } from "@remix-run/react";
 import { numericString } from "~/shared/utils.tsx/validate";
 import { GetTenant } from "~/middleware/tenant";
-import { MessageController } from "~/controllers.ts/message.server";
+import { ContentController } from "~/controllers.ts/content.server";
 import { UserController } from "~/controllers.ts/user.server";
 import { useLoadingDelay } from "~/shared/hooks/useLoadingDelay";
 
@@ -43,9 +43,9 @@ export async function loader({ request, params }: LoaderArgs) {
     page,
     perPage,
   });
-  const messageController = new MessageController(tenant);
+  const contentController = new ContentController(tenant);
   const userStats = await Promise.all(
-    users.map((u) => messageController.getUserMessagesStats(u.id))
+    users.map((u) => contentController.getUserContentsStats(u.id))
   );
   const usersWithStats = users.map((u, i) => ({ ...u, stats: userStats[i] }));
   return json({

@@ -4,16 +4,13 @@ import { MantineColorFromStatus, TextFromStatus } from "../utils.tsx/status";
 
 type ProjectBadgeProps = {
   projectName?: string;
-  threadName?: string;
+  topicName?: string;
 };
 
-export const ProjectBadge = ({
-  projectName,
-  threadName,
-}: ProjectBadgeProps) => {
+export const ProjectBadge = ({ projectName, topicName }: ProjectBadgeProps) => {
   return (
     <Badge color={"blue"} variant={"filled"} size="sm">
-      {projectName} {threadName && projectName && "/"} {threadName}
+      {projectName} {topicName && projectName && "/"} {topicName}
     </Badge>
   );
 };

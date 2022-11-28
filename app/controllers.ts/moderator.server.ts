@@ -24,7 +24,7 @@ export class ModeratorController extends BaseTenantController {
       name: string;
       email: string;
       password: string;
-      avatar: string;
+      avatar?: string;
       role: Role;
     }
   ) {

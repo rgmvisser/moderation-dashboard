@@ -35,7 +35,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               icon={<ChatBubbleLeftRightIcon />}
               to={QueuePath(tenantSlug)}
             >
-              Messages
+              Contents
             </CMNavLink>
           </Navbar.Section>
           <Navbar.Section>
