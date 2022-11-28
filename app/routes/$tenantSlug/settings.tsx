@@ -72,7 +72,8 @@ export default function Settings() {
   return (
     <div className="flex h-full flex-col gap-2">
       <h1>Settings</h1>
-      <div className="flex h-full flex-col gap-4 rounded-md bg-white p-4">
+      <div className="flex h-full flex-col gap-4 rounded-lg bg-white p-4">
+        <h2 className="text-lg font-semibold">API Keys</h2>
         <Table>
           <thead>
             <tr>
@@ -93,7 +94,16 @@ export default function Settings() {
                 <td>{apiKey.createdBy.name}</td>
                 <td>{GetDateFormatted(apiKey.createdAt)}</td>
                 <td>
-                  <Form method="post">
+                  <Form
+                    method="post"
+                    onSubmit={(event) => {
+                      if (
+                        !confirm("Are you sure? This action cannot be undone.")
+                      ) {
+                        event.preventDefault();
+                      }
+                    }}
+                  >
                     <input type="hidden" name="id" value={apiKey.id} />
                     <input type="hidden" name="type" value="remove" />
                     <CMButton
@@ -101,7 +111,7 @@ export default function Settings() {
                       status="hidden"
                       className="rounded-full px-0 py-0"
                     >
-                      <XMarkIcon className="h-5 w-5" />
+                      <XMarkIcon className="h-4 w-4" />
                     </CMButton>
                   </Form>
                 </td>
@@ -116,7 +126,7 @@ export default function Settings() {
         <Form ref={formRef} method="post">
           <div className="flex gap-2">
             <TextInput type="hidden" name="type" value="add" />
-            <TextInput type="text" name="name" placeholder="API Key name" />
+            <TextInput type="text" name="name" placeholder="API key name" />
             <CMButton type="submit">Create API key</CMButton>
           </div>
           {actionData?.error && (
@@ -131,7 +141,7 @@ export default function Settings() {
             className="w-1/2"
             icon={<CheckIcon className="h-4 w-4" />}
             color="teal"
-            title="API Key Created"
+            title="API key created"
             disallowClose
           >
             Your API key is: <Code>{actionData.keySecret}</Code> this is the
@@ -141,7 +151,7 @@ export default function Settings() {
                 <CMButton
                   status={copied ? "allowed" : undefined}
                   onClick={copy}
-                  className=" inline-flex px-1 py-1"
+                  className=" inline-flex px-1 py-[3px]"
                 >
                   {copied ? (
                     <CheckIcon className="h3 w-3" />
