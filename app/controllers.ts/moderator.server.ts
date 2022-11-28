@@ -38,7 +38,7 @@ export class ModeratorController extends BaseTenantController {
         Authentication: {
           create: {
             provider: "EmailPassword",
-            password: hashedPassword,
+            hash: hashedPassword,
           },
         },
         roles: {
@@ -65,10 +65,7 @@ export class ModeratorController extends BaseTenantController {
       (a) => a.provider === "EmailPassword"
     );
     if (!passwordAuth) return null;
-    const isPasswordCorrect = await bcrypt.compare(
-      password,
-      passwordAuth.password
-    );
+    const isPasswordCorrect = await bcrypt.compare(password, passwordAuth.hash);
     if (!isPasswordCorrect) return null;
 
     // Return without authentication on the model

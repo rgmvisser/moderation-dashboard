@@ -79,7 +79,7 @@ model Authentication {
   createdAt   DateTime               @default(now())
   updatedAt   DateTime               @updatedAt
   provider    CMAuthenticationMethod
-  password    String
+  hash        String
   moderator   Moderator              @relation(fields: [moderatorId], references: [id])
   moderatorId String
 }
