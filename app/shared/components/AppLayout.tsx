@@ -9,6 +9,7 @@ import {
   UsersIcon,
   MegaphoneIcon,
   ClipboardDocumentCheckIcon,
+  Cog8ToothIcon,
 } from "@heroicons/react/24/outline";
 import UserMenu from "./UserMenu";
 import Logo from "./Logo";
@@ -19,6 +20,7 @@ import {
   QueuePath,
   ReportsPath,
   RulesPath,
+  TenantSettingsPath,
   UsersPath,
 } from "../utils.tsx/navigation";
 
@@ -67,6 +69,14 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               to={ActionsPath(tenantSlug)}
             >
               Actions
+            </CMNavLink>
+          </Navbar.Section>
+          <Navbar.Section>
+            <CMNavLink
+              icon={<Cog8ToothIcon />}
+              to={TenantSettingsPath(tenantSlug)}
+            >
+              Settings
             </CMNavLink>
           </Navbar.Section>
 

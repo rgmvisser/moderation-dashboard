@@ -28,16 +28,31 @@ model Tenant {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  User          User[]
-  Content       Content[]
-  Project       Project[]
-  Reason        Reason[]
-  StatusReasons StatusReasons[]
-  Action        Action[]
-  Topic         Topic[]
+  users         User[]
+  contents      Content[]
+  projects      Project[]
+  reasons       Reason[]
+  statusReasons StatusReasons[]
+  actions       Action[]
+  topics        Topic[]
 
-  ModeratorFilters ModeratorFilters[]
-  ModeratorRole    ModeratorRole[]
+  moderatorFilters ModeratorFilters[]
+  moderatorRoles   ModeratorRole[]
+  apiKeys          ApiKey[]
+}
+
+model ApiKey {
+  id        String   @id @default(cuid())
+  hashedKey String   @unique
+  keyHint   String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdBy   Moderator @relation(fields: [moderatorId], references: [id], onDelete: Cascade)
+  moderatorId String
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId    String
 }
 
 enum Role {
@@ -64,10 +79,11 @@ model Moderator {
   name             String
   email            String            @unique
   avatar           String?
-  ModeratorFilters ModeratorFilters?
-  Action           Action[]
+  moderatorFilters ModeratorFilters?
+  actions          Action[]
   roles            ModeratorRole[]
-  Authentication   Authentication[]
+  authentication   Authentication[]
+  apiKeys          ApiKey[]
 }
 
 enum CMAuthenticationMethod {
@@ -96,7 +112,7 @@ model User {
   status       Status
 
   contents Content[]
-  Action   Action[]
+  actions  Action[]
   tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   tenantId String
 }
@@ -132,7 +148,7 @@ model Content {
   projectId String
   topic     Topic    @relation(fields: [topicId], references: [id])
   topicId   String
-  Action    Action[]
+  actions   Action[]
 }
 
 model Project {
@@ -179,8 +195,8 @@ model Reason {
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   name          String
-  StatusReasons StatusReasons[]
-  Action        Action[]
+  statusReasons StatusReasons[]
+  actions       Action[]
   tenant        Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   tenantId      String
 }

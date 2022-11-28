@@ -34,6 +34,10 @@ export function ActionsPath(tenantSlug: string) {
   return `/${tenantSlug}/actions`;
 }
 
+export function TenantSettingsPath(tenantSlug: string) {
+  return `/${tenantSlug}/settings`;
+}
+
 export function UserPath(tenantSlug: string, userId: string) {
   return `${QueuePath(tenantSlug)}/user/${userId}`;
 }

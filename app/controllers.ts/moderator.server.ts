@@ -35,7 +35,7 @@ export class ModeratorController extends BaseTenantController {
         name: name,
         email: email,
         avatar: avatar,
-        Authentication: {
+        authentication: {
           create: {
             provider: "EmailPassword",
             hash: hashedPassword,
@@ -57,11 +57,11 @@ export class ModeratorController extends BaseTenantController {
         email,
       },
       include: {
-        Authentication: true,
+        authentication: true,
       },
     });
     if (!moderator) return null;
-    const passwordAuth = moderator.Authentication.find(
+    const passwordAuth = moderator.authentication.find(
       (a) => a.provider === "EmailPassword"
     );
     if (!passwordAuth) return null;

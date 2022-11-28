@@ -5,40 +5,65 @@ import { json } from "remix-supertyped";
 import { withZod } from "@remix-validated-form/with-zod";
 import { validationError } from "remix-validated-form";
 import { ActionController } from "~/controllers.ts/action.server";
-import { Status } from "@prisma/client";
 
 import { GetModeratorAndTenant } from "~/middleware/tenant";
-import { MessageController } from "~/controllers.ts/message.server";
+import { ContentController } from "~/controllers.ts/content.server";
 
 export const validator = withZod(
   z.object({
-    messageId: z.string().cuid({ message: "MessageId required" }),
-    reasonId: z.string().cuid({ message: "Please fill out a reason" }),
-    status: z.nativeEnum(Status),
-    reasonInformation: z.string().optional(),
+    user: z.object({
+      id: z.string(),
+      created_at: z.date(),
+      name: z.string().optional(),
+      email_domain: z.string().optional(),
+      signup_method: z.string().optional(),
+      profile_image_url: z.string().optional(),
+    }),
+    content: z
+      .object({
+        id: z.string(),
+        created_at: z.date(),
+        content: z.string(),
+      })
+      .optional(),
+    image: z
+      .object({
+        image_id: z.string(),
+        created_at: z.date(),
+        image_url: z.string().url(),
+      })
+      .optional(),
+    project: z.object({
+      id: z.string(),
+      name: z.string(),
+    }),
+    topic: z.object({
+      id: z.string(),
+      name: z.string(),
+    }),
   })
 );
 
 export const action: ActionFunction = async ({ request, params }) => {
-  const { tenant, moderator } = await GetModeratorAndTenant(request, params);
-  const res = await validator.validate(await request.formData());
-  if (res.error) {
-    return validationError(res.error);
-  }
-  const { messageId, reasonId, reasonInformation, status } = res.data;
-  const messageController = new MessageController(tenant);
-  const message = await messageController.getMessage(messageId);
-  if (!message) {
-    throw new Error(`Could not find message: ${messageId}`);
-  }
-  const actionController = new ActionController(tenant);
-  await actionController.updateStatus(
-    moderator,
-    status,
-    reasonId,
-    reasonInformation,
-    message
-  );
-  const newMessage = await messageController.getMessage(messageId);
-  return json({ message: newMessage });
+  // const { tenant, moderator } = await GetModeratorAndTenant(request, params);
+  // const res = await validator.validate(await request.formData());
+  // if (res.error) {
+  //   return validationError(res.error);
+  // }
+  // const { contentId, reasonId, reasonInformation, status } = res.data;
+  // const contentController = new ContentController(tenant);
+  // const content = await contentController.getContent(contentId);
+  // if (!content) {
+  //   throw new Error(`Could not find content: ${contentId}`);
+  // }
+  // const actionController = new ActionController(tenant);
+  // await actionController.updateStatus(
+  //   moderator,
+  //   status,
+  //   reasonId,
+  //   reasonInformation,
+  //   content
+  // );
+  // const newContent = await contentController.getContent(contentId);
+  // return json({ content: newContent });
 };
