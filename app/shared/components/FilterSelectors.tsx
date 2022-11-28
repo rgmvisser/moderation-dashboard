@@ -31,7 +31,7 @@ export const Selectors = ({ statuses, projects, threads, filter }: Props) => {
     <filterFetcher.Form
       method="post"
       ref={formRef}
-      action={`${tenantContext}/settings/filter`}
+      action={`/${tenantContext.tenant.slug}/settings/filter`}
       reloadDocument
       className="w-full"
     >

@@ -9,11 +9,15 @@ export async function IsAuthenticated(request: Request) {
 }
 
 export async function GetAuthenticatedModerator(request: Request) {
-  const moderator = await authenticator.isAuthenticated(request);
+  const moderator = await GetOptionalAuthenticatedModerator(request);
   if (!moderator) {
     throw redirect(LoginPath());
   }
   return moderator;
+}
+
+export async function GetOptionalAuthenticatedModerator(request: Request) {
+  return await authenticator.isAuthenticated(request);
 }
 
 export async function AuthenticateModerator(

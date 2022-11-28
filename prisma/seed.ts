@@ -3,7 +3,6 @@ import randomSentence from "random-sentence";
 import type { Config } from "unique-names-generator";
 import { uniqueNamesGenerator, names } from "unique-names-generator";
 import { ModeratorController } from "~/controllers.ts/moderator.server";
-import { ModelsWithoutTenant } from "~/models";
 
 const nameConfig: Config = {
   dictionaries: [names],

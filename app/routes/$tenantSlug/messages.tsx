@@ -8,14 +8,14 @@ import { Outlet, useParams } from "@remix-run/react";
 import { DashboardContainer } from "~/shared/components/DashboardContainer";
 import { Selectors } from "~/shared/components/FilterSelectors";
 import { FilterController } from "~/controllers.ts/filter.server";
-import { GetTenant } from "~/middleware/tenant";
+import { GetModeratorAndTenant } from "~/middleware/tenant";
 import { MessageController } from "~/controllers.ts/message.server";
 import type { MessageWithInfo } from "~/models/message";
 import { AreMessagesEqual } from "~/models/message";
 
 export async function loader({ request, params }: LoaderArgs) {
-  const tenant = await GetTenant(request, params);
-  const filterController = new FilterController(tenant);
+  const { moderator, tenant } = await GetModeratorAndTenant(request, params);
+  const filterController = new FilterController(tenant, moderator);
   const filter = await filterController.getModeratorFilter();
   const filterInfo = await filterController.getFilterInfo();
   const messageController = new MessageController(tenant);
@@ -94,7 +94,7 @@ export default function Messages() {
   function onWheel(event: any) {
     const scrollY = listRef.current?.scrollTop ?? 0;
     if (prevScroll.current === scrollY && scrollY !== 0) {
-      console.log("at the bottom:", shouldAutoScroll.current);
+      // console.log("at the bottom:", shouldAutoScroll.current);
       // Scrolled to the bottom
       shouldAutoScroll.current = true;
     } else {

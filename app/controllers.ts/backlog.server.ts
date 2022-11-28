@@ -58,7 +58,7 @@ async function updateBacklog(time: number) {
   console.log("Found backlog messages:", backlogMessages.length);
   lastTime = time; // Update time to last fetched
 
-  const filterController = new FilterController(tenant);
+  const filterController = new FilterController(tenant, moderator);
   const filter = await filterController.getModeratorFilter();
 
   // Create messages and emit them

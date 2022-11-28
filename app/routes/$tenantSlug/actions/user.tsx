@@ -8,8 +8,7 @@ import { validationError } from "remix-validated-form";
 import { ActionController } from "~/controllers.ts/action.server";
 
 import { Status } from "@prisma/client";
-import { ModeratorController } from "~/controllers.ts/moderator.server";
-import { GetTenant } from "~/middleware/tenant";
+import { GetModeratorAndTenant } from "~/middleware/tenant";
 import { UserController } from "~/controllers.ts/user.server";
 
 export const validator = withZod(
@@ -25,7 +24,7 @@ export const validator = withZod(
 );
 
 export const action: ActionFunction = async ({ request, params }) => {
-  const tenant = await GetTenant(request, params);
+  const { tenant, moderator } = await GetModeratorAndTenant(request, params);
   const res = await validator.validate(await request.formData());
   if (res.error) {
     return validationError(res.error);
@@ -47,9 +46,6 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (!user) {
     throw new Error(`Could not find user: ${user}`);
   }
-
-  const tenantUserController = new ModeratorController(tenant);
-  const moderator = await tenantUserController.getModerator();
   const actionController = new ActionController(tenant);
   await actionController.updateStatus(
     moderator,

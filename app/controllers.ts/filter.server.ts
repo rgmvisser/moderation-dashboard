@@ -1,3 +1,4 @@
+import type { Moderator, Tenant } from "@prisma/client";
 import { Status } from "@prisma/client";
 import { BaseTenantController } from "./baseController.server";
 
@@ -10,15 +11,20 @@ export type Filter = {
 export type FilterInfo = { id: string; name: string }[];
 
 export class FilterController extends BaseTenantController {
-  async setmoderatorFilters(
+  moderator: Moderator;
+
+  constructor(tenant: Tenant, moderator: Moderator) {
+    super(tenant);
+    this.moderator = moderator;
+  }
+
+  async setModeratorFilters(
     selectedProjects: string | null,
     selectedThreads: string | null,
     selectedStatuses: string | null
   ) {
-    // TODO do this with the actual logged in user
-    const moderator = await this.db.moderator.findFirstOrThrow();
     let moderatorFilter = await this.db.moderatorFilters.findUnique({
-      where: { moderatorId: moderator.id },
+      where: { moderatorId: this.moderator.id },
     });
     if (
       selectedProjects != null ||
@@ -44,7 +50,7 @@ export class FilterController extends BaseTenantController {
         moderatorFilter = await this.db.moderatorFilters.create({
           data: {
             tenantId: this.tenant.id,
-            moderatorId: moderator.id,
+            moderatorId: this.moderator.id,
             projects: selectedProjects ?? "",
             threads: selectedThreads ?? "",
             statuses: selectedStatuses ?? "",
@@ -55,10 +61,8 @@ export class FilterController extends BaseTenantController {
   }
 
   async getModeratorFilter(): Promise<Filter> {
-    // TODO do this with the actual logged in user
-    const moderator = await this.db.moderator.findFirstOrThrow();
     let moderatorFilter = await this.db.moderatorFilters.findUnique({
-      where: { moderatorId: moderator.id },
+      where: { moderatorId: this.moderator.id },
     });
     if (moderatorFilter) {
       return {

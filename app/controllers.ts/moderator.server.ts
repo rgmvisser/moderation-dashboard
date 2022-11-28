@@ -3,19 +3,15 @@ import { BaseTenantController } from "./baseController.server";
 import bcrypt from "bcrypt";
 import type { Moderator, Role, Tenant } from "@prisma/client";
 
-export class ModeratorController extends BaseTenantController {
-  async getModerator() {
-    return this.db.moderator.findFirstOrThrow({
-      include: {
-        roles: {
-          include: {
-            tenant: true,
-          },
-        },
-      },
-    });
-  }
+const includeTentant = {
+  roles: {
+    include: {
+      tenant: true,
+    },
+  },
+};
 
+export class ModeratorController extends BaseTenantController {
   static async CreateModerator(
     tenant: Tenant,
     {
@@ -80,6 +76,9 @@ export class ModeratorController extends BaseTenantController {
       where: {
         id: moderator.id,
       },
+      include: {
+        ...includeTentant,
+      },
     });
   }
 
@@ -92,6 +91,7 @@ export class ModeratorController extends BaseTenantController {
         tenant: true,
       },
     });
-    return tenantRoles.map((r) => r.tenant);
+    const tenants = tenantRoles.map((r) => r.tenant);
+    return tenants;
   }
 }

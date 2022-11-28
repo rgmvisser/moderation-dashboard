@@ -18,8 +18,7 @@ import AppLayout from "./shared/components/AppLayout";
 import { intervalTimer } from "./controllers.ts/timer.server";
 import { AppProvider } from "./shared/contexts/AppContext";
 import { ActionModal } from "./shared/components/ActionModal";
-import { ModeratorController } from "./controllers.ts/moderator.server";
-import { getGeneralClient } from "./db.server";
+import { GetOptionalAuthenticatedModerator } from "./middleware/authenticate";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
@@ -34,15 +33,13 @@ export const meta: MetaFunction = () => ({
 createEmotionCache({ key: "mantine" });
 
 export async function loader({ request }: LoaderArgs) {
-  // TODO: load tenant in another way
-  const tenant = await getGeneralClient().tenant.findFirstOrThrow();
-  const tenantUserController = new ModeratorController(tenant);
+  const moderator = await GetOptionalAuthenticatedModerator(request);
   return json({
     timer: {
       enabled: intervalTimer.enabled,
       speed: intervalTimer.speed,
     },
-    moderator: await tenantUserController.getModerator(),
+    moderator: moderator ?? undefined,
   });
 }
 
