@@ -132,6 +132,7 @@ async function seed() {
     data: topics.map((topic) => {
       return {
         tenantId: tenant.id,
+        projectId: sample(projectIds),
         name: topic,
       };
     }),

@@ -144,6 +144,7 @@ model Project {
   contents Content[]
   tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   tenantId String
+  Topic    Topic[]
 }
 
 model Topic {
@@ -152,9 +153,11 @@ model Topic {
   updatedAt DateTime @updatedAt
   name      String
 
-  contents Content[]
-  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  tenantId String
+  contents  Content[]
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId  String
+  projectId String
 }
 
 model ModeratorFilters {
