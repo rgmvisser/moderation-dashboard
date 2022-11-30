@@ -1,6 +1,6 @@
 import type { ActionFunction } from "@remix-run/node";
 import { json } from "remix-supertyped";
-import { intervalTimer } from "~/controllers.ts/timer.server";
+import { intervalTimer } from "~/controllers/timer.server";
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();

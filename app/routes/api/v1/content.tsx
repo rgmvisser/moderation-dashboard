@@ -4,11 +4,11 @@ import { z } from "zod";
 import { withZod } from "@remix-validated-form/with-zod";
 import { GetAuthenticatedAPIKey } from "~/middleware/authenticate";
 import type { Content, Tenant } from "@prisma/client";
-import { UserController } from "~/controllers.ts/user.server";
+import { UserController } from "~/controllers/user.server";
 import { SignInMethodForString } from "~/models/user";
-import { ContentController } from "~/controllers.ts/content.server";
-import { ProjectController } from "~/controllers.ts/project.server";
-import { TopicController } from "~/controllers.ts/topic.server";
+import { ContentController } from "~/controllers/content.server";
+import { ProjectController } from "~/controllers/project.server";
+import { TopicController } from "~/controllers/topic.server";
 import invariant from "tiny-invariant";
 import isISODate from "is-iso-date";
 

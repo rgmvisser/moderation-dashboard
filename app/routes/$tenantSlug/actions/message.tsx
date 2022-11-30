@@ -4,11 +4,11 @@ import { json } from "remix-supertyped";
 
 import { withZod } from "@remix-validated-form/with-zod";
 import { validationError } from "remix-validated-form";
-import { ActionController } from "~/controllers.ts/action.server";
+import { ActionController } from "~/controllers/action.server";
 import { Status } from "@prisma/client";
 
 import { GetModeratorAndTenant } from "~/middleware/tenant";
-import { ContentController } from "~/controllers.ts/content.server";
+import { ContentController } from "~/controllers/content.server";
 
 export const validator = withZod(
   z.object({

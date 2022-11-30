@@ -1,7 +1,7 @@
 import type { ActionFunction } from "@remix-run/node";
 import { json } from "remix-supertyped";
 import { GetModeratorAndTenant } from "~/middleware/tenant";
-import { FilterController } from "~/controllers.ts/filter.server";
+import { FilterController } from "~/controllers/filter.server";
 
 export const action: ActionFunction = async ({ request, params }) => {
   const { moderator, tenant } = await GetModeratorAndTenant(request, params);

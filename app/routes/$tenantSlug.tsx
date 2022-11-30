@@ -12,7 +12,7 @@ import AppLayout from "~/shared/components/AppLayout";
 import { SocketProvider } from "~/shared/contexts/SocketContext";
 import { ModalProvider } from "~/shared/contexts/ModalContext";
 import { ActionModal } from "~/shared/components/ActionModal";
-import { ReasonController } from "~/controllers.ts/reason.server";
+import { ReasonController } from "~/controllers/reason.server";
 
 export async function loader({ request, params }: LoaderArgs) {
   const tenant = await GetTenant(request, params);

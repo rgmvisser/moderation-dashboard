@@ -7,9 +7,9 @@ import { JSONParseWithDates } from "~/shared/utils.tsx/json";
 import { Outlet, useParams } from "@remix-run/react";
 import { DashboardContainer } from "~/shared/components/DashboardContainer";
 import { Selectors } from "~/shared/components/FilterSelectors";
-import { FilterController } from "~/controllers.ts/filter.server";
+import { FilterController } from "~/controllers/filter.server";
 import { GetModeratorAndTenant } from "~/middleware/tenant";
-import { ContentController } from "~/controllers.ts/content.server";
+import { ContentController } from "~/controllers/content.server";
 import type { ContentWithInfo } from "~/models/content";
 import { AreContentsEqual } from "~/models/content";
 

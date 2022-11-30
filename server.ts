@@ -6,7 +6,7 @@ import { createRequestHandler } from "@remix-run/express";
 import prom from "express-prometheus-middleware";
 
 import { Server } from "socket.io";
-import { startBacklogQueue } from "~/controllers.ts/backlog.server";
+import { startBacklogQueue } from "~/controllers/backlog.server";
 
 const app = express();
 const metricsApp = express();

@@ -8,8 +8,8 @@ import { GetDateFormatted } from "~/shared/utils.tsx/date";
 import { useNavigate, useTransition } from "@remix-run/react";
 import { numericString } from "~/shared/utils.tsx/validate";
 import { GetTenant } from "~/middleware/tenant";
-import { ContentController } from "~/controllers.ts/content.server";
-import { UserController } from "~/controllers.ts/user.server";
+import { ContentController } from "~/controllers/content.server";
+import { UserController } from "~/controllers/user.server";
 import { useLoadingDelay } from "~/shared/hooks/useLoadingDelay";
 
 export const validator = withZod(

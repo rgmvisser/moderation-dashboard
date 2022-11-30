@@ -3,7 +3,7 @@ import { createCookieSessionStorage } from "@remix-run/node";
 import invariant from "tiny-invariant";
 import type { Moderator } from "@prisma/client";
 import { FormStrategy } from "remix-auth-form";
-import { ModeratorController } from "./controllers.ts/moderator.server";
+import { ModeratorController } from "./controllers/moderator.server";
 
 invariant(process.env.SESSION_SECRET, "SESSION_SECRET must be set");
 

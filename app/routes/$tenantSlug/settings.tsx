@@ -5,7 +5,7 @@ import { withZod } from "@remix-validated-form/with-zod";
 import { GetDateFormatted } from "~/shared/utils.tsx/date";
 import { Form } from "@remix-run/react";
 import { GetModeratorAndTenant, GetTenant } from "~/middleware/tenant";
-import { APIKeyController } from "~/controllers.ts/apikey.server";
+import { APIKeyController } from "~/controllers/apikey.server";
 import { Code, CopyButton, Divider, Table, TextInput } from "@mantine/core";
 import { CMButton } from "~/shared/components/CMButton";
 

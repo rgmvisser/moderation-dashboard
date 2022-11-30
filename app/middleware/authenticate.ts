@@ -1,5 +1,5 @@
 import { redirect } from "remix-supertyped";
-import { APIKeyController } from "~/controllers.ts/apikey.server";
+import { APIKeyController } from "~/controllers/apikey.server";
 import { getGeneralClient } from "~/db.server";
 import type { AuhtenticationStrategy } from "~/session.server";
 import { authenticator } from "~/session.server";

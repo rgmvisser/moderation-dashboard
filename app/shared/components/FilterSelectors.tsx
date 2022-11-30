@@ -1,7 +1,7 @@
 import { MultiSelect } from "@mantine/core";
 import { useFetcher } from "@remix-run/react";
 import { useRef } from "react";
-import type { Filter, FilterInfo } from "~/controllers.ts/filter.server";
+import type { Filter, FilterInfo } from "~/controllers/filter.server";
 import { useTenantContext } from "../contexts/TenantContext";
 import { CapitalizeFirst } from "../utils.tsx/strings";
 

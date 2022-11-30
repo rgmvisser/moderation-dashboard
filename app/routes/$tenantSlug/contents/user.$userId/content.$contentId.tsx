@@ -4,11 +4,11 @@ import { ProjectBadge, StatusBadge } from "~/shared/components/CMBadge";
 import { CMHeader } from "~/shared/components/CMHeader";
 import { DashboardContainer } from "~/shared/components/DashboardContainer";
 import { json, useLoaderData } from "remix-supertyped";
-import { ActionController } from "~/controllers.ts/action.server";
+import { ActionController } from "~/controllers/action.server";
 import { ActionContainer } from "~/shared/components/ActionContainer";
 import { GetTenant } from "~/middleware/tenant";
-import { UserController } from "~/controllers.ts/user.server";
-import { ContentController } from "~/controllers.ts/content.server";
+import { UserController } from "~/controllers/user.server";
+import { ContentController } from "~/controllers/content.server";
 import { ContentTextContainer } from "~/shared/components/ContentTextContainer";
 
 export async function loader({ request, params }: LoaderArgs) {

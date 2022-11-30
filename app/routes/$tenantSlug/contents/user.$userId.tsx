@@ -10,10 +10,10 @@ import { json, useLoaderData } from "remix-supertyped";
 import { Outlet, useParams } from "@remix-run/react";
 import { GetDateFromNow } from "~/shared/utils.tsx/date";
 import { ActionContainer } from "~/shared/components/ActionContainer";
-import { ActionController } from "~/controllers.ts/action.server";
+import { ActionController } from "~/controllers/action.server";
 import { GetTenant } from "~/middleware/tenant";
-import { ContentController } from "~/controllers.ts/content.server";
-import { UserController } from "~/controllers.ts/user.server";
+import { ContentController } from "~/controllers/content.server";
+import { UserController } from "~/controllers/user.server";
 
 export async function loader({ request, params }: LoaderArgs) {
   const tenant = await GetTenant(request, params);

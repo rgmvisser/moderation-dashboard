@@ -1,6 +1,6 @@
 import { redirect } from "@remix-run/node";
 import type { Params } from "@remix-run/react";
-import { ModeratorController } from "~/controllers.ts/moderator.server";
+import { ModeratorController } from "~/controllers/moderator.server";
 import { DashboardPath } from "~/shared/utils.tsx/navigation";
 import { GetAuthenticatedModerator } from "./authenticate";
 

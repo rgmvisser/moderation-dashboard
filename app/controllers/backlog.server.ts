@@ -1,6 +1,6 @@
 import { ioServer } from "server";
 import { getTenantClient, getGeneralClient } from "~/db.server";
-import { FilterController } from "~/controllers.ts/filter.server";
+import { FilterController } from "~/controllers/filter.server";
 
 import { intervalTimer } from "./timer.server";
 import { ContentController } from "./content.server";

@@ -15,7 +15,7 @@ import { StylesPlaceholder } from "@mantine/remix";
 import tailwindStylesheetUrl from "./styles/tailwind.css";
 import AppLayout from "./shared/components/AppLayout";
 
-import { intervalTimer } from "./controllers.ts/timer.server";
+import { intervalTimer } from "./controllers/timer.server";
 import { AppProvider } from "./shared/contexts/AppContext";
 import { ActionModal } from "./shared/components/ActionModal";
 import { GetOptionalAuthenticatedModerator } from "./middleware/authenticate";
