@@ -5,6 +5,7 @@ import { FilterController } from "~/controllers.ts/filter.server";
 import { intervalTimer } from "./timer.server";
 import { ContentController } from "./content.server";
 import { ContentWithInfo } from "~/models/content";
+import { randomUUID } from "crypto";
 
 export function startBacklogQueue() {
   intervalTimer.setListener(async ({ time }) => {
@@ -69,6 +70,7 @@ async function updateBacklog(time: number) {
       id: undefined,
       createdAt: undefined,
       updateAt: undefined,
+      externalId: randomUUID(),
     };
     const createdContent = await db.content.create({
       data: data,

@@ -1,16 +1,15 @@
-import type { Tenant, User } from "@prisma/client";
+import type { SignInMethod, Status, Tenant, User } from "@prisma/client";
 import { BaseTenantController } from "./baseController.server";
-
-// import type { Password, User } from "@prisma/client";
-// import bcrypt from "bcryptjs";
-
-// import { prisma } from "~/db.server";
-
-// export type { User } from "@prisma/client";
+import type { Config } from "unique-names-generator";
+import { uniqueNamesGenerator, names } from "unique-names-generator";
 
 export class UserController extends BaseTenantController {
-  async getUserById(tenant: Tenant, id: User["id"]) {
+  async getUserById(id: User["id"]) {
     return this.db.user.findUnique({ where: { id } });
+  }
+
+  async getUserByExternalId(externalId: User["externalId"]) {
+    return this.db.user.findUnique({ where: { externalId } });
   }
 
   async getUsers({
@@ -34,7 +33,96 @@ export class UserController extends BaseTenantController {
   async getAllUsersCount() {
     return this.db.user.count();
   }
+
+  async createUser({
+    externalId,
+    name,
+    createdAt,
+    signInMethod,
+    status = "allowed",
+    location = "unkown",
+    emailDomain,
+    profileImageURL,
+  }: {
+    externalId: string;
+    name: string;
+    createdAt: Date;
+    signInMethod: SignInMethod;
+    status: Status;
+    location?: string;
+    emailDomain?: string;
+    profileImageURL?: string;
+  }) {
+    return this.db.user.create({
+      data: {
+        externalId,
+        createdAt,
+        name,
+        signInMethod,
+        status,
+        location,
+        emailDomain,
+        profileImageURL,
+        tenantId: this.tenant.id,
+      },
+    });
+  }
+
+  async updateUser({
+    user,
+    name,
+    signInMethod,
+    status,
+    location,
+    emailDomain,
+    profileImageURL,
+  }: {
+    user: User;
+    name?: string;
+    signInMethod?: SignInMethod;
+    status?: Status;
+    location?: string;
+    emailDomain?: string;
+    profileImageURL?: string;
+  }) {
+    const updates: Partial<User> = {};
+    if (name && name !== user.name) {
+      updates.name = user.name;
+    }
+    if (signInMethod && signInMethod !== user.signInMethod) {
+      updates.signInMethod = user.signInMethod;
+    }
+    if (status && status !== user.status) {
+      updates.status = user.status;
+    }
+    if (location && location !== user.location) {
+      updates.location = user.location;
+    }
+    if (emailDomain && emailDomain !== user.emailDomain) {
+      updates.emailDomain = user.emailDomain;
+    }
+    if (profileImageURL && profileImageURL !== user.profileImageURL) {
+      updates.profileImageURL = user.profileImageURL;
+    }
+    if (Object.keys(updates).length === 0) {
+      return user;
+    }
+    return this.db.user.update({
+      where: {
+        id: user.id,
+      },
+      data: updates,
+    });
+  }
+
+  static RandomName() {
+    const nameConfig: Config = {
+      dictionaries: [names],
+    };
+    return uniqueNamesGenerator(nameConfig);
+  }
 }
+
 // export async function getUserByEmail(email: User["email"]) {
 //   return prisma.user.findUnique({ where: { email } });
 // }

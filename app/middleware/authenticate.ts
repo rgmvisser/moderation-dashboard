@@ -40,7 +40,7 @@ export async function Logout(request: Request) {
 
 export async function GetAuthenticatedAPIKey(request: Request) {
   // Get bearer token from request
-  const token = request.headers.get("Authorization")?.replace("Bearer ", "");
+  const token = GetAuthenticationHeader(request)?.replace("Bearer ", "");
   if (!token) {
     throw new Error(
       "No API key provided, please provide a 'Authorization' header 'Bearer' token"
@@ -61,4 +61,13 @@ export async function GetAuthenticatedAPIKey(request: Request) {
     );
   }
   return apiKey;
+}
+
+function GetAuthenticationHeader(request: Request) {
+  return (
+    request.headers.get("Authorization") ??
+    request.headers.get("authorization") ??
+    request.headers.get("X-API-Key") ??
+    request.headers.get("X-Api-Key")
+  );
 }

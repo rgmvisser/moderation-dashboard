@@ -42,7 +42,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     throw new Error("Cannot flag and hide all contents at the same time");
   }
   const userController = new UserController(tenant);
-  const user = await userController.getUserById(tenant, userId);
+  const user = await userController.getUserById(userId);
   if (!user) {
     throw new Error(`Could not find user: ${user}`);
   }
@@ -55,7 +55,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     undefined,
     user
   );
-  const updatedUser = await userController.getUserById(tenant, userId);
+  const updatedUser = await userController.getUserById(userId);
   if (allowAllContents || flagAllContents || hideAllContents) {
     const status: Status = allowAllContents
       ? "allowed"

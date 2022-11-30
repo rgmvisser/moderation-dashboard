@@ -18,6 +18,9 @@ enum SignInMethod {
   email
   google
   facebook
+  apple
+  unknown
+  phone
 }
 
 model Tenant {
@@ -101,15 +104,18 @@ model Authentication {
 }
 
 model User {
-  id String @id @default(cuid())
+  id         String @id @default(cuid())
+  externalId String @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name         String
-  signInMethod SignInMethod
-  location     String
-  status       Status
+  name            String?
+  signInMethod    SignInMethod
+  location        String?
+  emailDomain     String?
+  profileImageURL String?
+  status          Status
 
   contents Content[]
   actions  Action[]
@@ -132,9 +138,12 @@ model BacklogMessage {
 }
 
 model Content {
-  id                     String @id @default(cuid())
+  id                     String   @id @default(cuid())
+  externalId             String   @unique
   millisecondsAfterStart Int
-  content                String
+  message                Message?
+  image                  Image?
+  content                String // Deprectated
   status                 Status
 
   createdAt DateTime @default(now())
@@ -151,23 +160,43 @@ model Content {
   actions   Action[]
 }
 
-model Project {
+model Message {
   id        String   @id @default(cuid())
+  content   Content  @relation(fields: [contentId], references: [id])
+  contentId String   @unique
+  text      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  name      String
+}
+
+model Image {
+  id        String   @id @default(cuid())
+  content   Content  @relation(fields: [contentId], references: [id])
+  contentId String   @unique
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Project {
+  id         String   @id @default(cuid())
+  externalId String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  name       String
 
   contents Content[]
   tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   tenantId String
-  Topic    Topic[]
+  topics   Topic[]
 }
 
 model Topic {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  name      String
+  id         String   @id @default(cuid())
+  externalId String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  name       String
 
   contents  Content[]
   project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)

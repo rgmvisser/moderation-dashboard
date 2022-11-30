@@ -1,4 +1,5 @@
 import { PrismaClient, SignInMethod, Status } from "@prisma/client";
+import { randomUUID } from "crypto";
 import randomSentence from "random-sentence";
 import type { Config } from "unique-names-generator";
 import { uniqueNamesGenerator, names } from "unique-names-generator";
@@ -121,6 +122,7 @@ async function seed() {
       return {
         tenantId: tenant.id,
         name: project,
+        externalId: randomId(),
       };
     }),
   });
@@ -134,6 +136,7 @@ async function seed() {
         tenantId: tenant.id,
         projectId: sample(projectIds),
         name: topic,
+        externalId: randomId(),
       };
     }),
   });
@@ -149,6 +152,7 @@ async function seed() {
         location: sample(locations),
         signInMethod: sample(signInMethods),
         status: sample(statuses),
+        externalId: randomId(),
       };
     }),
   });
@@ -192,6 +196,10 @@ async function seed() {
 
 function sample<T>(options: T[]) {
   return options[Math.floor(Math.random() * options.length)];
+}
+
+function randomId() {
+  return randomUUID();
 }
 
 seed()

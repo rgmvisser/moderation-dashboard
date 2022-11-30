@@ -19,7 +19,7 @@ export async function loader({ request, params }: LoaderArgs) {
   const tenant = await GetTenant(request, params);
   const userId = params["userId"] ?? "";
   const userController = new UserController(tenant);
-  const user = await userController.getUserById(tenant, userId);
+  const user = await userController.getUserById(userId);
   if (!user) {
     throw new Error(`Could nog find user:  ${userId}`);
   }
@@ -41,7 +41,7 @@ export default function User() {
     <>
       <Outlet />
       <DashboardContainer>
-        <CMHeader title={user.name}>
+        <CMHeader title={user.name ?? ""}>
           <StatusBadge status={user.status} />
         </CMHeader>
         <ActionButtons
@@ -65,7 +65,7 @@ export default function User() {
             {
               status: "allowed",
               type: "Location",
-              text: user.location,
+              text: user.location ?? "Unknown location",
             },
           ]}
         />

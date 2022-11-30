@@ -1,9 +1,18 @@
-import type { User, Project, Topic, Content } from "@prisma/client";
+import type {
+  User,
+  Project,
+  Topic,
+  Content,
+  Message,
+  Image,
+} from "@prisma/client";
 
 export type ContentWithInfo = Content & {
   user: User;
   project: Project;
   topic: Topic;
+  message: Message | null;
+  image: Image | null;
 };
 
 export function AreContentsEqual(
