@@ -26,7 +26,5 @@
   "ts-node": {
     "files": true
   },
-  "files": [
-    "types.d.ts"
-  ]
+  "files": ["types.d.ts"]
 }
