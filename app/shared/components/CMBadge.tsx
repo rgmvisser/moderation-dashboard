@@ -2,6 +2,7 @@ import type { MantineColor } from "@mantine/core";
 import { Badge } from "@mantine/core";
 import type { Status } from "@prisma/client";
 import { MantineColorFromStatus, TextFromStatus } from "../utils.tsx/status";
+import { TruncateMiddle } from "../utils.tsx/strings";
 
 type ProjectBadgeProps = {
   projectName?: string;
@@ -11,8 +12,8 @@ type ProjectBadgeProps = {
 export const ProjectBadge = ({ projectName, topicName }: ProjectBadgeProps) => {
   const text = `${projectName} ${topicName && projectName && "/"} ${topicName}`;
   return (
-    <Badge color={"blue"} variant={"filled"} size="sm" title={text}>
-      {text}
+    <Badge color={"blue"} variant={"filled"} size="xs" title={text}>
+      {TruncateMiddle(text, 50)}
     </Badge>
   );
 };
