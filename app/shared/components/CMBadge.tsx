@@ -1,4 +1,5 @@
-import { Badge, MantineColor } from "@mantine/core";
+import type { MantineColor } from "@mantine/core";
+import { Badge } from "@mantine/core";
 import type { Status } from "@prisma/client";
 import { MantineColorFromStatus, TextFromStatus } from "../utils.tsx/status";
 
@@ -8,9 +9,10 @@ type ProjectBadgeProps = {
 };
 
 export const ProjectBadge = ({ projectName, topicName }: ProjectBadgeProps) => {
+  const text = `${projectName} ${topicName && projectName && "/"} ${topicName}`;
   return (
-    <Badge color={"blue"} variant={"filled"} size="sm">
-      {projectName} {topicName && projectName && "/"} {topicName}
+    <Badge color={"blue"} variant={"filled"} size="sm" title={text}>
+      {text}
     </Badge>
   );
 };

@@ -42,6 +42,8 @@ model Tenant {
   moderatorFilters ModeratorFilters[]
   moderatorRoles   ModeratorRole[]
   apiKeys          ApiKey[]
+  messages         Message[]
+  images           Image[]
 }
 
 model ApiKey {
@@ -143,7 +145,6 @@ model Content {
   millisecondsAfterStart Int
   message                Message?
   image                  Image?
-  content                String // Deprectated
   status                 Status
 
   createdAt DateTime @default(now())
@@ -153,29 +154,33 @@ model Content {
   tenantId  String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
-  project   Project  @relation(fields: [projectId], references: [id])
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String
-  topic     Topic    @relation(fields: [topicId], references: [id])
+  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
   topicId   String
   actions   Action[]
 }
 
 model Message {
   id        String   @id @default(cuid())
-  content   Content  @relation(fields: [contentId], references: [id])
+  content   Content  @relation(fields: [contentId], references: [id], onDelete: Cascade)
   contentId String   @unique
   text      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId  String
 }
 
 model Image {
   id        String   @id @default(cuid())
-  content   Content  @relation(fields: [contentId], references: [id])
+  content   Content  @relation(fields: [contentId], references: [id], onDelete: Cascade)
   contentId String   @unique
   url       String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId  String
 }
 
 model Project {

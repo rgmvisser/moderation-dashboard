@@ -9,7 +9,7 @@ import { ActionContainer } from "~/shared/components/ActionContainer";
 import { GetTenant } from "~/middleware/tenant";
 import { UserController } from "~/controllers.ts/user.server";
 import { ContentController } from "~/controllers.ts/content.server";
-import { ContentContainer } from "~/shared/components/ContentContainer";
+import { ContentTextContainer } from "~/shared/components/ContentTextContainer";
 
 export async function loader({ request, params }: LoaderArgs) {
   const tenant = await GetTenant(request, params);
@@ -30,13 +30,13 @@ export async function loader({ request, params }: LoaderArgs) {
   return json({ user, content, actions });
 }
 
-export default function User() {
+export default function Content() {
   const data = useLoaderData<typeof loader>();
   const { content, actions } = data;
   return (
     <>
       <DashboardContainer>
-        <CMHeader title="Content">
+        <CMHeader title={content.message ? "Message" : "Image"}>
           <StatusBadge status={content.status} />
           <ProjectBadge
             projectName={content.project.name}
@@ -49,18 +49,20 @@ export default function User() {
           allowButton={content.status != "allowed"}
           content={content}
         />
-        <ContentContainer
-          contents={[
-            {
-              title: "Original content",
-              content: content.content,
-            },
-            {
-              title: "Parsed content",
-              content: content.content,
-            },
-          ]}
-        />
+        {content.message && (
+          <ContentTextContainer
+            contents={[
+              {
+                title: "Original content",
+                content: content.message.text,
+              },
+              {
+                title: "Parsed content",
+                content: content.message.text,
+              },
+            ]}
+          />
+        )}
         <CMHeader title="User Reports" />
         <div className="w-full border-t-0 border-r-0 border-b border-l-0 border-main py-2 px-4">
           No reports

@@ -59,10 +59,16 @@ export function ActionModal() {
             {content && (
               <input name="contentId" readOnly value={content.id} hidden />
             )}
-            {content && (
+            {content?.message && (
               <>
-                <h2>Content</h2>
-                <p className="text-xs font-light">{content?.content}</p>
+                <h2>Message</h2>
+                <p className="text-xs font-light">{content?.message.text}</p>
+              </>
+            )}
+            {content?.image && (
+              <>
+                <h2>Image</h2>
+                <p className="text-xs font-light">TODO: Show image</p>
               </>
             )}
             <Select

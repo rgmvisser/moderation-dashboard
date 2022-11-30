@@ -131,7 +131,7 @@ export default function Contents() {
               return (
                 <ContentBox
                   key={content.id}
-                  messsage={content}
+                  content={content}
                   project={content.project}
                   topic={content.topic}
                   user={content.user}

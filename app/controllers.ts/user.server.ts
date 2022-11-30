@@ -34,13 +34,13 @@ export class UserController extends BaseTenantController {
     return this.db.user.count();
   }
 
-  async createUser({
+  async upsertUser({
     externalId,
     name,
     createdAt,
     signInMethod,
-    status = "allowed",
-    location = "unkown",
+    status,
+    location,
     emailDomain,
     profileImageURL,
   }: {
@@ -48,22 +48,35 @@ export class UserController extends BaseTenantController {
     name: string;
     createdAt: Date;
     signInMethod: SignInMethod;
-    status: Status;
+    status?: Status;
     location?: string;
     emailDomain?: string;
     profileImageURL?: string;
   }) {
-    return this.db.user.create({
-      data: {
+    // Note: upsert is only done natively if it satisfies these conditions:
+    // https://www.prisma.io/docs/reference/api-reference/prisma-client-reference#database-upsert-query-criteria
+    return this.db.user.upsert({
+      where: {
+        externalId,
+      },
+      create: {
         externalId,
         createdAt,
+        name,
+        signInMethod,
+        status: status ?? "allowed",
+        location: location ?? "unkown",
+        emailDomain,
+        profileImageURL,
+        tenantId: this.tenant.id,
+      },
+      update: {
         name,
         signInMethod,
         status,
         location,
         emailDomain,
         profileImageURL,
-        tenantId: this.tenant.id,
       },
     });
   }

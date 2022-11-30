@@ -8,13 +8,21 @@ export class TopicController extends BaseTenantController {
     });
   }
 
-  async createTopic(name: string, externalId: string, project: Project) {
-    return await this.db.topic.create({
-      data: {
+  async upsertTopic(name: string, externalId: string, project: Project) {
+    // Note: upsert is only done natively if it satisfies these conditions:
+    // https://www.prisma.io/docs/reference/api-reference/prisma-client-reference#database-upsert-query-criteria
+    return await this.db.topic.upsert({
+      where: {
+        externalId,
+      },
+      create: {
         name,
         externalId,
         projectId: project.id,
         tenantId: this.tenant.id,
+      },
+      update: {
+        name,
       },
     });
   }

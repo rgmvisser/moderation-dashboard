@@ -1,11 +1,13 @@
-interface ContentContainerProps {
+interface ContentTextContainerProps {
   contents: {
     title: string;
     content: string;
   }[];
 }
 
-export const ContentContainer = ({ contents }: ContentContainerProps) => {
+export const ContentTextContainer = ({
+  contents,
+}: ContentTextContainerProps) => {
   return (
     <div className="box-border flex h-fit w-full flex-col items-start justify-start gap-2.5 border-t-0 border-r-0 border-b border-l-0 border-main px-2.5 py-2">
       {contents.map((item) => {

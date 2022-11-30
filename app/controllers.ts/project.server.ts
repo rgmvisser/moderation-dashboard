@@ -8,12 +8,18 @@ export class ProjectController extends BaseTenantController {
     });
   }
 
-  async createProject(name: string, externalId: string) {
-    return await this.db.project.create({
-      data: {
+  async upsertProject(name: string, externalId: string) {
+    // Note: upsert is only done natively if it satisfies these conditions:
+    // https://www.prisma.io/docs/reference/api-reference/prisma-client-reference#database-upsert-query-criteria
+    return await this.db.project.upsert({
+      where: { externalId },
+      create: {
         name,
         externalId,
         tenantId: this.tenant.id,
+      },
+      update: {
+        name,
       },
     });
   }

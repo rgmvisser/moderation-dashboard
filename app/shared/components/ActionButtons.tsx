@@ -1,4 +1,5 @@
-import type { Content, User } from "@prisma/client";
+import type { User } from "@prisma/client";
+import type { MessageOrImage } from "~/models/content";
 import { useModalContex } from "../contexts/ModalContext";
 import { CMButton } from "./CMButton";
 
@@ -7,7 +8,7 @@ interface ActionButtonProps {
   flagButton?: boolean;
   hideButton?: boolean;
   user?: User;
-  content?: Content;
+  content?: MessageOrImage;
 }
 
 export const ActionButtons = ({

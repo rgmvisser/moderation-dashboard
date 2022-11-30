@@ -69,7 +69,30 @@ function getClient(tenantId?: string) {
         url: databaseUrl.toString(),
       },
     },
+    // log: [
+    //   {
+    //     emit: "event",
+    //     level: "query",
+    //   },
+    //   {
+    //     emit: "stdout",
+    //     level: "error",
+    //   },
+    //   {
+    //     emit: "stdout",
+    //     level: "info",
+    //   },
+    //   {
+    //     emit: "stdout",
+    //     level: "warn",
+    //   },
+    // ],
   });
+  // client.$on("query", (e) => {
+  //   console.log("Query: " + e.query);
+  //   console.log("Params: " + e.params);
+  //   console.log("Duration: " + e.duration + "ms");
+  // });
   if (tenantId) {
     client.$use(async (params, next) => {
       if (params.model && ModelsWithoutTenant.includes(params.model)) {
@@ -82,7 +105,7 @@ function getClient(tenantId?: string) {
           "findMany",
           "update",
           "updateMany",
-          "upsert",
+          // "upsert", don't use this as only one unique field can be used to do this natively: https://www.prisma.io/docs/reference/api-reference/prisma-client-reference#database-upsert-query-criteria
           "delete",
           "deleteMany",
         ].includes(params.action)

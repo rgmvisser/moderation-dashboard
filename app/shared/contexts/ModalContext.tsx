@@ -1,12 +1,13 @@
-import type { Content, Status, User } from "@prisma/client";
+import type { Status, User } from "@prisma/client";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { useContext } from "react";
 import { createContext } from "react";
+import type { MessageOrImage } from "~/models/content";
 
 type ModalContexState = {
   opened: boolean;
-  content?: Content;
+  content?: MessageOrImage;
   user?: User;
   status: Status;
 };
@@ -15,7 +16,7 @@ type ModalContex = {
   setOpened: (
     opened: boolean,
     status: Status,
-    content?: Content,
+    content?: MessageOrImage,
     user?: User
   ) => void;
   closeModal: () => void;
@@ -45,7 +46,7 @@ export const ModalProvider = ({ children }: Props) => {
   function setOpened(
     opened: boolean,
     status: Status,
-    content?: Content,
+    content?: MessageOrImage,
     user?: User
   ) {
     setState({ opened, status, content, user });

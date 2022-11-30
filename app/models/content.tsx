@@ -15,6 +15,11 @@ export type ContentWithInfo = Content & {
   image: Image | null;
 };
 
+export type MessageOrImage = Content & {
+  message: Message | null;
+  image: Image | null;
+};
+
 export function AreContentsEqual(
   contents: ContentWithInfo[],
   contents2: ContentWithInfo[]

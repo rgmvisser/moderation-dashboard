@@ -6,9 +6,10 @@ import { GetDateFormatted, GetDateFromNow } from "../utils.tsx/date";
 import { Link } from "react-router-dom";
 import { ContentPath, UserPath } from "../utils.tsx/navigation";
 import { useTenantContext } from "../contexts/TenantContext";
+import type { MessageOrImage } from "~/models/content";
 
 type Props = {
-  messsage: Content;
+  content: MessageOrImage;
   project: Project;
   topic: Topic;
   user: User;
@@ -17,7 +18,7 @@ type Props = {
 };
 
 export default function ContentBox({
-  messsage,
+  content,
   project,
   topic,
   user,
@@ -26,7 +27,7 @@ export default function ContentBox({
 }: Props) {
   const background = selected
     ? "bg-slate-100"
-    : BGColorFromStatus(messsage.status);
+    : BGColorFromStatus(content.status);
   const userStatusBG = ButtonColorFromStatus(user.status);
   const tenantContext = useTenantContext();
   return (
@@ -54,19 +55,28 @@ export default function ContentBox({
         )}
         <ProjectBadge projectName={project.name} topicName={topic.name} />
       </div>
-      <Link to={ContentPath(tenantContext.tenant.slug, user.id, messsage.id)}>
+      <Link to={ContentPath(tenantContext.tenant.slug, user.id, content.id)}>
         <div className="flex flex-col gap-1">
           <div className="flex flex-col items-start justify-center self-stretch">
             <p
               className="flex-shrink-0 flex-grow-0 text-left text-xs text-secondary"
-              title={GetDateFormatted(messsage.createdAt)}
+              title={GetDateFormatted(content.createdAt)}
             >
-              {GetDateFromNow(messsage.createdAt)}
+              {GetDateFromNow(content.createdAt)}
             </p>
           </div>
 
           <div className="flex  items-center justify-start gap-2.5 self-stretch">
-            <p className="flex-grow text-left text-sm">{messsage.content}</p>
+            {content.message && (
+              <p className="flex-grow text-left text-sm">
+                {content.message.text}
+              </p>
+            )}
+            {content.image && (
+              <p className="flex-grow text-left text-sm">
+                TODO: Show image: {content.image.url}
+              </p>
+            )}
           </div>
         </div>
       </Link>

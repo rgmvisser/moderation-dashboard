@@ -118,7 +118,7 @@ export class ContentController extends BaseTenantController {
     return { ...projectFilter, ...topicFilter, ...statusFilter };
   }
 
-  async createContent(
+  async upsertContent(
     user: User,
     project: Project,
     topic: Topic,
@@ -127,7 +127,7 @@ export class ContentController extends BaseTenantController {
       createdAt,
       message_text,
       image_url,
-      status = "allowed",
+      status,
     }: {
       externalId: string;
       createdAt: Date;
@@ -135,35 +135,56 @@ export class ContentController extends BaseTenantController {
       message_text?: string;
       image_url?: string;
     }
-  ): Promise<ContentWithInfo> {
-    return await this.db.content.create({
-      data: {
+  ): Promise<Content> {
+    // Note: upsert is only done natively if it satisfies these conditions:
+    // https://www.prisma.io/docs/reference/api-reference/prisma-client-reference#database-upsert-query-criteria
+    const content = await this.db.content.upsert({
+      where: { externalId },
+      create: {
+        tenantId: this.tenant.id,
         externalId,
         createdAt,
-        status,
-        message: message_text
-          ? {
-              create: {
-                text: message_text,
-              },
-            }
-          : undefined,
-        image: image_url
-          ? {
-              create: {
-                url: image_url,
-              },
-            }
-          : undefined,
+        status: status ?? Status.allowed,
         millisecondsAfterStart: 0,
-        content: message_text ?? "deprecated", // Deprecated
         userId: user.id,
         projectId: project.id,
         topicId: topic.id,
-        tenantId: this.tenant.id,
       },
-      include: this.contentInclude,
+      update: {
+        // Make sure we set these too, because the upsert does not work if there are no updates
+        userId: user.id,
+        projectId: project.id,
+        topicId: topic.id,
+        status: status,
+      },
     });
+    if (message_text) {
+      await this.db.message.upsert({
+        where: { contentId: content.id },
+        create: {
+          tenantId: this.tenant.id,
+          contentId: content.id,
+          text: message_text,
+        },
+        update: {
+          text: message_text,
+        },
+      });
+    }
+    if (image_url) {
+      await this.db.image.upsert({
+        where: { contentId: content.id },
+        create: {
+          tenantId: this.tenant.id,
+          contentId: content.id,
+          url: image_url,
+        },
+        update: {
+          url: image_url,
+        },
+      });
+    }
+    return content;
   }
 
   async updateContent(
