@@ -1,8 +1,6 @@
 import type { Moderator } from "@prisma/client";
 import { BaseTenantController } from "./baseController.server";
 import crypto from "crypto";
-import bcrypt from "bcrypt";
-
 export class APIKeyController extends BaseTenantController {
   select = {
     id: true,
@@ -22,7 +20,6 @@ export class APIKeyController extends BaseTenantController {
     const keySecret = `cm.${crypto.randomBytes(16).toString("hex")}`;
     const hashedKey = await APIKeyController.HashKey(keySecret);
     const hint = `${keySecret.slice(0, 5)}...${keySecret.slice(-3)}`;
-
     const key = await this.db.apiKey.create({
       data: {
         name,
