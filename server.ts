@@ -7,6 +7,8 @@ import prom from "express-prometheus-middleware";
 
 import { Server } from "socket.io";
 import { startBacklogQueue } from "~/controllers/backlog.server";
+import { authenticateUser } from "socket_session";
+import type { User } from "@prisma/client";
 
 const app = express();
 const metricsApp = express();
@@ -111,12 +113,41 @@ const httpServer = app.listen(port, () => {
 // And then attach the socket.io server to the HTTP server
 export const ioServer = new Server(httpServer);
 
+declare module "http" {
+  interface IncomingMessage {
+    user?: User;
+  }
+}
+ioServer.use((socket, next) => {
+  try {
+    const user = authenticateUser(socket);
+    socket.request.user = user;
+    next();
+  } catch (e) {
+    if (e instanceof Error) {
+      return next(e);
+    }
+    return next(new Error("Authentication error"));
+  }
+});
+
 ioServer.on("connection", (socket) => {
+  if (!socket.request.user) {
+    console.log("No user found");
+    socket.disconnect();
+    return;
+  }
+  const user = socket.request.user;
   // from this point you are on the WS connection with a specific client
-  console.log(socket.id, "connected");
-
-  socket.emit("confirmation", "connected!");
-
+  console.log(`User ${user.id} connected to socket ${socket.id}`);
+  socket.join(user.id);
+  // console.log(ioServer.sockets.adapter.rooms);
+  socket.on("disconnect", (reason) => {
+    socket.leave(user.id);
+    console.log(
+      `User ${user.id} disconnected from socket ${socket.id}, reason: ${reason}`
+    );
+  });
   socket.on("event", (data) => {
     console.log(socket.id, data);
     socket.emit("event", "pong");

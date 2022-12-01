@@ -26,25 +26,10 @@ export async function loader({ request, params }: LoaderArgs) {
 
 export default function Tenant() {
   const data = useLoaderData<typeof loader>();
-  const [socket, setSocket] = useState<Socket>();
-  useEffect(() => {
-    const socket = io();
-    setSocket(socket);
-    return () => {
-      socket.close();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!socket) return;
-    socket.on("confirmation", (data: any) => {
-      console.log(data);
-    });
-  }, [socket]);
 
   return (
     <TenantProvider {...data}>
-      <SocketProvider socket={socket}>
+      <SocketProvider>
         <ModalProvider>
           <AppLayout>
             <Outlet />

@@ -4,16 +4,15 @@ import invariant from "tiny-invariant";
 import type { Moderator } from "@prisma/client";
 import { FormStrategy } from "remix-auth-form";
 import { ModeratorController } from "./controllers/moderator.server";
-
-invariant(process.env.SESSION_SECRET, "SESSION_SECRET must be set");
+import { sessionKey, sessionSecret } from "session";
 
 export const sessionStorage = createCookieSessionStorage({
   cookie: {
-    name: "__session",
+    name: sessionKey,
     httpOnly: true,
     path: "/",
     sameSite: "lax",
-    secrets: [process.env.SESSION_SECRET],
+    secrets: [sessionSecret],
     secure: process.env.NODE_ENV === "production",
   },
 });
