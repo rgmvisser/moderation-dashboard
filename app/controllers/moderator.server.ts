@@ -1,6 +1,6 @@
 import { getGeneralClient } from "~/db.server";
 import { BaseTenantController } from "./baseController.server";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import type { Moderator, Role, Tenant } from "@prisma/client";
 
 const includeTentant = {
@@ -12,6 +12,15 @@ const includeTentant = {
 };
 
 export class ModeratorController extends BaseTenantController {
+  async getAllModerators() {
+    const moderatorRoles = await this.db.moderatorRole.findMany({
+      include: {
+        moderator: true,
+      },
+    });
+    return moderatorRoles.map((r) => r.moderator);
+  }
+
   static async CreateModerator(
     tenant: Tenant,
     {

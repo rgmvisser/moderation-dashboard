@@ -3,7 +3,7 @@ import { getTenantClient } from "~/db.server";
 
 export class BaseTenantController {
   tenant: Tenant;
-  db: PrismaClient;
+  protected db: PrismaClient;
 
   constructor(tenant: Tenant) {
     this.tenant = tenant;

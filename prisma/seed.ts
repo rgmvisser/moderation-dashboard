@@ -12,13 +12,11 @@ const nameConfig: Config = {
 const prisma = new PrismaClient();
 
 async function seed() {
-  // const tenant = await prisma.tenant.findFirstOrThrow();
-  // ModeratorController.CreateModerator(tenant, {
-  //   name: "Ruud Visser",
-  //   email: "visser.rgm@gmail.com",
+  // const t = await prisma.tenant.findFirstOrThrow();
+  // ModeratorController.CreateModerator(t, {
+  //   name: "Sebas Westerduin",
+  //   email: "sebas@woovapp.com",
   //   password: "password",
-  //   avatar:
-  //     "https://en.gravatar.com/userimage/61402465/c8cdd02ae2207b22c6582d7716e5e8b0.jpeg",
   //   role: "admin",
   // });
   // return;
