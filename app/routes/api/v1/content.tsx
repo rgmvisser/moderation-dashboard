@@ -11,6 +11,7 @@ import { ProjectController } from "~/controllers/project.server";
 import { TopicController } from "~/controllers/topic.server";
 import invariant from "tiny-invariant";
 import isISODate from "is-iso-date";
+import { socketQueue } from "queues/socket.server";
 
 const isoDate = z
   .string()
@@ -131,6 +132,11 @@ export const action: ActionFunction = async ({ request }) => {
     });
   }
   invariant(content, "Content should exist");
+  await socketQueue.add(
+    "test",
+    { contentId: content.id, tenantId: tenant.id },
+    { jobId: content.id }
+  );
 
   return json({ contentId: content.id });
 };
