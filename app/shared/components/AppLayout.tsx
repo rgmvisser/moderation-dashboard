@@ -1,4 +1,4 @@
-import { AppShell, Navbar, Header } from "@mantine/core";
+import { AppShell, Navbar, Header, Divider } from "@mantine/core";
 import { NavLink } from "@remix-run/react";
 import type { ReactNode } from "react";
 import Timer from "~/shared/components/Timer";
@@ -10,6 +10,7 @@ import {
   MegaphoneIcon,
   ClipboardDocumentCheckIcon,
   Cog8ToothIcon,
+  UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import UserMenu from "./UserMenu";
 import Logo from "./Logo";
@@ -20,6 +21,7 @@ import {
   QueuePath,
   ReportsPath,
   RulesPath,
+  TenantModeratorsPath,
   TenantSettingsPath,
   UsersPath,
 } from "../utils.tsx/navigation";
@@ -71,6 +73,11 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               Actions
             </CMNavLink>
           </Navbar.Section>
+
+          <Navbar.Section grow mt="md" className="border-b border-main">
+            {" "}
+          </Navbar.Section>
+
           <Navbar.Section>
             <CMNavLink
               icon={<Cog8ToothIcon />}
@@ -79,13 +86,17 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               Settings
             </CMNavLink>
           </Navbar.Section>
-
-          <Navbar.Section grow mt="md">
-            {" "}
-          </Navbar.Section>
           <Navbar.Section>
-            <Timer />
+            <CMNavLink
+              icon={<UserGroupIcon />}
+              to={TenantModeratorsPath(tenantSlug)}
+            >
+              Moderators
+            </CMNavLink>
           </Navbar.Section>
+          {/* <Navbar.Section>
+            <Timer />
+          </Navbar.Section> */}
         </Navbar>
       }
       header={

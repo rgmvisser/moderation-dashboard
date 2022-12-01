@@ -38,6 +38,10 @@ export function TenantSettingsPath(tenantSlug: string) {
   return `/${tenantSlug}/settings`;
 }
 
+export function TenantModeratorsPath(tenantSlug: string) {
+  return `/${tenantSlug}/moderators`;
+}
+
 export function UserPath(tenantSlug: string, userId: string) {
   return `${QueuePath(tenantSlug)}/user/${userId}`;
 }
