@@ -12,14 +12,7 @@ const nameConfig: Config = {
 const prisma = new PrismaClient();
 
 async function seed() {
-  // const t = await prisma.tenant.findFirstOrThrow();
-  // ModeratorController.CreateModerator(t, {
-  //   name: "Sebas Westerduin",
-  //   email: "sebas@woovapp.com",
-  //   password: "password",
-  //   role: "admin",
-  // });
-  // return;
+  // const tenant = await prisma.tenant.findFirstOrThrow();
 
   await prisma.tenant.deleteMany(); // Everything should cascade
   await prisma.backlogMessage.deleteMany();
@@ -39,13 +32,19 @@ async function seed() {
       "https://en.gravatar.com/userimage/61402465/c8cdd02ae2207b22c6582d7716e5e8b0.jpeg",
     role: "admin",
   });
+  ModeratorController.CreateModerator(tenant, {
+    name: "Sebas Westerduin",
+    email: "sebas@woovapp.com",
+    password: "password",
+    role: "admin",
+  });
 
   // Created reasons per status
   await prisma.reason.createMany({
     data: [
-      { tenantId: tenant.id, name: "Allowed" },
-      { tenantId: tenant.id, name: "Off-topic" },
-      { tenantId: tenant.id, name: "Inappropriate" },
+      { tenantId: tenant.id, name: "Drugs" },
+      { tenantId: tenant.id, name: "Violence" },
+      { tenantId: tenant.id, name: "Sexual" },
       { tenantId: tenant.id, name: "Other" },
     ],
   });

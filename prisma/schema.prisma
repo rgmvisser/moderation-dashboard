@@ -44,6 +44,8 @@ model Tenant {
   apiKeys          ApiKey[]
   messages         Message[]
   images           Image[]
+  lists            List[]
+  listItems        ListItem[]
 }
 
 model ApiKey {
@@ -89,6 +91,7 @@ model Moderator {
   roles            ModeratorRole[]
   authentication   Authentication[]
   apiKeys          ApiKey[]
+  listItems        ListItem[]
 }
 
 enum CMAuthenticationMethod {
@@ -269,4 +272,37 @@ model Action {
   contentId String?
   user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String?
+}
+
+enum ListType {
+  strings
+  locations
+  phone_number
+  domains
+}
+
+model List {
+  id        String     @id @default(cuid())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  name      String
+  type      ListType
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId  String
+  items     ListItem[]
+}
+
+model ListItem {
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  value       String
+  list        List      @relation(fields: [listId], references: [id], onDelete: Cascade)
+  listId      String
+  createdBy   Moderator @relation(fields: [moderatorId], references: [id])
+  moderatorId String
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId    String
+
+  @@unique([listId, value])
 }

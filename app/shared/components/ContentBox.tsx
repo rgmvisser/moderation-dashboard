@@ -32,7 +32,7 @@ export default function ContentBox({
   const tenantContext = useTenantContext();
   return (
     <li
-      className={`flex w-full flex-col items-start justify-start gap-1 border-t-0 border-r-0 border-b border-l-0 border-main p-3 ${background} hover:bg-slate-50`}
+      className={`flex w-full flex-col items-stretch justify-start gap-1 border-t-0 border-r-0 border-b border-l-0 border-main p-3 ${background} hover:bg-slate-50`}
     >
       <div className="flex flex-shrink-0 flex-grow-0 items-center justify-start gap-2 self-stretch">
         {showUser ? (

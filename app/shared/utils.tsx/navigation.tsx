@@ -23,6 +23,10 @@ export function RulesPath(tenantSlug: string) {
 export function ListsPath(tenantSlug: string) {
   return `/${tenantSlug}/lists`;
 }
+export function ListPath(tenantSlug: string, listId: string) {
+  return `${ListsPath(tenantSlug)}/${listId}`;
+}
+
 export function UsersPath(tenantSlug: string) {
   return `/${tenantSlug}/users`;
 }

@@ -6,7 +6,7 @@ import { GetDateFormatted } from "~/shared/utils.tsx/date";
 import { Form } from "@remix-run/react";
 import { GetModeratorAndTenant, GetTenant } from "~/middleware/tenant";
 import { APIKeyController } from "~/controllers/apikey.server";
-import { Code, CopyButton, Divider, Table, TextInput } from "@mantine/core";
+import { Code, CopyButton, Table, TextInput } from "@mantine/core";
 import { CMButton } from "~/shared/components/CMButton";
 
 import { Notification } from "@mantine/core";
@@ -16,6 +16,8 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { useEffect, useRef } from "react";
+import { EmptyStateTable } from "~/shared/components/EmptyStateTable";
+import { CMIconButton } from "~/shared/components/CMIconButton";
 
 export const validator = withZod(
   z.object({
@@ -72,7 +74,7 @@ export default function Settings() {
   return (
     <div className="flex h-full flex-col gap-2">
       <h1>Settings</h1>
-      <div className="flex h-full flex-col gap-4 rounded-lg bg-white p-4">
+      <div className="flex h-full flex-col gap-4 rounded-xl bg-white p-4">
         <h2 className="text-lg font-semibold">API Keys</h2>
         <Table>
           <thead>
@@ -106,13 +108,13 @@ export default function Settings() {
                   >
                     <input type="hidden" name="id" value={apiKey.id} />
                     <input type="hidden" name="type" value="remove" />
-                    <CMButton
+                    <CMIconButton
                       type="submit"
-                      status="hidden"
-                      className="rounded-full px-0 py-0"
+                      variant="danger"
+                      className="h-4 w-4"
                     >
-                      <XMarkIcon className="h-4 w-4" />
-                    </CMButton>
+                      <XMarkIcon />
+                    </CMIconButton>
                   </Form>
                 </td>
               </tr>
@@ -120,7 +122,7 @@ export default function Settings() {
           </tbody>
         </Table>
         {data.apiKeys.length === 0 && (
-          <div className="text-center"> No API keys</div>
+          <EmptyStateTable>No API keys yet</EmptyStateTable>
         )}
 
         <Form ref={formRef} method="post">

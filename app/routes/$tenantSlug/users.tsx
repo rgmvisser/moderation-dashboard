@@ -34,7 +34,7 @@ export async function loader({ request, params }: LoaderArgs) {
   let page = res.data.page;
   const userController = new UserController(tenant);
   const allUsersCount = await userController.getAllUsersCount();
-  if (page * perPage > allUsersCount) {
+  if ((page - 1) * perPage > allUsersCount) {
     page = 1;
   }
   const users = await userController.getUsers({
@@ -87,83 +87,88 @@ export default function Users() {
   const loading = useLoadingDelay(transition.state !== "idle", {});
 
   return (
-    <DataTable
-      withBorder
-      loaderSize="lg"
-      fetching={loading}
-      borderRadius="md"
-      withColumnBorders
-      striped
-      highlightOnHover
-      // provide data
-      records={users}
-      // define columns "id", "name", "createdAt", "signInMethod", "status"
-      columns={[
-        { accessor: "name", sortable: true },
-        {
-          accessor: "createdAt",
-          sortable: true,
-          render: ({ createdAt }) => <span>{GetDateFormatted(createdAt)}</span>,
-        },
-        { accessor: "signInMethod", sortable: true },
-        {
-          accessor: "status",
-          sortable: true,
-          render: ({ status }) => <StatusBadge status={status} />,
-        },
-        {
-          accessor: "Allowed",
-          render: (user) => (
-            <PercentageBadge
-              percentage={(user.stats.allowed / user.stats.total) * 100}
-              status="allowed"
-            />
-          ),
-        },
-        {
-          accessor: "Flagged",
-          render: (user) => (
-            <PercentageBadge
-              percentage={(user.stats.flagged / user.stats.total) * 100}
-              status="flagged"
-            />
-          ),
-        },
-        {
-          accessor: "Hidden",
-          render: (user) => (
-            <PercentageBadge
-              percentage={(user.stats.hidden / user.stats.total) * 100}
-              status="hidden"
-            />
-          ),
-        },
-      ]}
-      onSortStatusChange={(status) => {
-        updateTable({
-          newOrderBy: status.columnAccessor,
-          newOrder: status.direction,
-        });
-      }}
-      onPageChange={(page) => {
-        updateTable({
-          newPage: page,
-        });
-      }}
-      page={page}
-      recordsPerPage={perPage}
-      totalRecords={allUsersCount}
-      sortStatus={{
-        columnAccessor: orderBy,
-        direction: order as "asc" | "desc",
-      }}
+    <div className="flex h-full flex-col gap-2">
+      <h1>Users</h1>
+      <DataTable
+        withBorder
+        loaderSize="lg"
+        fetching={loading}
+        borderRadius="md"
+        withColumnBorders
+        striped
+        highlightOnHover
+        // provide data
+        records={users}
+        // define columns "id", "name", "createdAt", "signInMethod", "status"
+        columns={[
+          { accessor: "name", sortable: true },
+          {
+            accessor: "createdAt",
+            sortable: true,
+            render: ({ createdAt }) => (
+              <span>{GetDateFormatted(createdAt)}</span>
+            ),
+          },
+          { accessor: "signInMethod", sortable: true },
+          {
+            accessor: "status",
+            sortable: true,
+            render: ({ status }) => <StatusBadge status={status} />,
+          },
+          {
+            accessor: "Allowed",
+            render: (user) => (
+              <PercentageBadge
+                percentage={(user.stats.allowed / user.stats.total) * 100}
+                status="allowed"
+              />
+            ),
+          },
+          {
+            accessor: "Flagged",
+            render: (user) => (
+              <PercentageBadge
+                percentage={(user.stats.flagged / user.stats.total) * 100}
+                status="flagged"
+              />
+            ),
+          },
+          {
+            accessor: "Hidden",
+            render: (user) => (
+              <PercentageBadge
+                percentage={(user.stats.hidden / user.stats.total) * 100}
+                status="hidden"
+              />
+            ),
+          },
+        ]}
+        onSortStatusChange={(status) => {
+          updateTable({
+            newOrderBy: status.columnAccessor,
+            newOrder: status.direction,
+          });
+        }}
+        onPageChange={(page) => {
+          updateTable({
+            newPage: page,
+          });
+        }}
+        page={page}
+        recordsPerPage={perPage}
+        totalRecords={allUsersCount}
+        sortStatus={{
+          columnAccessor: orderBy,
+          direction: order as "asc" | "desc",
+        }}
 
-      // execute this callback when a row is clicked
-      //   onRowClick={({ name, party, bornIn }) =>
-      //     alert(
-      //       `You clicked on ${name}, a ${party.toLowerCase()} president born in ${bornIn}`
-      //     )
-      //   }
-    />
+        // execute this callback when a row is clicked
+        //   onRowClick={({ name, party, bornIn }) =>
+        //     alert(
+        //       `You clicked on ${name}, a ${party.toLowerCase()} president born in ${bornIn}`
+        //     )
+        //   }
+      />
+    </div>
   );
 }
