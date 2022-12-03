@@ -3,10 +3,18 @@ import { json, redirect, useActionData, useLoaderData } from "remix-supertyped";
 import { GetDateFormatted } from "~/shared/utils.tsx/date";
 import { GetModeratorAndTenant, GetTenant } from "~/middleware/tenant";
 import { ListController } from "~/controllers/list.server";
-import { Code, Drawer, Select, Table, TextInput } from "@mantine/core";
+import {
+  ActionIcon,
+  Button,
+  Code,
+  Drawer,
+  Select,
+  Table,
+  TextInput,
+} from "@mantine/core";
 import { Form, Outlet, useNavigate, useParams } from "@remix-run/react";
 import { CMButton } from "~/shared/components/CMButton";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { TrashIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useRef, useEffect, useState } from "react";
 import { ListTypeName, ListTypes } from "~/models/list";
 import { EmptyStateTable } from "~/shared/components/EmptyStateTable";
@@ -93,7 +101,7 @@ export default function Lists() {
               <th>Num Items</th>
               <th>Items</th>
               <th>Last Updated</th>
-              <th>Delete</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -140,13 +148,15 @@ export default function Lists() {
                   >
                     <input type="hidden" name="id" value={list.id} />
                     <input type="hidden" name="action" value="remove" />
-                    <CMIconButton
+                    <ActionIcon
+                      color="red"
                       type="submit"
-                      variant="danger"
-                      className="h-4 w-4"
+                      onClick={(e: any) => {
+                        e.stopPropagation();
+                      }}
                     >
-                      <XMarkIcon />
-                    </CMIconButton>
+                      <TrashIcon className="h-4 w-4" />
+                    </ActionIcon>
                   </Form>
                 </td>
               </tr>
@@ -157,7 +167,7 @@ export default function Lists() {
 
         <Form ref={formRef} method="post">
           <div className="flex gap-2">
-            <TextInput type="hidden" name="action" value="add" />
+            <input type="hidden" name="action" value="add" />
             <TextInput type="text" name="name" placeholder="List name" />
             <Select
               name="type"

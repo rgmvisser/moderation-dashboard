@@ -225,7 +225,7 @@ export default function List() {
                   <Form method="post">
                     <input type="hidden" name="action" value="deleteItem" />
                     <input type="hidden" name="id" value={item.id} />
-                    <ActionIcon color="green" type="submit">
+                    <ActionIcon color="red" type="submit">
                       <TrashIcon className="h-4 w-4" />
                     </ActionIcon>
                   </Form>

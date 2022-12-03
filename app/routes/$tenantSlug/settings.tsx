@@ -6,13 +6,14 @@ import { GetDateFormatted } from "~/shared/utils.tsx/date";
 import { Form } from "@remix-run/react";
 import { GetModeratorAndTenant, GetTenant } from "~/middleware/tenant";
 import { APIKeyController } from "~/controllers/apikey.server";
-import { Code, CopyButton, Table, TextInput } from "@mantine/core";
+import { ActionIcon, Code, CopyButton, Table, TextInput } from "@mantine/core";
 import { CMButton } from "~/shared/components/CMButton";
 
 import { Notification } from "@mantine/core";
 import {
   CheckIcon,
   ClipboardIcon,
+  TrashIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { useEffect, useRef } from "react";
@@ -83,7 +84,7 @@ export default function Settings() {
               <th>Key</th>
               <th>Created By</th>
               <th>Created At</th>
-              <th>Delete</th>
+              <th className="w-4"></th>
             </tr>
           </thead>
           <tbody>
@@ -108,13 +109,9 @@ export default function Settings() {
                   >
                     <input type="hidden" name="id" value={apiKey.id} />
                     <input type="hidden" name="type" value="remove" />
-                    <CMIconButton
-                      type="submit"
-                      variant="danger"
-                      className="h-4 w-4"
-                    >
-                      <XMarkIcon />
-                    </CMIconButton>
+                    <ActionIcon color="red" type="submit">
+                      <TrashIcon className="h-4 w-4" />
+                    </ActionIcon>
                   </Form>
                 </td>
               </tr>
@@ -127,7 +124,7 @@ export default function Settings() {
 
         <Form ref={formRef} method="post">
           <div className="flex gap-2">
-            <TextInput type="hidden" name="type" value="add" />
+            <input type="hidden" name="type" value="add" />
             <TextInput type="text" name="name" placeholder="API key name" />
             <CMButton type="submit">Create API key</CMButton>
           </div>
