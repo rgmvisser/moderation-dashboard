@@ -1,11 +1,10 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect, useActionData, useLoaderData } from "remix-supertyped";
 import { GetDateFormatted } from "~/shared/utils.tsx/date";
-import { GetModeratorAndTenant, GetTenant } from "~/middleware/tenant";
+import { GetTenant } from "~/middleware/tenant";
 import { ListController } from "~/controllers/list.server";
 import {
   ActionIcon,
-  Button,
   Code,
   Drawer,
   Select,
@@ -14,11 +13,10 @@ import {
 } from "@mantine/core";
 import { Form, Outlet, useNavigate, useParams } from "@remix-run/react";
 import { CMButton } from "~/shared/components/CMButton";
-import { TrashIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { TrashIcon } from "@heroicons/react/24/outline";
 import { useRef, useEffect, useState } from "react";
 import { ListTypeName, ListTypes } from "~/models/list";
 import { EmptyStateTable } from "~/shared/components/EmptyStateTable";
-import { CMIconButton } from "~/shared/components/CMIconButton";
 import { withZod } from "@remix-validated-form/with-zod";
 import { z } from "zod";
 import { ListType } from "@prisma/client";

@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { Text, Group, Button, createStyles } from "@mantine/core";
-import { Dropzone, FileWithPath, MIME_TYPES } from "@mantine/dropzone";
+import type { FileWithPath } from "@mantine/dropzone";
+import { Dropzone } from "@mantine/dropzone";
 import { IconCloudUpload, IconX, IconDownload } from "@tabler/icons";
 
 const useStyles = createStyles((theme) => ({

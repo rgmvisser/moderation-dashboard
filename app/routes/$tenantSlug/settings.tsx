@@ -14,11 +14,9 @@ import {
   CheckIcon,
   ClipboardIcon,
   TrashIcon,
-  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { useEffect, useRef } from "react";
 import { EmptyStateTable } from "~/shared/components/EmptyStateTable";
-import { CMIconButton } from "~/shared/components/CMIconButton";
 
 export const validator = withZod(
   z.object({

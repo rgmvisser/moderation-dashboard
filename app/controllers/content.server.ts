@@ -1,11 +1,4 @@
-import type {
-  Content,
-  Image,
-  Message,
-  Project,
-  Topic,
-  User,
-} from "@prisma/client";
+import type { Content, Project, Topic, User } from "@prisma/client";
 import { Status } from "@prisma/client";
 import type { ContentWithInfo } from "~/models/content";
 import { BaseTenantController } from "./baseController.server";

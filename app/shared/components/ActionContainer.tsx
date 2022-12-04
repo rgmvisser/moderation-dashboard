@@ -1,9 +1,8 @@
-import { Status } from "@prisma/client";
 import type { ReactNode } from "react";
 import type { ActionWithReasonAndExecutor } from "~/controllers/action.server";
 import { GetActionInfo } from "../utils.tsx/action";
 import { GetDateFormatted, GetDateFromNow } from "../utils.tsx/date";
-import { ActionStatusBadge, StatusBadge } from "./CMBadge";
+import { ActionStatusBadge } from "./CMBadge";
 import { CMHeader } from "./CMHeader";
 
 type Props = {

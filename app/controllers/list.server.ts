@@ -1,7 +1,7 @@
-import { List, ListItem, ListType, Moderator, Prisma } from "@prisma/client";
+import type { List, ListItem, ListType, Moderator } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import pLimit from "p-limit";
 
-import { string } from "zod";
 import { BaseTenantController } from "./baseController.server";
 
 export class ListController extends BaseTenantController {

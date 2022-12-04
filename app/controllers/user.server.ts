@@ -1,4 +1,4 @@
-import type { SignInMethod, Status, Tenant, User } from "@prisma/client";
+import type { SignInMethod, Status, User } from "@prisma/client";
 import { BaseTenantController } from "./baseController.server";
 import type { Config } from "unique-names-generator";
 import { uniqueNamesGenerator, names } from "unique-names-generator";

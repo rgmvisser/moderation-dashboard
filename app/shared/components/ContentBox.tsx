@@ -1,5 +1,5 @@
 import React from "react";
-import type { Content, Project, Topic, User } from "@prisma/client";
+import type { Project, Topic, User } from "@prisma/client";
 import { BGColorFromStatus, ButtonColorFromStatus } from "../utils.tsx/status";
 import { ProjectBadge } from "./CMBadge";
 import { GetDateFormatted, GetDateFromNow } from "../utils.tsx/date";

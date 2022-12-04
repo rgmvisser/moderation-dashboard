@@ -1,7 +1,6 @@
-import { AppShell, Navbar, Header, Divider } from "@mantine/core";
+import { AppShell, Navbar, Header } from "@mantine/core";
 import { NavLink } from "@remix-run/react";
 import type { ReactNode } from "react";
-import Timer from "~/shared/components/Timer";
 import {
   ChatBubbleLeftRightIcon,
   ClipboardDocumentListIcon,

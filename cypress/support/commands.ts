@@ -73,12 +73,12 @@ function cleanupUser({ email }: { email?: string } = {}) {
   // cy.clearCookie("__session");
 }
 
-function deleteUserByEmail(email: string) {
-  cy.exec(
-    `npx ts-node --require tsconfig-paths/register ./cypress/support/delete-user.ts "${email}"`
-  );
-  cy.clearCookie("__session");
-}
+// function deleteUserByEmail(email: string) {
+//   cy.exec(
+//     `npx ts-node --require tsconfig-paths/register ./cypress/support/delete-user.ts "${email}"`
+//   );
+//   cy.clearCookie("__session");
+// }
 
 // We're waiting a second because of this issue happen randomly
 // https://github.com/cypress-io/cypress/issues/7306

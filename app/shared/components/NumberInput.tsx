@@ -1,10 +1,6 @@
 import { useRef, useState } from "react";
-import {
-  createStyles,
-  NumberInput,
-  NumberInputHandlers,
-  ActionIcon,
-} from "@mantine/core";
+import type { NumberInputHandlers } from "@mantine/core";
+import { createStyles, NumberInput, ActionIcon } from "@mantine/core";
 import { IconPlus, IconMinus } from "@tabler/icons";
 
 const useStyles = createStyles((theme) => ({

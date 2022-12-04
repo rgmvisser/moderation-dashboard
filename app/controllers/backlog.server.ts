@@ -4,7 +4,7 @@ import { FilterController } from "~/controllers/filter.server";
 
 import { intervalTimer } from "./timer.server";
 import { ContentController } from "./content.server";
-import { ContentWithInfo } from "~/models/content";
+import type { ContentWithInfo } from "~/models/content";
 import { randomUUID } from "crypto";
 
 export function startBacklogQueue() {

@@ -5,7 +5,7 @@
 // as that new user.
 
 import { installGlobals } from "@remix-run/node";
-import { parse } from "cookie";
+// import { parse } from "cookie";
 
 // import { createUser } from "~/controllers/user.server";
 // import { createUserSession } from "~/session.server";
