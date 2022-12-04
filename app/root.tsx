@@ -19,6 +19,7 @@ import { intervalTimer } from "./controllers/timer.server";
 import { AppProvider } from "./shared/contexts/AppContext";
 import { ActionModal } from "./shared/components/ActionModal";
 import { GetOptionalAuthenticatedModerator } from "./middleware/authenticate";
+import { NotificationsProvider } from "@mantine/notifications";
 
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
@@ -45,23 +46,26 @@ export async function loader({ request }: LoaderArgs) {
 
 export default function App() {
   const data = useLoaderData<typeof loader>();
+
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS>
-      <html lang="en" className="h-full">
-        <head>
-          <StylesPlaceholder />
-          <Meta />
-          <Links />
-        </head>
-        <body className="h-full bg-slate-50">
-          <AppProvider {...data}>
-            <Outlet />
-          </AppProvider>
-          <ScrollRestoration />
-          <Scripts />
-          <LiveReload />
-        </body>
-      </html>
+      <NotificationsProvider>
+        <html lang="en" className="h-full">
+          <head>
+            <StylesPlaceholder />
+            <Meta />
+            <Links />
+          </head>
+          <body className="h-full bg-slate-50">
+            <AppProvider {...data}>
+              <Outlet />
+            </AppProvider>
+            <ScrollRestoration />
+            <Scripts />
+            <LiveReload />
+          </body>
+        </html>
+      </NotificationsProvider>
     </MantineProvider>
   );
 }

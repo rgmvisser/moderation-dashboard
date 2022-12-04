@@ -17,7 +17,9 @@ import { EmptyStateTable } from "~/shared/components/EmptyStateTable";
 import { GetDateFormatted } from "~/shared/utils.tsx/date";
 import { ListsPath } from "~/shared/utils.tsx/navigation";
 import { numericString } from "~/shared/utils.tsx/validate";
-import debounce from "lodash.debounce";
+import { DebouncedInput } from "~/shared/components/DebouncedInput";
+import { SubHeading } from "~/shared/components/SubHeading";
+import { CMNotificationProvider } from "~/shared/components/CMNotificationProvider";
 
 const PAGE_SIZE = 20;
 
@@ -31,14 +33,21 @@ export const validator = withZod(
   })
 );
 
-export const addValidator = withZod(
+export const postValidator = withZod(
   z.object({
+    name: z.string().min(3).max(100).optional(),
     value: z
       .string()
       .min(1, { message: "Please fill out an item" })
       .max(100, { message: "Max lenght is 100 characters" })
       .optional(),
-    action: z.enum(["addItem", "addItems", "deleteItem", "deleteItems"]),
+    action: z.enum([
+      "addItem",
+      "addItems",
+      "deleteItem",
+      "deleteItems",
+      "changeName",
+    ]),
     id: z.string().optional(),
     ids: z
       .string()
@@ -58,24 +67,31 @@ export async function action({ request, params }: ActionArgs) {
   if (!listId) {
     return redirect(ListsPath(tenant.slug));
   }
-  const res = await addValidator.validate(await request.formData());
+  const res = await postValidator.validate(await request.formData());
   if (res.error) {
     return json({ error: Object.values(res.error.fieldErrors).join(", ") });
   }
-  const { value, action, values, id, ids } = res.data;
+  const { value, action, values, id, ids, name } = res.data;
   const listController = new ListController(tenant);
+  const list = await listController.getListById(listId);
+  if (!list) {
+    return redirect(ListsPath(tenant.slug));
+  }
   if (action === "addItem" && value) {
     const item = await listController.addItem(moderator, listId, value);
-    return json({ item });
+    return json({ item, notification: `"${value}" added` });
   } else if (action === "addItems" && values) {
     const items = await listController.addItems(moderator, listId, values);
-    return json({ items });
+    return json({ items, notification: `${values.length} items added` });
   } else if (action === "deleteItem" && id) {
-    await listController.deleteItem(id);
-    return json({});
+    const item = await listController.deleteItem(id);
+    return json({ notification: `"${item.value}" deleted` });
   } else if (action === "deleteItems" && ids) {
     await listController.deleteItems(ids);
-    return json({});
+    return json({ notification: `${ids.length} items deleted` });
+  } else if (action === "changeName" && name) {
+    const newList = await listController.changeName(list, name);
+    return json({ list: newList, notification: "Changed name to " + name });
   } else {
     return json({ error: "Invalid request" });
   }
@@ -94,6 +110,10 @@ export async function loader({ request, params }: LoaderArgs) {
   }
   const { order, orderBy, perPage, filter } = res.data;
   const listController = new ListController(tenant);
+  const list = await listController.getListById(listId);
+  if (!list) {
+    throw new Error("List not found");
+  }
   const total = await listController.countItems(listId);
   let page = (res.data.page - 1) * perPage > total ? 1 : res.data.page;
   const items = await listController.getItems({
@@ -105,6 +125,7 @@ export async function loader({ request, params }: LoaderArgs) {
     filter,
   });
   return json({
+    list,
     total,
     items,
     order,
@@ -119,7 +140,7 @@ export default function List() {
   // const params = useParams();
   // const [opened, setOpened] = useState(true);
   const data = useLoaderData<typeof loader>();
-  const { order, orderBy, page, perPage, items, total, filter } = data;
+  const { order, orderBy, page, perPage, items, total, filter, list } = data;
   const actionData = useActionData();
   const navigate = useNavigate();
 
@@ -128,8 +149,7 @@ export default function List() {
   const inputRef = useRef<HTMLInputElement>(null);
   const dropFormRef = useRef<HTMLFormElement>(null);
   const dropFormItemsRef = useRef<HTMLInputElement>(null);
-  const removeFormRef = useRef<HTMLFormElement>(null);
-  const removeInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (actionData && !actionData.error) {
       formRef.current?.reset();
@@ -172,142 +192,153 @@ export default function List() {
     }
   };
 
-  const debouncedSearch = useRef(
-    debounce(async (text: string) => {
-      console.log("Search!", text);
-      updateTable({ newFilter: text });
-    }, 300)
-  ).current;
-
-  // Cancel any pending debounced search when the component unmounts
-  useEffect(() => {
-    return () => {
-      debouncedSearch.cancel();
-    };
-  }, [debouncedSearch]);
-
   return (
-    <div className="flex flex-col gap-4">
-      <TextInput
-        icon={<MagnifyingGlassIcon className="h-4 w-4" />}
-        radius="xl"
-        size="md"
-        placeholder="Search items"
-        defaultValue={filter}
-        onChange={(e) => debouncedSearch(e.target.value)}
-      />
-      <div className="h-96">
-        <DataTable
-          verticalAlignment="top"
-          columns={[
-            {
-              accessor: "value",
-
-              ellipsis: true,
-              sortable: true,
-              title: "Item",
-            },
-            {
-              accessor: "createdAt",
-
-              ellipsis: true,
-              sortable: true,
-              title: "Created At",
-              render: (item) => GetDateFormatted(item.createdAt),
-            },
-            {
-              accessor: "actions",
-              width: 50,
-              title: "",
-              textAlignment: "right",
-              render: (item) => (
-                <Group spacing={4} position="right" noWrap>
-                  <Form method="post">
-                    <input type="hidden" name="action" value="deleteItem" />
-                    <input type="hidden" name="id" value={item.id} />
-                    <ActionIcon color="red" type="submit">
-                      <TrashIcon className="h-4 w-4" />
-                    </ActionIcon>
-                  </Form>
-                </Group>
-              ),
-            },
-          ]}
-          records={items}
-          onSortStatusChange={(status) => {
-            updateTable({
-              newOrderBy: status.columnAccessor,
-              newOrder: status.direction,
-            });
-          }}
-          onPageChange={(page) => {
-            updateTable({
-              newPage: page,
-            });
-          }}
-          page={page}
-          recordsPerPage={perPage}
-          totalRecords={total}
-          sortStatus={{
-            columnAccessor: orderBy,
-            direction: order as "asc" | "desc",
-          }}
-          selectedRecords={selectedRecords}
-          onSelectedRecordsChange={setSelectedRecords}
-          emptyState={<EmptyStateTable>No items yet</EmptyStateTable>}
-          noRecordsText=""
-        />
-      </div>
-      {selectedRecords.length > 0 && (
-        <div className="self-end">
-          <Form method="post">
-            <input type="hidden" name="action" value="deleteItems" />
-            <input
-              type="hidden"
-              name="ids"
-              value={selectedRecords.map((i) => i.id).join(",")}
-            />
-            <CMButton status="hidden" type="submit">
-              Delete {selectedRecords.length} item
-              {selectedRecords.length > 1 && "s"}
-            </CMButton>
+    <CMNotificationProvider notification={actionData?.notification}>
+      <div className="flex flex-col gap-4">
+        <div>
+          <Form ref={formRef} method="post">
+            <div className="flex gap-2">
+              <input type="hidden" name="action" value="changeName" />
+              <TextInput
+                type="text"
+                name="name"
+                placeholder="Name"
+                defaultValue={list.name}
+              />
+              <CMButton type="submit">Save</CMButton>
+            </div>
           </Form>
         </div>
-      )}
+        <div>
+          <SubHeading>Items</SubHeading>
+          <DebouncedInput
+            icon={<MagnifyingGlassIcon className="h-4 w-4" />}
+            radius="xl"
+            size="md"
+            placeholder="Search items"
+            defaultValue={filter}
+            className="mb-2"
+            onDebounceChange={(text) => updateTable({ newFilter: text })}
+          />
+          <div className="h-96">
+            <DataTable
+              verticalAlignment="top"
+              columns={[
+                {
+                  accessor: "value",
 
-      {actionData?.error && (
-        <div key="name-error" className="text-xs text-red-500">
-          {actionData?.error}
-        </div>
-      )}
-      <div>
-        <h2 className="mb-4 text-lg font-semibold">Add a new items</h2>
-        <Form ref={formRef} method="post">
-          <div className="flex gap-2">
-            <input type="hidden" name="action" value="addItem" />
-            <TextInput
-              type="text"
-              name="value"
-              placeholder="item"
-              ref={inputRef}
+                  ellipsis: true,
+                  sortable: true,
+                  title: "Item",
+                },
+                {
+                  accessor: "createdAt",
+
+                  ellipsis: true,
+                  sortable: true,
+                  title: "Created At",
+                  render: (item) => GetDateFormatted(item.createdAt),
+                },
+                {
+                  accessor: "actions",
+                  width: 50,
+                  title: "",
+                  textAlignment: "right",
+                  render: (item) => (
+                    <Group spacing={4} position="right" noWrap>
+                      <Form method="post">
+                        <input type="hidden" name="action" value="deleteItem" />
+                        <input type="hidden" name="id" value={item.id} />
+                        <ActionIcon color="red" type="submit">
+                          <TrashIcon className="h-4 w-4" />
+                        </ActionIcon>
+                      </Form>
+                    </Group>
+                  ),
+                },
+              ]}
+              records={items}
+              onSortStatusChange={(status) => {
+                updateTable({
+                  newOrderBy: status.columnAccessor,
+                  newOrder: status.direction,
+                });
+              }}
+              onPageChange={(page) => {
+                updateTable({
+                  newPage: page,
+                });
+              }}
+              page={page}
+              recordsPerPage={perPage}
+              totalRecords={total}
+              sortStatus={{
+                columnAccessor: orderBy,
+                direction: order as "asc" | "desc",
+              }}
+              selectedRecords={selectedRecords}
+              onSelectedRecordsChange={setSelectedRecords}
+              emptyState={<EmptyStateTable>No items yet</EmptyStateTable>}
+              noRecordsText=""
             />
-            <CMButton type="submit">Add Item</CMButton>
           </div>
-        </Form>
+        </div>
+        {selectedRecords.length > 0 && (
+          <div className="self-end">
+            <Form method="post" onSubmit={(e) => setSelectedRecords([])}>
+              <input type="hidden" name="action" value="deleteItems" />
+              <input
+                type="hidden"
+                name="ids"
+                value={selectedRecords.map((i) => i.id).join(",")}
+              />
+              <CMButton status="hidden" type="submit">
+                Delete {selectedRecords.length} item
+                {selectedRecords.length > 1 && "s"}
+              </CMButton>
+            </Form>
+          </div>
+        )}
+
+        {actionData?.error && (
+          <div key="name-error" className="text-xs text-red-500">
+            {actionData?.error}
+          </div>
+        )}
+        <div>
+          <SubHeading>Add a new items</SubHeading>
+          <Form ref={formRef} method="post">
+            <div className="flex gap-2">
+              <input type="hidden" name="action" value="addItem" />
+              <TextInput
+                type="text"
+                name="value"
+                placeholder="item"
+                ref={inputRef}
+              />
+              <CMButton type="submit">Add Item</CMButton>
+            </div>
+          </Form>
+        </div>
+        <div>
+          <SubHeading>Or upload file</SubHeading>
+          <Form ref={dropFormRef} method="post">
+            <input type="hidden" name="action" value="addItems" />
+            <input
+              type="hidden"
+              name="values"
+              value=""
+              ref={dropFormItemsRef}
+            />
+          </Form>
+          <DropzoneButton
+            onDrop={(files) => {
+              fileReader.readAsText(files[0]);
+            }}
+          />
+        </div>
       </div>
-      <div>
-        <h2 className="mb-4 text-lg font-semibold">Or upload file</h2>
-        <Form ref={dropFormRef} method="post">
-          <input type="hidden" name="action" value="addItems" />
-          <input type="hidden" name="values" value="" ref={dropFormItemsRef} />
-        </Form>
-        <DropzoneButton
-          onDrop={(files) => {
-            fileReader.readAsText(files[0]);
-          }}
-        />
-      </div>
-    </div>
+    </CMNotificationProvider>
   );
 }
 

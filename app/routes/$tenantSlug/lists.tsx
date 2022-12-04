@@ -24,6 +24,7 @@ import { z } from "zod";
 import { ListType } from "@prisma/client";
 import { ListPath, ListsPath } from "~/shared/utils.tsx/navigation";
 import { useTenantContext } from "~/shared/contexts/TenantContext";
+import { SubHeading } from "~/shared/components/SubHeading";
 
 export const validator = withZod(
   z.object({
@@ -126,9 +127,10 @@ export default function Lists() {
                           Math.min(previewItems, list.items.length) - 1 && ", "}
                         {index == previewItems - 1 &&
                           list.items.length > previewItems && (
-                            <Code>
+                            <span>
+                              {" "}
                               and {list.items.length - previewItems} more...
-                            </Code>
+                            </span>
                           )}
                       </span>
                     );
@@ -189,7 +191,7 @@ export default function Lists() {
       <Drawer
         opened={opened}
         onClose={() => navigate(ListsPath(tenantContext.tenant.slug))}
-        title={<h2 className="text-lg font-semibold">Edit list</h2>}
+        title={<SubHeading className="mb-0">Edit list</SubHeading>}
         padding="md"
         size="xl"
         position="right"

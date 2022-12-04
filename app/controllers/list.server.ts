@@ -1,4 +1,4 @@
-import { ListItem, ListType, Moderator, Prisma } from "@prisma/client";
+import { List, ListItem, ListType, Moderator, Prisma } from "@prisma/client";
 import pLimit from "p-limit";
 
 import { string } from "zod";
@@ -71,6 +71,16 @@ export class ListController extends BaseTenantController {
         type,
         tenantId: this.tenant.id,
       },
+    });
+  }
+
+  async changeName(list: List, name: string) {
+    if (list.name === name) {
+      return list;
+    }
+    return await this.db.list.update({
+      where: { id: list.id },
+      data: { name },
     });
   }
 
