@@ -11,16 +11,21 @@ export class ListController extends BaseTenantController {
     });
   }
 
-  async getAllLists() {
-    return await this.db.list.findMany({
+  async getAllLists(filter?: string) {
+    const lists = await this.db.list.findMany({
       include: {
         items: {
+          where: filter ? { value: { contains: filter } } : undefined,
           select: {
             value: true,
           },
         },
       },
     });
+    if (filter) {
+      return lists.filter((list) => list.items.length > 0);
+    }
+    return lists;
   }
 
   async countItems(listId: string) {

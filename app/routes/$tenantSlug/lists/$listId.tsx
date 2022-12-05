@@ -196,7 +196,7 @@ export default function List() {
     <CMNotificationProvider notification={actionData?.notification}>
       <div className="flex flex-col gap-4">
         <div>
-          <Form ref={formRef} method="post">
+          <Form method="post">
             <div className="flex gap-2">
               <input type="hidden" name="action" value="changeName" />
               <TextInput

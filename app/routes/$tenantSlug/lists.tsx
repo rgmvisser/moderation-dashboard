@@ -13,7 +13,7 @@ import {
 } from "@mantine/core";
 import { Form, Outlet, useNavigate, useParams } from "@remix-run/react";
 import { CMButton } from "~/shared/components/CMButton";
-import { TrashIcon } from "@heroicons/react/24/outline";
+import { MagnifyingGlassIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useRef, useEffect, useState } from "react";
 import { ListTypeName, ListTypes } from "~/models/list";
 import { EmptyStateTable } from "~/shared/components/EmptyStateTable";
@@ -23,8 +23,9 @@ import { ListType } from "@prisma/client";
 import { ListPath, ListsPath } from "~/shared/utils.tsx/navigation";
 import { useTenantContext } from "~/shared/contexts/TenantContext";
 import { SubHeading } from "~/shared/components/SubHeading";
+import { DebouncedInput } from "~/shared/components/DebouncedInput";
 
-export const validator = withZod(
+export const postValidator = withZod(
   z.object({
     name: z.string().min(3).max(100).optional(),
     type: z.nativeEnum(ListType).optional(),
@@ -33,9 +34,15 @@ export const validator = withZod(
   })
 );
 
+export const loadValidator = withZod(
+  z.object({
+    filter: z.string().optional(),
+  })
+);
+
 export async function action({ request, params }: ActionArgs) {
   const tenant = await GetTenant(request, params);
-  const res = await validator.validate(await request.formData());
+  const res = await postValidator.validate(await request.formData());
   if (res.error) {
     return json({ error: res.error.fieldErrors.name });
   }
@@ -54,11 +61,24 @@ export async function action({ request, params }: ActionArgs) {
 
 export async function loader({ request, params }: LoaderArgs) {
   const tenant = await GetTenant(request, params);
+  const url = new URL(request.url);
+  const res = await loadValidator.validate(url.searchParams);
+  if (res.error) {
+    throw new Error(`Invalid query params: ${url.searchParams.toString()}`);
+  }
+  const filter = res.data.filter;
   const listController = new ListController(tenant);
-  const lists = await listController.getAllLists();
+  const lists = await listController.getAllLists(filter);
+  const listWithCounts = await Promise.all(
+    lists.map(async (list) => {
+      const count = await listController.countItems(list.id);
+      return { list, count };
+    })
+  );
   return json({
-    lists,
+    listWithCounts,
     listTypes: ListTypes,
+    filter,
   });
 }
 
@@ -68,7 +88,7 @@ export default function Lists() {
   const data = useLoaderData<typeof loader>();
   const actionData = useActionData();
   const tenantContext = useTenantContext();
-  const { lists, listTypes } = data;
+  const { listWithCounts, listTypes } = data;
   const navigate = useNavigate();
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -88,9 +108,29 @@ export default function Lists() {
   }, [params.listId]);
   const previewItems = 10;
 
+  function filter(text: string) {
+    const url = new URL(window.location.href);
+    if (text) {
+      url.searchParams.set("filter", text);
+    } else {
+      url.searchParams.delete("filter");
+    }
+    navigate(url, { replace: true });
+  }
+
   return (
     <div className="flex h-full flex-col gap-2">
-      <h1>Lists</h1>
+      <div className="flex flex-row justify-between">
+        <h1>Lists</h1>
+        <DebouncedInput
+          icon={<MagnifyingGlassIcon className="h-4 w-4" />}
+          radius="xl"
+          size="md"
+          placeholder="Search items"
+          defaultValue={data.filter}
+          onDebounceChange={(text) => filter(text)}
+        />
+      </div>
       <div className="flex h-full flex-col gap-4 rounded-xl bg-white p-4">
         <Table>
           <thead>
@@ -104,7 +144,7 @@ export default function Lists() {
             </tr>
           </thead>
           <tbody>
-            {lists.map((list) => (
+            {listWithCounts.map(({ list, count }) => (
               <tr
                 key={list.id}
                 className="hover:cursor-pointer"
@@ -114,7 +154,11 @@ export default function Lists() {
               >
                 <td>{list.name}</td>
                 <td>{ListTypeName(list.type)}</td>
-                <td>{list.items.length}</td>
+                <td>
+                  {list.items.length !== count
+                    ? `${list.items.length} / ${count}`
+                    : count}
+                </td>
                 <td>
                   {list.items.length === 0 && "-"}
                   {list.items.slice(0, previewItems).map((item, index) => {
@@ -163,7 +207,9 @@ export default function Lists() {
             ))}
           </tbody>
         </Table>
-        {lists.length === 0 && <EmptyStateTable>No lists yet</EmptyStateTable>}
+        {listWithCounts.length === 0 && (
+          <EmptyStateTable>No lists yet</EmptyStateTable>
+        )}
 
         <Form ref={formRef} method="post">
           <div className="flex gap-2">
