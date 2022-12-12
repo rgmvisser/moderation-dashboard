@@ -16,7 +16,7 @@ export const ContentsStatus = ({
   const flaggedPerc = (flagged / total) * 100;
   const hiddenPerc = (hidden / total) * 100;
   return (
-    <div className="w-full border-t-0 border-r-0 border-b border-l-0 border-main py-4 px-4">
+    <div className=" py-2 px-2">
       <div className="relative flex h-[30px] w-full overflow-hidden rounded-[15px] ">
         {allowed > 0 && (
           <StatusComponent status="allowed" percentage={allowPerc} />

@@ -21,7 +21,7 @@ export const ActionButtons = ({
   const { setOpened } = useModalContex();
   let type = content ? "content" : "user";
   return (
-    <div className="flex h-fit w-full items-stretch justify-center gap-4 p-4">
+    <div className="flex h-fit w-full items-stretch justify-center gap-4 p-2">
       {allowButton && (
         <CMButton
           status="allowed"

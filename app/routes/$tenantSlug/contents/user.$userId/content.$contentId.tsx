@@ -79,14 +79,18 @@ export default function Content() {
           {imageInfo && (
             <>
               <CMHeader title="Text From Image" />
-              <div className="py-2 px-4 text-sm italic text-secondary ">
-                {ocr == null
-                  ? "No OCR done yet on image"
-                  : ocr.length === 0
-                  ? `No text found in image`
-                  : ocr
+              <div className="py-2 px-2 text-sm text-secondary ">
+                {ocr == null ? (
+                  "No OCR done yet on image"
+                ) : ocr.length === 0 ? (
+                  `No text found in image`
+                ) : (
+                  <span className="italic">
+                    {ocr
                       .slice(0, showMore ? undefined : ocrCharacterCutOffLength)
                       .trim()}
+                  </span>
+                )}
 
                 {ocr && ocr?.length > ocrCharacterCutOffLength && (
                   <>
@@ -102,7 +106,7 @@ export default function Content() {
                 )}
               </div>
               <CMHeader title="Labels From Image" />
-              <div className="py-2 px-4 text-sm italic text-secondary">
+              <div className="py-2 px-2 text-sm text-secondary">
                 {labels == null ? (
                   "No labeling done yet on image"
                 ) : labels.length === 0 ? (
@@ -114,7 +118,7 @@ export default function Content() {
             </>
           )}
           <CMHeader title="User Reports" />
-          <div className="py-2 px-4">No reports</div>
+          <div className="py-2 px-2 text-sm text-secondary">No reports</div>
           <ActionContainer actions={actions} />
         </div>
       </DashboardContainer>
@@ -149,7 +153,7 @@ function LabelPills({ labels }: { labels: Record<string, number> }) {
         return (
           <span
             key={label}
-            className={`${color} rounded-md px-2 py-1 text-sm not-italic text-white`}
+            className={`${color} rounded-md px-2 py-1 text-sm text-white`}
           >
             {label}: {value.toFixed(2)}
           </span>

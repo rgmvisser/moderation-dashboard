@@ -70,9 +70,7 @@ export default function User() {
           ]}
         />
         <CMHeader title="User Reports" />
-        <div className="w-full border-t-0 border-r-0 border-b border-l-0 border-main py-2 px-4">
-          No reports
-        </div>
+        <div className=" py-2 px-2 text-sm text-secondary">No reports</div>
         <CMHeader title="Contents status" />
         <ContentsStatus {...contentsStats}></ContentsStatus>
 

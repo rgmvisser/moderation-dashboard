@@ -9,7 +9,7 @@ export const PropertyContainer = ({
   className?: string;
 }) => {
   return (
-    <div className="w-full border-t-0 border-r-0 border-b border-l-0 border-main py-2 px-4">
+    <div className=" py-2 px-2">
       {properties.map((p) => (
         <Property property={p} key={p.text} />
       ))}

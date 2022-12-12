@@ -17,6 +17,9 @@ export const ActionContainer = ({ actions }: Props) => {
         {actions.map((action) => (
           <ActionItem key={action.id} action={action}></ActionItem>
         ))}
+        {actions.length === 0 && (
+          <div className="py-2 px-2 text-sm text-secondary">No actions</div>
+        )}
       </div>
     </>
   );
