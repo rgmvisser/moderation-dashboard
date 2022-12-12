@@ -39,13 +39,14 @@ model Tenant {
   actions       Action[]
   topics        Topic[]
 
-  moderatorFilters ModeratorFilters[]
-  moderatorRoles   ModeratorRole[]
-  apiKeys          ApiKey[]
-  messages         Message[]
-  images           Image[]
-  lists            List[]
-  listItems        ListItem[]
+  moderatorFilters     ModeratorFilters[]
+  moderatorRoles       ModeratorRole[]
+  apiKeys              ApiKey[]
+  messages             Message[]
+  images               Image[]
+  lists                List[]
+  listItems            ListItem[]
+  awsModerationResults AWSModerationResult[]
 }
 
 model ApiKey {
@@ -176,14 +177,15 @@ model Message {
 }
 
 model Image {
-  id        String   @id @default(cuid())
-  content   Content  @relation(fields: [contentId], references: [id], onDelete: Cascade)
-  contentId String   @unique
-  url       String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  tenantId  String
+  id                  String               @id @default(cuid())
+  content             Content              @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  contentId           String               @unique
+  url                 String               @unique
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  tenant              Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId            String
+  awsModerationResult AWSModerationResult?
 }
 
 model Project {
@@ -305,4 +307,21 @@ model ListItem {
   tenantId    String
 
   @@unique([listId, value])
+}
+
+model AWSModerationResult {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  image     Image    @relation(fields: [url], references: [url])
+  url       String   @unique
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId  String
+
+  highestConfidenceLabel String
+  highestConfidenceScore Float
+  averageConfidenceScore Float
+  labels                 Json
+  labelNames             Json
+  processTime            Float
 }

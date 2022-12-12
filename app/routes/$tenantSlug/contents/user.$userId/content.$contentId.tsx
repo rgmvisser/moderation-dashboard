@@ -10,6 +10,7 @@ import { GetTenant } from "~/middleware/tenant";
 import { UserController } from "~/controllers/user.server";
 import { ContentController } from "~/controllers/content.server";
 import { ContentTextContainer } from "~/shared/components/ContentTextContainer";
+import { CMImage } from "~/shared/components/CMImage";
 
 export async function loader({ request, params }: LoaderArgs) {
   const tenant = await GetTenant(request, params);
@@ -63,6 +64,9 @@ export default function Content() {
             ]}
           />
         )}
+        <div className="flex flex-col items-center">
+          {content.image && <CMImage image={content.image} className="h-60" />}
+        </div>
         <CMHeader title="User Reports" />
         <div className="w-full border-t-0 border-r-0 border-b border-l-0 border-main py-2 px-4">
           No reports

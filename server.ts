@@ -10,7 +10,8 @@ import { startBacklogQueue } from "~/controllers/backlog.server";
 import { authenticateUser } from "socket_session";
 import type { User } from "@prisma/client";
 
-import { worker } from "./workers/socket.server";
+import { worker as socketWorker } from "./workers/socket.server";
+import { worker as awsRekognitionWorker } from "./workers/aws-rekognition.server";
 
 const app = express();
 const metricsApp = express();
@@ -178,9 +179,11 @@ function purgeRequireCache() {
   }
 }
 
-worker.on("completed", (job) =>
-  console.log(`Completed job ${job.id} successfully`)
-);
-worker.on("failed", (job, err) =>
-  console.log(`Failed job ${job?.id} with ${err}`)
-);
+for (const worker of [socketWorker, awsRekognitionWorker]) {
+  worker.on("completed", (job) =>
+    console.log(`(${worker.name}) Completed job ${job.id} successfully`)
+  );
+  worker.on("failed", (job, err) =>
+    console.log(`(${worker.name}) Failed job ${job?.id} with ${err}`)
+  );
+}

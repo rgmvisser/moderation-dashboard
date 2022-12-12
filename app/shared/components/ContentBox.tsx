@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { ContentPath, UserPath } from "../utils.tsx/navigation";
 import { useTenantContext } from "../contexts/TenantContext";
 import type { MessageOrImage } from "~/models/content";
+import { CMImage } from "./CMImage";
 
 type Props = {
   content: MessageOrImage;
@@ -72,11 +73,7 @@ export default function ContentBox({
                 {content.message.text}
               </p>
             )}
-            {content.image && (
-              <p className="flex-grow text-left text-sm">
-                TODO: Show image: {content.image.url}
-              </p>
-            )}
+            {content.image && <CMImage image={content.image} />}
           </div>
         </div>
       </Link>

@@ -8,6 +8,7 @@ import {
 import { useFetcher } from "@remix-run/react";
 import { CMButton } from "./CMButton";
 import { useTenantContext } from "../contexts/TenantContext";
+import { CMImage } from "./CMImage";
 
 export function ActionModal() {
   const tenantContext = useTenantContext();
@@ -66,10 +67,9 @@ export function ActionModal() {
               </>
             )}
             {content?.image && (
-              <>
-                <h2>Image</h2>
-                <p className="text-xs font-light">TODO: Show image</p>
-              </>
+              <div className="flex flex-col items-center">
+                <CMImage image={content.image} className="h-80" />
+              </div>
             )}
             <Select
               name="reasonId"

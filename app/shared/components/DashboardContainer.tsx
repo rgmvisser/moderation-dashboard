@@ -11,7 +11,7 @@ export const DashboardContainer = ({
   return (
     <div
       className={classNames(
-        "flex flex-1 flex-col items-start justify-start rounded-lg border border-main bg-white",
+        "flex flex-1 flex-col items-stretch justify-start rounded-lg border border-main bg-white",
         className
       )}
     >

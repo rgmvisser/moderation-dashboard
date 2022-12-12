@@ -36,7 +36,7 @@ export const postValidator = withZod(
 
 export const loadValidator = withZod(
   z.object({
-    filter: z.string().optional(),
+    listFilter: z.string().optional(),
   })
 );
 
@@ -66,9 +66,9 @@ export async function loader({ request, params }: LoaderArgs) {
   if (res.error) {
     throw new Error(`Invalid query params: ${url.searchParams.toString()}`);
   }
-  const filter = res.data.filter;
+  const listFilter = res.data.listFilter;
   const listController = new ListController(tenant);
-  const lists = await listController.getAllLists(filter);
+  const lists = await listController.getAllLists(listFilter);
   const listWithCounts = await Promise.all(
     lists.map(async (list) => {
       const count = await listController.countItems(list.id);
@@ -78,7 +78,7 @@ export async function loader({ request, params }: LoaderArgs) {
   return json({
     listWithCounts,
     listTypes: ListTypes,
-    filter,
+    listFilter,
   });
 }
 
@@ -111,9 +111,9 @@ export default function Lists() {
   function filter(text: string) {
     const url = new URL(window.location.href);
     if (text) {
-      url.searchParams.set("filter", text);
+      url.searchParams.set("listFilter", text);
     } else {
-      url.searchParams.delete("filter");
+      url.searchParams.delete("listFilter");
     }
     navigate(url, { replace: true });
   }
@@ -127,7 +127,7 @@ export default function Lists() {
           radius="xl"
           size="md"
           placeholder="Search items"
-          defaultValue={data.filter}
+          defaultValue={data.listFilter}
           onDebounceChange={(text) => filter(text)}
         />
       </div>

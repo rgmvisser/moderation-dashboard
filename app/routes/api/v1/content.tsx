@@ -3,7 +3,7 @@ import { json } from "@remix-run/node";
 import { z } from "zod";
 import { withZod } from "@remix-validated-form/with-zod";
 import { GetAuthenticatedAPIKey } from "~/middleware/authenticate";
-import type { Content, Tenant } from "@prisma/client";
+import type { Tenant } from "@prisma/client";
 import { UserController } from "~/controllers/user.server";
 import { SignInMethodForString } from "~/models/user";
 import { ContentController } from "~/controllers/content.server";
@@ -11,7 +11,11 @@ import { ProjectController } from "~/controllers/project.server";
 import { TopicController } from "~/controllers/topic.server";
 import invariant from "tiny-invariant";
 import isISODate from "is-iso-date";
-import { socketQueue } from "queues/socket.server";
+import { newSocketQueueJob } from "queues/socket.server";
+import type { FlowChildJob } from "bullmq";
+import { FlowProducer } from "bullmq";
+import { newAWSRekognitionQueueJob } from "queues/aws-rekognition.server";
+import type { ContentWithInfo } from "~/models/content";
 
 const isoDate = z
   .string()
@@ -117,7 +121,7 @@ export const action: ActionFunction = async ({ request }) => {
 
   /// Section 4: Create the content
   const contentController = new ContentController(tenant);
-  let content: Content | null = null;
+  let content: ContentWithInfo | null = null;
   if (data.message) {
     content = await contentController.upsertContent(user, project, topic, {
       externalId: data.message.id,
@@ -128,15 +132,31 @@ export const action: ActionFunction = async ({ request }) => {
     content = await contentController.upsertContent(user, project, topic, {
       externalId: data.image.id,
       createdAt: data.image.created_at,
-      message_text: data.image.url,
+      image_url: data.image.url,
     });
   }
   invariant(content, "Content should exist");
-  await socketQueue.add(
-    "test",
-    { contentId: content.id, tenantId: tenant.id },
-    { jobId: content.id }
-  );
+
+  const flowProducer = new FlowProducer();
+  const conentChildernTasks: FlowChildJob[] = [];
+  if (content.image) {
+    console.log("Adding AWS Rekognition job");
+    conentChildernTasks.push(
+      newAWSRekognitionQueueJob({
+        imageId: content.image.id,
+        imageURL: content.image.url,
+        tenantId: tenant.id,
+      })
+    );
+  }
+
+  await flowProducer.add({
+    ...newSocketQueueJob({
+      tenantId: tenant.id,
+      contentId: content.id,
+    }),
+    children: conentChildernTasks,
+  });
 
   return json({ contentId: content.id });
 };

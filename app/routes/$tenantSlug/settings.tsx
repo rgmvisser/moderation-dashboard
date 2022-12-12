@@ -141,8 +141,7 @@ export default function Settings() {
             title="API key created"
             disallowClose
           >
-            Your API key is: <Code>{actionData.keySecret}</Code> this is the
-            only time you will see this key, please save it somewhere safe.{" "}
+            Your API key is: <Code>{actionData.keySecret}</Code>{" "}
             <CopyButton value={actionData.keySecret}>
               {({ copied, copy }) => (
                 <CMButton
@@ -157,7 +156,9 @@ export default function Settings() {
                   )}
                 </CMButton>
               )}
-            </CopyButton>
+            </CopyButton>{" "}
+            this is the only time you will see this key, please save it
+            somewhere safe.
           </Notification>
         )}
       </div>

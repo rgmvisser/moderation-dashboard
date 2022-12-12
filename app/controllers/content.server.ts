@@ -128,7 +128,7 @@ export class ContentController extends BaseTenantController {
       message_text?: string;
       image_url?: string;
     }
-  ): Promise<Content> {
+  ): Promise<ContentWithInfo | null> {
     // Note: upsert is only done natively if it satisfies these conditions:
     // https://www.prisma.io/docs/reference/api-reference/prisma-client-reference#database-upsert-query-criteria
     const content = await this.db.content.upsert({
@@ -177,7 +177,10 @@ export class ContentController extends BaseTenantController {
         },
       });
     }
-    return content;
+    return this.db.content.findUnique({
+      where: { id: content.id },
+      include: this.contentInclude,
+    });
   }
 
   async updateContent(

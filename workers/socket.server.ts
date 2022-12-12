@@ -44,5 +44,3 @@ export const worker = new Worker(
     concurrency: 1,
   }
 );
-
-console.log("Here!");

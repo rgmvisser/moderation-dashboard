@@ -34,6 +34,7 @@
     "/postgres-data"
   ],
   "dependencies": {
+    "@aws-sdk/client-rekognition": "^3.226.0",
     "@emotion/react": "^11.10.5",
     "@emotion/server": "^11.10.0",
     "@heroicons/react": "^2.0.13",
