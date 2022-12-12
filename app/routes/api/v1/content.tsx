@@ -16,6 +16,7 @@ import type { FlowChildJob } from "bullmq";
 import { FlowProducer } from "bullmq";
 import { newAWSRekognitionQueueJob } from "queues/aws-rekognition.server";
 import type { ContentWithInfo } from "~/models/content";
+import { newImageOCRQueueJob } from "queues/image-ocr.server";
 
 const isoDate = z
   .string()
@@ -138,11 +139,17 @@ export const action: ActionFunction = async ({ request }) => {
   invariant(content, "Content should exist");
 
   const flowProducer = new FlowProducer();
-  const conentChildernTasks: FlowChildJob[] = [];
+  const contentChildernTasks: FlowChildJob[] = [];
   if (content.image) {
-    console.log("Adding AWS Rekognition job");
-    conentChildernTasks.push(
+    contentChildernTasks.push(
       newAWSRekognitionQueueJob({
+        imageId: content.image.id,
+        imageURL: content.image.url,
+        tenantId: tenant.id,
+      })
+    );
+    contentChildernTasks.push(
+      newImageOCRQueueJob({
         imageId: content.image.id,
         imageURL: content.image.url,
         tenantId: tenant.id,
@@ -155,7 +162,7 @@ export const action: ActionFunction = async ({ request }) => {
       tenantId: tenant.id,
       contentId: content.id,
     }),
-    children: conentChildernTasks,
+    children: contentChildernTasks,
   });
 
   return json({ contentId: content.id });

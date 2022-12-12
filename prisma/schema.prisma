@@ -47,6 +47,7 @@ model Tenant {
   lists                List[]
   listItems            ListItem[]
   awsModerationResults AWSModerationResult[]
+  ocrs                 ImageOCR[]
 }
 
 model ApiKey {
@@ -186,6 +187,7 @@ model Image {
   tenant              Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   tenantId            String
   awsModerationResult AWSModerationResult?
+  ocr                 ImageOCR?
 }
 
 model Project {
@@ -324,4 +326,16 @@ model AWSModerationResult {
   labels                 Json
   labelNames             Json
   processTime            Float
+}
+
+model ImageOCR {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  image       Image    @relation(fields: [url], references: [url])
+  url         String   @unique
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId    String
+  text        String
+  processTime Float
 }

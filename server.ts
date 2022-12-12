@@ -12,6 +12,7 @@ import type { User } from "@prisma/client";
 
 import { worker as socketWorker } from "./workers/socket.server";
 import { worker as awsRekognitionWorker } from "./workers/aws-rekognition.server";
+import { worker as ocrWorker } from "./workers/image-ocr.server";
 
 const app = express();
 const metricsApp = express();
@@ -179,7 +180,7 @@ function purgeRequireCache() {
   }
 }
 
-for (const worker of [socketWorker, awsRekognitionWorker]) {
+for (const worker of [socketWorker, awsRekognitionWorker, ocrWorker]) {
   worker.on("completed", (job) =>
     console.log(`(${worker.name}) Completed job ${job.id} successfully`)
   );

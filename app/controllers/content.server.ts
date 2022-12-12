@@ -1,6 +1,7 @@
+import { ModerationLabel } from "@aws-sdk/client-rekognition";
 import type { Content, Project, Topic, User } from "@prisma/client";
 import { Status } from "@prisma/client";
-import type { ContentWithInfo } from "~/models/content";
+import type { ContentWithInfo, ImageContent } from "~/models/content";
 import { BaseTenantController } from "./baseController.server";
 import type { Filter } from "./filter.server";
 
@@ -223,4 +224,33 @@ export class ContentController extends BaseTenantController {
       include: this.contentInclude,
     });
   }
+
+  async getImageInformation(content: ContentWithInfo) {
+    if (!content.image) {
+      return null;
+    }
+    const image = await this.db.image.findUnique({
+      where: { id: content.image.id },
+      include: {
+        ocr: true,
+        awsModerationResult: true,
+      },
+    });
+
+    const labels = image?.awsModerationResult?.labels as
+      | ModerationLabel[]
+      | undefined;
+    const labelsWithConfidence = labels?.reduce(
+      (res, label) => ({ ...res, [label.Name ?? ""]: label.Confidence ?? 0 }),
+      {} as LabelsWithConfidence
+    );
+    return {
+      ocr: image?.ocr?.text,
+      labels: labelsWithConfidence,
+    };
+  }
 }
+
+type Label = string;
+type Confidence = number;
+type LabelsWithConfidence = Record<Label, Confidence>;

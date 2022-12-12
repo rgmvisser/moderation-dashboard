@@ -6,6 +6,7 @@ import { logger } from "~/logger";
 import redis from "~/redis.server";
 import type { DetectModerationLabelsCommandOutput } from "@aws-sdk/client-rekognition";
 import { Rekognition } from "@aws-sdk/client-rekognition";
+import { Prisma } from "@prisma/client";
 
 export const worker = new Worker(
   "aws-rekognition",
@@ -51,8 +52,8 @@ export const worker = new Worker(
       return;
     }
     const timeDone = new Date().getTime();
-    const labelNames =
-      output.ModerationLabels?.map((label) => label.Name) ?? [];
+    const labelNames = (output.ModerationLabels?.map((label) => label.Name) ??
+      []) as Prisma.JsonArray;
     let highestConfidenceScore = 0;
     let highestConfidenceLabel = "";
     let averageConfidenceScore = 0;
@@ -72,9 +73,9 @@ export const worker = new Worker(
       data: {
         tenantId: tenant.id,
         url: imageURL,
-        labels: JSON.stringify(output.ModerationLabels ?? []),
+        labels: (output.ModerationLabels ?? []) as Prisma.JsonArray,
         processTime: timeDone - time,
-        labelNames: JSON.stringify(labelNames),
+        labelNames: labelNames,
         highestConfidenceScore: highestConfidenceScore,
         highestConfidenceLabel: highestConfidenceLabel,
         averageConfidenceScore: averageConfidenceScore,

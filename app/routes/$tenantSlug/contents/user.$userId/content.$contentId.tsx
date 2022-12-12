@@ -11,6 +11,7 @@ import { UserController } from "~/controllers/user.server";
 import { ContentController } from "~/controllers/content.server";
 import { ContentTextContainer } from "~/shared/components/ContentTextContainer";
 import { CMImage } from "~/shared/components/CMImage";
+import { useState } from "react";
 
 export async function loader({ request, params }: LoaderArgs) {
   const tenant = await GetTenant(request, params);
@@ -26,14 +27,19 @@ export async function loader({ request, params }: LoaderArgs) {
   if (!content) {
     throw new Error(`Could nog find content:  ${contentId}`);
   }
+  const imageInfo = await contentController.getImageInformation(content);
   const actionController = new ActionController(tenant);
   const actions = await actionController.getContentActions(contentId);
-  return json({ user, content, actions });
+  return json({ user, content, actions, imageInfo });
 }
 
 export default function Content() {
   const data = useLoaderData<typeof loader>();
-  const { content, actions } = data;
+  const [showMore, setShowMore] = useState(false);
+  const { content, actions, imageInfo } = data;
+  const ocr = imageInfo?.ocr;
+  const labels = imageInfo?.labels;
+  const ocrCharacterCutOffLength = 200;
   return (
     <>
       <DashboardContainer>
@@ -64,15 +70,91 @@ export default function Content() {
             ]}
           />
         )}
-        <div className="flex flex-col items-center">
-          {content.image && <CMImage image={content.image} className="h-60" />}
+        {content.image && (
+          <div className="flex flex-col items-center">
+            <CMImage image={content.image} className="h-60 py-2" />
+          </div>
+        )}
+        <div className="overflow-y-auto">
+          {imageInfo && (
+            <>
+              <CMHeader title="Text From Image" />
+              <div className="py-2 px-4 text-sm italic text-secondary ">
+                {ocr == null
+                  ? "No OCR done yet on image"
+                  : ocr.length === 0
+                  ? `No text found in image`
+                  : ocr
+                      .slice(0, showMore ? undefined : ocrCharacterCutOffLength)
+                      .trim()}
+
+                {ocr && ocr?.length > ocrCharacterCutOffLength && (
+                  <>
+                    {!showMore && "..."}
+                    <span
+                      className="cursor-pointer text-main"
+                      onClick={() => setShowMore(!showMore)}
+                    >
+                      {" "}
+                      {showMore ? "Show less" : "Show more"}
+                    </span>
+                  </>
+                )}
+              </div>
+              <CMHeader title="Labels From Image" />
+              <div className="py-2 px-4 text-sm italic text-secondary">
+                {labels == null ? (
+                  "No labeling done yet on image"
+                ) : labels.length === 0 ? (
+                  `No labels found on image`
+                ) : (
+                  <LabelPills labels={labels} />
+                )}
+              </div>
+            </>
+          )}
+          <CMHeader title="User Reports" />
+          <div className="py-2 px-4">No reports</div>
+          <ActionContainer actions={actions} />
         </div>
-        <CMHeader title="User Reports" />
-        <div className="w-full border-t-0 border-r-0 border-b border-l-0 border-main py-2 px-4">
-          No reports
-        </div>
-        <ActionContainer actions={actions} />
       </DashboardContainer>
     </>
+  );
+}
+
+function LabelPills({ labels }: { labels: Record<string, number> }) {
+  if (Object.keys(labels).length === 0) {
+    return <span className="text-secondary">No labels found</span>;
+  }
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {Object.entries(labels).map(([label, value]) => {
+        let color = "";
+        if (value < 10) {
+          color = "bg-red-300";
+        } else if (value < 25) {
+          color = "bg-red-400";
+        } else if (value < 50) {
+          color = "bg-red-500";
+        } else if (value < 75) {
+          color = "bg-red-600";
+        } else if (value < 90) {
+          color = "bg-red-700";
+        } else if (value < 95) {
+          color = "bg-red-800";
+        } else {
+          color = "bg-red-900";
+        }
+        return (
+          <span
+            key={label}
+            className={`${color} rounded-md px-2 py-1 text-sm not-italic text-white`}
+          >
+            {label}: {value.toFixed(2)}
+          </span>
+        );
+      })}
+    </div>
   );
 }
