@@ -1,12 +1,14 @@
-import type { Tenant } from "@prisma/client";
+import type { Reason, Tenant } from "@prisma/client";
 import type { ReactNode } from "react";
 import { useContext } from "react";
 import { createContext } from "react";
+import type { LabelCategory } from "~/models/asw-labels";
 import type { ReasonsForStatus } from "~/models/reason";
 
-type TenantContext = {
+export type TenantContext = {
   tenant: Tenant;
   reasons: ReasonsForStatus;
+  reasonForCategories: Record<LabelCategory, Reason>;
 };
 
 const defaultState: TenantContext = {
@@ -16,6 +18,7 @@ const defaultState: TenantContext = {
     flagged: [],
     hidden: [],
   },
+  reasonForCategories: {},
 };
 
 const tenantContext = createContext<TenantContext>(defaultState);

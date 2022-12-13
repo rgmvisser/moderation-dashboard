@@ -12,6 +12,9 @@ import { ContentController } from "~/controllers/content.server";
 import { ContentTextContainer } from "~/shared/components/ContentTextContainer";
 import { CMImage } from "~/shared/components/CMImage";
 import { useState } from "react";
+import { useActionModalContex } from "~/shared/contexts/ActionModalContext";
+import { Status } from "@prisma/client";
+import { useTenantContext } from "~/shared/contexts/TenantContext";
 
 export async function loader({ request, params }: LoaderArgs) {
   const tenant = await GetTenant(request, params);
@@ -35,6 +38,8 @@ export async function loader({ request, params }: LoaderArgs) {
 
 export default function Content() {
   const data = useLoaderData<typeof loader>();
+  const { reasonForCategories } = useTenantContext();
+  const { setOpened } = useActionModalContex();
   const [showMore, setShowMore] = useState(false);
   const { content, actions, imageInfo } = data;
   const ocr = imageInfo?.ocr;
@@ -112,7 +117,19 @@ export default function Content() {
                 ) : labels.length === 0 ? (
                   `No labels found on image`
                 ) : (
-                  <LabelPills labels={labels} />
+                  <LabelPills
+                    labels={labels}
+                    onClick={(label, value) =>
+                      setOpened(true, {
+                        status: Status.hidden,
+                        content,
+                        reason: reasonForCategories[label],
+                        otherInformation: `From labelling: (${label}:${value.toFixed(
+                          2
+                        )})`,
+                      })
+                    }
+                  />
                 )}
               </div>
             </>
@@ -126,7 +143,13 @@ export default function Content() {
   );
 }
 
-function LabelPills({ labels }: { labels: Record<string, number> }) {
+function LabelPills({
+  labels,
+  onClick,
+}: {
+  labels: Record<string, number>;
+  onClick: (label: string, value: number) => void;
+}) {
   if (Object.keys(labels).length === 0) {
     return <span className="text-secondary">No labels found</span>;
   }
@@ -153,7 +176,8 @@ function LabelPills({ labels }: { labels: Record<string, number> }) {
         return (
           <span
             key={label}
-            className={`${color} rounded-md px-2 py-1 text-sm text-white`}
+            className={`${color} rounded-md px-2 py-1 text-sm text-white hover:cursor-pointer hover:shadow-inner`}
+            onClick={() => onClick(label, value)}
           >
             {label}: {value.toFixed(2)}
           </span>

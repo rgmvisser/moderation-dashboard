@@ -18,4 +18,8 @@ export class ReasonController extends BaseTenantController {
     }
     return reasons;
   }
+
+  async getReasons() {
+    return this.db.reason.findMany();
+  }
 }

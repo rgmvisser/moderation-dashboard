@@ -1,6 +1,6 @@
 import type { User } from "@prisma/client";
 import type { MessageOrImage } from "~/models/content";
-import { useModalContex } from "../contexts/ModalContext";
+import { useActionModalContex } from "../contexts/ActionModalContext";
 import { CMButton } from "./CMButton";
 
 interface ActionButtonProps {
@@ -18,7 +18,7 @@ export const ActionButtons = ({
   content,
   user,
 }: ActionButtonProps) => {
-  const { setOpened } = useModalContex();
+  const { setOpened } = useActionModalContex();
   let type = content ? "content" : "user";
   return (
     <div className="flex h-fit w-full items-stretch justify-center gap-4 p-2">
@@ -26,7 +26,7 @@ export const ActionButtons = ({
         <CMButton
           status="allowed"
           className="flex-grow"
-          onClick={() => setOpened(true, "allowed", content, user)}
+          onClick={() => setOpened(true, { status: "allowed", content, user })}
         >
           Allow {type}
         </CMButton>
@@ -35,7 +35,7 @@ export const ActionButtons = ({
         <CMButton
           status="flagged"
           className="flex-grow"
-          onClick={() => setOpened(true, "flagged", content, user)}
+          onClick={() => setOpened(true, { status: "flagged", content, user })}
         >
           Flag {type}
         </CMButton>
@@ -44,7 +44,7 @@ export const ActionButtons = ({
         <CMButton
           status="hidden"
           className="flex-grow"
-          onClick={() => setOpened(true, "hidden", content, user)}
+          onClick={() => setOpened(true, { status: "hidden", content, user })}
         >
           Hide {type}
         </CMButton>

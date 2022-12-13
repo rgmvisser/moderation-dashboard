@@ -42,9 +42,16 @@ async function seed() {
   // Created reasons per status
   await prisma.reason.createMany({
     data: [
-      { tenantId: tenant.id, name: "Drugs" },
+      { tenantId: tenant.id, name: "Explicit Nudity" },
+      { tenantId: tenant.id, name: "Suggestive" },
       { tenantId: tenant.id, name: "Violence" },
-      { tenantId: tenant.id, name: "Sexual" },
+      { tenantId: tenant.id, name: "Visually Disturbing" },
+      { tenantId: tenant.id, name: "Rude Gestures" },
+      { tenantId: tenant.id, name: "Drugs" },
+      { tenantId: tenant.id, name: "Tobacco" },
+      { tenantId: tenant.id, name: "Alcohol" },
+      { tenantId: tenant.id, name: "Gambling" },
+      { tenantId: tenant.id, name: "Hate Symbols" },
       { tenantId: tenant.id, name: "Other" },
     ],
   });
@@ -65,6 +72,7 @@ async function seed() {
       },
     });
   }
+
   await prisma.statusReasons.create({
     data: {
       status: Status.allowed,

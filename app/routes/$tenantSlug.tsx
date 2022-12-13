@@ -2,21 +2,27 @@ import type { LoaderArgs } from "@remix-run/node";
 import { json, useLoaderData } from "remix-supertyped";
 import { Outlet } from "@remix-run/react";
 import { GetTenant } from "~/middleware/tenant";
+import type { TenantContext } from "~/shared/contexts/TenantContext";
 import { TenantProvider } from "~/shared/contexts/TenantContext";
 import AppLayout from "~/shared/components/AppLayout";
 import { SocketProvider } from "~/shared/contexts/SocketContext";
-import { ModalProvider } from "~/shared/contexts/ModalContext";
+import { ActionModelProvider } from "~/shared/contexts/ActionModalContext";
 import { ActionModal } from "~/shared/components/ActionModal";
 import { ReasonController } from "~/controllers/reason.server";
+import { getReasonForCategories } from "~/models/asw-labels";
 
 export async function loader({ request, params }: LoaderArgs) {
   const tenant = await GetTenant(request, params);
   const reasonController = new ReasonController(tenant);
-  const reasons = await reasonController.getStatusReasons();
-  return json({
+  const statusReasons = await reasonController.getStatusReasons();
+  const reasons = await reasonController.getReasons();
+  const tenantContext: TenantContext = {
     tenant: tenant,
-    reasons: reasons,
-  });
+    reasons: statusReasons,
+    reasonForCategories: getReasonForCategories(reasons),
+  };
+
+  return json(tenantContext);
 }
 
 export default function Tenant() {
@@ -25,12 +31,12 @@ export default function Tenant() {
   return (
     <TenantProvider {...data}>
       <SocketProvider>
-        <ModalProvider>
+        <ActionModelProvider>
           <AppLayout>
             <Outlet />
             <ActionModal />
           </AppLayout>
-        </ModalProvider>
+        </ActionModelProvider>
       </SocketProvider>
     </TenantProvider>
   );

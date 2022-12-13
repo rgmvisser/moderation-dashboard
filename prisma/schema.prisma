@@ -240,6 +240,9 @@ model Reason {
   actions       Action[]
   tenant        Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   tenantId      String
+  custom        Boolean         @default(false)
+
+  @@unique([name, tenantId])
 }
 
 model StatusReasons {

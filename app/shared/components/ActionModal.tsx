@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Modal, Select, TextInput, Checkbox } from "@mantine/core";
-import { useModalContex } from "../contexts/ModalContext";
+import { useActionModalContex } from "../contexts/ActionModalContext";
 import {
   ActionTextFromStatus,
   ActivaTextFromStatus,
@@ -12,7 +12,11 @@ import { CMImage } from "./CMImage";
 
 export function ActionModal() {
   const tenantContext = useTenantContext();
-  const { opened, status, content, user, closeModal } = useModalContex();
+  const {
+    opened,
+    data: { status, content, user, reason, otherInformation },
+    closeModal,
+  } = useActionModalContex();
   const [isLoading, setIsLoading] = useState(false);
   const actionText = ActionTextFromStatus(status);
   const activeText = ActivaTextFromStatus(status);
@@ -79,11 +83,13 @@ export function ActionModal() {
                 label: reason.name,
                 value: reason.id,
               }))}
+              defaultValue={reason?.id}
             />
             <TextInput
               name="reasonInformation"
               label="Extra information"
               description="Provide extra information if needed"
+              defaultValue={otherInformation}
             />
             {user && (
               <>
