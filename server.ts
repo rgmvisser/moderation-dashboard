@@ -3,7 +3,7 @@ import express from "express";
 import compression from "compression";
 import morgan from "morgan";
 import { createRequestHandler } from "@remix-run/express";
-import prom from "express-prometheus-middleware";
+// import prom from "express-prometheus-middleware";
 
 import { Server } from "socket.io";
 import { startBacklogQueue } from "~/controllers/backlog.server";
@@ -15,15 +15,15 @@ import { worker as awsRekognitionWorker } from "./workers/aws-rekognition.server
 import { worker as ocrWorker } from "./workers/image-ocr.server";
 
 const app = express();
-const metricsApp = express();
+// const metricsApp = express();
 
-app.use(
-  prom({
-    metricsPath: "/metrics",
-    collectDefaultMetrics: true,
-    metricsApp,
-  })
-);
+// app.use(
+//   prom({
+//     metricsPath: "/metrics",
+//     collectDefaultMetrics: true,
+//     metricsApp,
+//   })
+// );
 
 app.use((req, res, next) => {
   // helpful headers:
@@ -158,11 +158,11 @@ ioServer.on("connection", (socket) => {
   });
 });
 
-const metricsPort = process.env.METRICS_PORT || 3001;
+// const metricsPort = process.env.METRICS_PORT || 3001;
 
-metricsApp.listen(metricsPort, () => {
-  console.log(`✅ metrics ready: http://localhost:${metricsPort}/metrics`);
-});
+// metricsApp.listen(metricsPort, () => {
+//   console.log(`✅ metrics ready: http://localhost:${metricsPort}/metrics`);
+// });
 
 startBacklogQueue();
 
