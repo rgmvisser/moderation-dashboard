@@ -11,10 +11,11 @@ import { UserController } from "~/controllers/user.server";
 import { ContentController } from "~/controllers/content.server";
 import { ContentTextContainer } from "~/shared/components/ContentTextContainer";
 import { CMImage } from "~/shared/components/CMImage";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useActionModalContex } from "~/shared/contexts/ActionModalContext";
 import { Status } from "@prisma/client";
 import { useTenantContext } from "~/shared/contexts/TenantContext";
+import ContentBox from "~/shared/components/ContentBox";
 
 export async function loader({ request, params }: LoaderArgs) {
   const tenant = await GetTenant(request, params);
@@ -33,7 +34,8 @@ export async function loader({ request, params }: LoaderArgs) {
   const imageInfo = await contentController.getImageInformation(content);
   const actionController = new ActionController(tenant);
   const actions = await actionController.getContentActions(contentId);
-  return json({ user, content, actions, imageInfo });
+  const contentContext = await contentController.getContext(content);
+  return json({ user, content, actions, imageInfo, contentContext });
 }
 
 export default function Content() {
@@ -41,10 +43,22 @@ export default function Content() {
   const { reasonForCategories } = useTenantContext();
   const { setOpened } = useActionModalContex();
   const [showMore, setShowMore] = useState(false);
-  const { content, actions, imageInfo } = data;
+  const contentInContextRef = useRef<HTMLLIElement>();
+  const contentInContextContainerRef = useRef<HTMLUListElement>(null);
+  const { content, actions, imageInfo, contentContext } = data;
   const ocr = imageInfo?.ocr;
   const labels = imageInfo?.labels;
   const ocrCharacterCutOffLength = 200;
+
+  useEffect(() => {
+    // Scroll to the middle of the content in context
+    if (contentInContextRef.current && contentInContextContainerRef.current) {
+      const rect = contentInContextContainerRef.current.getBoundingClientRect();
+      const top = rect.height / 2;
+      contentInContextContainerRef.current.scrollTo(0, top);
+    }
+  }, [content]);
+
   return (
     <>
       <DashboardContainer>
@@ -61,26 +75,27 @@ export default function Content() {
           allowButton={content.status != "allowed"}
           content={content}
         />
-        {content.message && (
-          <ContentTextContainer
-            contents={[
-              {
-                title: "Original content",
-                content: content.message.text,
-              },
-              {
-                title: "Parsed content",
-                content: content.message.text,
-              },
-            ]}
-          />
-        )}
-        {content.image && (
-          <div className="flex flex-col items-center">
-            <CMImage image={content.image} className="h-60 py-2" />
-          </div>
-        )}
         <div className="overflow-y-auto">
+          {content.message && (
+            <ContentTextContainer
+              contents={[
+                {
+                  title: "Original content",
+                  content: content.message.text,
+                },
+                {
+                  title: "Parsed content",
+                  content: content.message.normalizedText,
+                },
+              ]}
+            />
+          )}
+          {content.image && (
+            <div className="flex flex-col items-center">
+              <CMImage image={content.image} className="h-60 py-2" />
+            </div>
+          )}
+
           {imageInfo && (
             <>
               <CMHeader title="Text From Image" />
@@ -137,6 +152,30 @@ export default function Content() {
           <CMHeader title="User Reports" />
           <div className="py-2 px-2 text-sm text-secondary">No reports</div>
           <ActionContainer actions={actions} />
+          <CMHeader title="Message Context" />
+          <ul
+            className="max-h-96 w-full flex-grow overflow-y-scroll"
+            ref={contentInContextContainerRef}
+          >
+            {contentContext.map((c) => {
+              return (
+                <ContentBox
+                  key={c.id}
+                  content={c}
+                  project={c.project}
+                  topic={c.topic}
+                  user={c.user}
+                  selected={c.id === content.id}
+                  showUser={true}
+                  ref={
+                    c.id === content.id
+                      ? (contentInContextRef as any)
+                      : undefined
+                  }
+                />
+              );
+            })}
+          </ul>
         </div>
       </DashboardContainer>
     </>

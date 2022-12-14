@@ -1,9 +1,12 @@
-import { ModerationLabel } from "@aws-sdk/client-rekognition";
+import type { ModerationLabel } from "@aws-sdk/client-rekognition";
 import type { Content, Project, Topic, User } from "@prisma/client";
 import { Status } from "@prisma/client";
-import type { ContentWithInfo, ImageContent } from "~/models/content";
+import type { ContentWithInfo } from "~/models/content";
 import { BaseTenantController } from "./baseController.server";
 import type { Filter } from "./filter.server";
+import { normalizeText } from "normalize-text";
+import remove from "confusables";
+import deburr from "lodash/deburr";
 
 export class ContentController extends BaseTenantController {
   contentInclude = {
@@ -153,15 +156,18 @@ export class ContentController extends BaseTenantController {
       },
     });
     if (message_text) {
+      const normalizedText = ContentController.NormalizeText(message_text);
       await this.db.message.upsert({
         where: { contentId: content.id },
         create: {
           tenantId: this.tenant.id,
           contentId: content.id,
           text: message_text,
+          normalizedText: normalizedText,
         },
         update: {
           text: message_text,
+          normalizedText: normalizedText,
         },
       });
     }
@@ -248,6 +254,46 @@ export class ContentController extends BaseTenantController {
       ocr: image?.ocr?.text,
       labels: labelsWithConfidence,
     };
+  }
+
+  /// Find the pieces of content before and after the given content
+  async getContext(content: ContentWithInfo, user?: User, take = 4) {
+    const [beforeContents, afterContents] = await Promise.all([
+      this.db.content.findMany({
+        where: {
+          userId: user?.id,
+          topicId: content.topicId,
+          createdAt: {
+            lt: content.createdAt,
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: take,
+        include: this.contentInclude,
+      }),
+      this.db.content.findMany({
+        where: {
+          userId: user?.id,
+          topicId: content.topicId,
+          createdAt: {
+            gt: content.createdAt,
+          },
+        },
+        orderBy: {
+          createdAt: "asc",
+        },
+        take: take,
+        include: this.contentInclude,
+      }),
+    ]);
+    return [...beforeContents.reverse(), content, ...afterContents];
+  }
+
+  static NormalizeText(text: string) {
+    const normalizedText = deburr(normalizeText(remove(text)));
+    return normalizedText;
   }
 }
 

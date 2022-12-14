@@ -167,14 +167,15 @@ model Content {
 }
 
 model Message {
-  id        String   @id @default(cuid())
-  content   Content  @relation(fields: [contentId], references: [id], onDelete: Cascade)
-  contentId String   @unique
-  text      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  tenantId  String
+  id             String   @id @default(cuid())
+  content        Content  @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  contentId      String   @unique
+  text           String
+  normalizedText String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId       String
 }
 
 model Image {

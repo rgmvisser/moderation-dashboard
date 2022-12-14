@@ -76,7 +76,7 @@ export default function User() {
 
         <ActionContainer actions={actions} />
 
-        <CMHeader title="Contents History" />
+        <CMHeader title="Content History" />
 
         <ul className="w-full flex-grow overflow-y-scroll">
           {contents.map((content) => {
