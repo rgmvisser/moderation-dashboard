@@ -8,6 +8,7 @@ import { ContentPath, UserPath } from "../utils.tsx/navigation";
 import { useTenantContext } from "../contexts/TenantContext";
 import type { MessageOrImage } from "~/models/content";
 import { CMImage } from "./CMImage";
+import CMAvatar from "./CMAvatar";
 
 type Props = {
   content: MessageOrImage;
@@ -42,7 +43,7 @@ const ContentBox = React.forwardRef<HTMLLIElement, Props>(
               className="flex-auto "
             >
               <div className="flex  items-center gap-2 hover:cursor-pointer hover:underline">
-                <div className="relative h-5 w-5 overflow-hidden rounded-full bg-main" />
+                <CMAvatar />
                 <p className="flex-full text-left text-base font-semibold text-black">
                   {user.name}
                 </p>

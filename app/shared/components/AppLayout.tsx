@@ -10,12 +10,14 @@ import {
   ClipboardDocumentCheckIcon,
   Cog8ToothIcon,
   UserGroupIcon,
+  BellAlertIcon,
 } from "@heroicons/react/24/outline";
 import UserMenu from "./UserMenu";
 import Logo from "./Logo";
 import { useTenantContext } from "../contexts/TenantContext";
 import {
   ActionsPath,
+  AlertsPath,
   ListsPath,
   QueuePath,
   ReportsPath,
@@ -62,6 +64,11 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           <Navbar.Section>
             <CMNavLink icon={<MegaphoneIcon />} to={ReportsPath(tenantSlug)}>
               Reports
+            </CMNavLink>
+          </Navbar.Section>
+          <Navbar.Section>
+            <CMNavLink icon={<BellAlertIcon />} to={AlertsPath(tenantSlug)}>
+              Alerts
             </CMNavLink>
           </Navbar.Section>
           <Navbar.Section>

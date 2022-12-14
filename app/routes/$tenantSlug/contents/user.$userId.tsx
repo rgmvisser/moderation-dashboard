@@ -14,6 +14,7 @@ import { ActionController } from "~/controllers/action.server";
 import { GetTenant } from "~/middleware/tenant";
 import { ContentController } from "~/controllers/content.server";
 import { UserController } from "~/controllers/user.server";
+import CMAvatar from "~/shared/components/CMAvatar";
 
 export async function loader({ request, params }: LoaderArgs) {
   const tenant = await GetTenant(request, params);
@@ -41,7 +42,7 @@ export default function User() {
     <>
       <Outlet />
       <DashboardContainer>
-        <CMHeader title={user.name ?? ""}>
+        <CMHeader title={user.name ?? ""} image={<CMAvatar />}>
           <StatusBadge status={user.status} />
         </CMHeader>
         <ActionButtons

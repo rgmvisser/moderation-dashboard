@@ -37,7 +37,9 @@ export function ReportsPath(tenantSlug: string) {
 export function ActionsPath(tenantSlug: string) {
   return `/${tenantSlug}/actions`;
 }
-
+export function AlertsPath(tenantSlug: string) {
+  return `/${tenantSlug}/alerts`;
+}
 export function TenantSettingsPath(tenantSlug: string) {
   return `/${tenantSlug}/settings`;
 }
