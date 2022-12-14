@@ -26,12 +26,21 @@ import { SubHeading } from "~/shared/components/SubHeading";
 import { DebouncedInput } from "~/shared/components/DebouncedInput";
 
 export const postValidator = withZod(
-  z.object({
-    name: z.string().min(3).max(100).optional(),
-    type: z.nativeEnum(ListType).optional(),
-    action: z.enum(["add", "remove"]),
-    id: z.string().optional(),
-  })
+  z.union([
+    z.object({
+      action: z.literal("remove"),
+      id: z.string().cuid(),
+    }),
+    z.object({
+      action: z.literal("add"),
+      name: z.string().min(3).max(100),
+      type: z.nativeEnum(ListType, {
+        errorMap: (issue, ctx) => {
+          return { message: "Please select a type" };
+        },
+      }),
+    }),
+  ])
 );
 
 export const loadValidator = withZod(
@@ -44,14 +53,20 @@ export async function action({ request, params }: ActionArgs) {
   const tenant = await GetTenant(request, params);
   const res = await postValidator.validate(await request.formData());
   if (res.error) {
+    console.log(res.error);
+    if (res.error.fieldErrors.type) {
+      return json({ error: res.error.fieldErrors.type });
+    }
     return json({ error: res.error.fieldErrors.name });
   }
   const listController = new ListController(tenant);
-  const { name, action, id, type } = res.data;
-  if (action === "add" && name && type) {
+  const { action } = res.data;
+  if (action === "add") {
+    const { name, type } = res.data;
     const list = await listController.createList(name, type);
     return redirect(ListPath(tenant.slug, list.id));
-  } else if (action === "remove" && id) {
+  } else if (action === "remove") {
+    const { id } = res.data;
     await listController.deleteList(id);
     return json({});
   } else {

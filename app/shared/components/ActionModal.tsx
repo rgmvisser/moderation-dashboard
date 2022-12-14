@@ -83,6 +83,7 @@ export function ActionModal() {
                 label: reason.name,
                 value: reason.id,
               }))}
+              searchable
               defaultValue={reason?.id}
             />
             <TextInput
