@@ -16,6 +16,7 @@ import { useActionModalContex } from "~/shared/contexts/ActionModalContext";
 import { Status } from "@prisma/client";
 import { useTenantContext } from "~/shared/contexts/TenantContext";
 import ContentBox from "~/shared/components/ContentBox";
+import { TextBox } from "~/shared/components/TextBox";
 
 export async function loader({ request, params }: LoaderArgs) {
   const tenant = await GetTenant(request, params);
@@ -77,18 +78,37 @@ export default function Content() {
         />
         <div className="overflow-y-auto">
           {content.message && (
-            <ContentTextContainer
-              contents={[
-                {
-                  title: "Original content",
-                  content: content.message.text,
-                },
-                {
-                  title: "Parsed content",
-                  content: content.message.information?.normalizedText ?? "-",
-                },
-              ]}
-            />
+            <div className="box-border flex h-fit w-full flex-col items-stretch justify-start gap-2.5  px-2 py-2">
+              <div>
+                <p className="text-xl font-bold ">Original Message</p>
+                <TextBox>{content.message.text}</TextBox>
+              </div>
+              {content.message.information && (
+                <>
+                  <div>
+                    <p className="text-xl font-bold ">Parsed Message</p>
+                    <TextBox>
+                      {content.message.information.normalizedText}
+                    </TextBox>
+                  </div>
+                  {content.message.information.phoneNumbers.length > 0 && (
+                    <div className="flex flex-row gap-2">
+                      <p className="font-bold ">Phone Numbers</p>
+                      {content.message.information.phoneNumbers.map(
+                        (phoneNumber) => (
+                          <span
+                            key={phoneNumber}
+                            className="rounded-full bg-main py-1 px-2 text-xs text-white"
+                          >
+                            {phoneNumber}
+                          </span>
+                        )
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           )}
           {content.image && (
             <div className="flex flex-col items-center">

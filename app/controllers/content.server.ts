@@ -10,6 +10,7 @@ import type { Filter } from "./filter.server";
 import { normalizeText } from "normalize-text";
 import remove from "confusables";
 import deburr from "lodash/deburr";
+import { findPhoneNumbersInText } from "libphonenumber-js";
 
 export class ContentController extends BaseTenantController {
   contentInclude = {
@@ -182,15 +183,18 @@ export class ContentController extends BaseTenantController {
         },
       });
       const normalizedText = ContentController.NormalizeText(message_text);
+      const phoneNumbers = ContentController.FindPhoneNumbers(normalizedText);
       await this.db.messageInformation.upsert({
         where: { messageId: message.id },
         create: {
           messageId: message.id,
           normalizedText: normalizedText,
+          phoneNumbers: phoneNumbers,
           tenantId: this.tenant.id,
         },
         update: {
           normalizedText: normalizedText,
+          phoneNumbers: phoneNumbers,
         },
       });
     }
@@ -317,6 +321,11 @@ export class ContentController extends BaseTenantController {
   static NormalizeText(text: string) {
     const normalizedText = deburr(normalizeText(remove(text)));
     return normalizedText;
+  }
+
+  static FindPhoneNumbers(text: string) {
+    const numbers = findPhoneNumbersInText(text);
+    return numbers.map((number) => number.number.number);
   }
 }
 
