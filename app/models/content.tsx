@@ -5,6 +5,7 @@ import type {
   Content,
   Message,
   Image,
+  MessageInformation,
 } from "@prisma/client";
 
 export type ContentWithInfo = Content & {
@@ -13,6 +14,10 @@ export type ContentWithInfo = Content & {
   topic: Topic;
   message: Message | null;
   image: Image | null;
+};
+
+export type ContentWithDetailedInfo = ContentWithInfo & {
+  message: (Message & { information: MessageInformation | null }) | null;
 };
 
 export type MessageOrImage = Content & {

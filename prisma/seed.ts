@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import randomSentence from "random-sentence";
 import type { Config } from "unique-names-generator";
 import { uniqueNamesGenerator, names } from "unique-names-generator";
+import { ContentController } from "~/controllers/content.server";
 import { ModeratorController } from "~/controllers/moderator.server";
 
 const nameConfig: Config = {
@@ -197,6 +198,19 @@ async function seed() {
   });
 
   console.log(`Database has been seeded. 🌱`);
+}
+
+async function backfillMessage() {
+  const messages = await prisma.message.findMany();
+  for (const message of messages) {
+    await prisma.messageInformation.create({
+      data: {
+        messageId: message.id,
+        tenantId: message.tenantId,
+        normalizedText: ContentController.NormalizeText(message.text),
+      },
+    });
+  }
 }
 
 function sample<T>(options: T[]) {

@@ -85,7 +85,7 @@ export default function Content() {
                 },
                 {
                   title: "Parsed content",
-                  content: content.message.normalizedText,
+                  content: content.message.information?.normalizedText ?? "-",
                 },
               ]}
             />

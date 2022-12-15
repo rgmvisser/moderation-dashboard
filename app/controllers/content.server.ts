@@ -1,7 +1,10 @@
 import type { ModerationLabel } from "@aws-sdk/client-rekognition";
 import type { Content, Project, Topic, User } from "@prisma/client";
 import { Status } from "@prisma/client";
-import type { ContentWithInfo } from "~/models/content";
+import type {
+  ContentWithDetailedInfo,
+  ContentWithInfo,
+} from "~/models/content";
 import { BaseTenantController } from "./baseController.server";
 import type { Filter } from "./filter.server";
 import { normalizeText } from "normalize-text";
@@ -16,6 +19,14 @@ export class ContentController extends BaseTenantController {
     image: true,
     message: true,
   };
+  detailedInclude = {
+    ...this.contentInclude,
+    message: {
+      include: {
+        information: true,
+      },
+    },
+  };
 
   async getUserContents(id: User["id"]) {
     return this.db.content.findMany({
@@ -28,10 +39,13 @@ export class ContentController extends BaseTenantController {
     });
   }
 
-  async getContent(id: Content["id"], filter?: Filter) {
+  async getContent(
+    id: Content["id"],
+    filter?: Filter
+  ): Promise<ContentWithDetailedInfo | null> {
     return this.db.content.findFirst({
       where: { id: id, ...this.getFiltersObjects(filter) },
-      include: this.contentInclude,
+      include: this.detailedInclude,
     });
   }
 
@@ -156,17 +170,26 @@ export class ContentController extends BaseTenantController {
       },
     });
     if (message_text) {
-      const normalizedText = ContentController.NormalizeText(message_text);
-      await this.db.message.upsert({
+      const message = await this.db.message.upsert({
         where: { contentId: content.id },
         create: {
           tenantId: this.tenant.id,
           contentId: content.id,
           text: message_text,
-          normalizedText: normalizedText,
         },
         update: {
           text: message_text,
+        },
+      });
+      const normalizedText = ContentController.NormalizeText(message_text);
+      await this.db.messageInformation.upsert({
+        where: { messageId: message.id },
+        create: {
+          messageId: message.id,
+          normalizedText: normalizedText,
+          tenantId: this.tenant.id,
+        },
+        update: {
           normalizedText: normalizedText,
         },
       });
