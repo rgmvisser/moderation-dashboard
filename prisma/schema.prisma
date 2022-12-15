@@ -355,6 +355,8 @@ model MessageInformation {
   qrCode         String?
   phoneNumbers   String[]
   domains        String[]
+  emails         String[]
+  mentions       String[]
   tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   tenantId       String
 }

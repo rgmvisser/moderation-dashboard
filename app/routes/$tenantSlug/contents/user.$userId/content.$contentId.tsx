@@ -9,7 +9,6 @@ import { ActionContainer } from "~/shared/components/ActionContainer";
 import { GetTenant } from "~/middleware/tenant";
 import { UserController } from "~/controllers/user.server";
 import { ContentController } from "~/controllers/content.server";
-import { ContentTextContainer } from "~/shared/components/ContentTextContainer";
 import { CMImage } from "~/shared/components/CMImage";
 import { useEffect, useRef, useState } from "react";
 import { useActionModalContex } from "~/shared/contexts/ActionModalContext";
@@ -91,21 +90,22 @@ export default function Content() {
                       {content.message.information.normalizedText}
                     </TextBox>
                   </div>
-                  {content.message.information.phoneNumbers.length > 0 && (
-                    <div className="flex flex-row gap-2">
-                      <p className="font-bold ">Phone Numbers</p>
-                      {content.message.information.phoneNumbers.map(
-                        (phoneNumber) => (
-                          <span
-                            key={phoneNumber}
-                            className="rounded-full bg-main py-1 px-2 text-xs text-white"
-                          >
-                            {phoneNumber}
-                          </span>
-                        )
-                      )}
-                    </div>
-                  )}
+                  <ParsedContent
+                    type="Phone Numbers"
+                    list={content.message.information.phoneNumbers}
+                  />
+                  <ParsedContent
+                    type="Emails"
+                    list={content.message.information.emails}
+                  />
+                  <ParsedContent
+                    type="Domains"
+                    list={content.message.information.domains}
+                  />
+                  <ParsedContent
+                    type="Mentions"
+                    list={content.message.information.mentions}
+                  />
                 </>
               )}
             </div>
@@ -200,6 +200,22 @@ export default function Content() {
       </DashboardContainer>
     </>
   );
+}
+
+function ParsedContent({ type, list }: { type: string; list: string[] }) {
+  return list.length > 0 ? (
+    <div className="flex flex-row gap-2">
+      <p className="font-bold ">{type}</p>
+      {list.map((item) => (
+        <span
+          key={item}
+          className="rounded-full bg-main py-1 px-2 text-xs text-white"
+        >
+          {item}
+        </span>
+      ))}
+    </div>
+  ) : null;
 }
 
 function LabelPills({

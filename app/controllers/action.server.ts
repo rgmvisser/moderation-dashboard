@@ -92,9 +92,9 @@ export class ActionController extends BaseTenantController {
     const contentController = new ContentController(this.tenant);
     const contents = await contentController.getUserContents(userId);
     const limit = pLimit(10);
-    const updates = contents.map((m) =>
+    const updates = contents.map((c) =>
       limit(() =>
-        this.updateStatus(takenBy, status, reasonId, reasonInformation, m)
+        this.updateStatus(takenBy, status, reasonId, reasonInformation, c)
       )
     );
     await Promise.all(updates);

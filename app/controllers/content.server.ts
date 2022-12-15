@@ -11,6 +11,8 @@ import { normalizeText } from "normalize-text";
 import remove from "confusables";
 import deburr from "lodash/deburr";
 import { findPhoneNumbersInText } from "libphonenumber-js";
+import * as linkify from "linkifyjs";
+import "linkify-plugin-mention";
 
 export class ContentController extends BaseTenantController {
   contentInclude = {
@@ -184,17 +186,24 @@ export class ContentController extends BaseTenantController {
       });
       const normalizedText = ContentController.NormalizeText(message_text);
       const phoneNumbers = ContentController.FindPhoneNumbers(normalizedText);
+      const links = ContentController.FindLinks(normalizedText);
       await this.db.messageInformation.upsert({
         where: { messageId: message.id },
         create: {
+          tenantId: this.tenant.id,
           messageId: message.id,
           normalizedText: normalizedText,
           phoneNumbers: phoneNumbers,
-          tenantId: this.tenant.id,
+          emails: links.emails,
+          domains: links.domains,
+          mentions: links.mentions,
         },
         update: {
           normalizedText: normalizedText,
           phoneNumbers: phoneNumbers,
+          emails: links.emails,
+          domains: links.domains,
+          mentions: links.mentions,
         },
       });
     }
@@ -326,6 +335,21 @@ export class ContentController extends BaseTenantController {
   static FindPhoneNumbers(text: string) {
     const numbers = findPhoneNumbersInText(text);
     return numbers.map((number) => number.number.number);
+  }
+
+  static FindLinks(text: string) {
+    const links = linkify.find(text);
+    return {
+      emails: links
+        .filter((link) => link.type === "email")
+        .map((link) => link.value),
+      domains: links
+        .filter((link) => link.type === "url")
+        .map((link) => link.href),
+      mentions: links
+        .filter((link) => link.type === "mention")
+        .map((link) => link.value),
+    };
   }
 }
 

@@ -69,6 +69,8 @@
     "is-iso-date": "^0.0.1",
     "isbot": "^3.6.3",
     "libphonenumber-js": "^1.10.15",
+    "linkify-plugin-mention": "^4.0.2",
+    "linkifyjs": "^4.0.2",
     "lodash.debounce": "^4.0.8",
     "lodash.deburr": "^4.1.0",
     "mantine-datatable": "^1.7.17",
