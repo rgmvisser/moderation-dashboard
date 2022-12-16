@@ -12,7 +12,7 @@ import { ContentController } from "~/controllers/content.server";
 import { CMImage } from "~/shared/components/CMImage";
 import { useEffect, useRef, useState } from "react";
 import { useActionModalContex } from "~/shared/contexts/ActionModalContext";
-import { Status } from "@prisma/client";
+import { Status, TextInformation } from "@prisma/client";
 import { useTenantContext } from "~/shared/contexts/TenantContext";
 import ContentBox from "~/shared/components/ContentBox";
 import { TextBox } from "~/shared/components/TextBox";
@@ -48,6 +48,7 @@ export default function Content() {
   const { content, actions, imageInfo, contentContext } = data;
   const ocr = imageInfo?.ocr;
   const labels = imageInfo?.labels;
+  const imageTextInformation = imageInfo?.imageTextInformation;
   const ocrCharacterCutOffLength = 200;
 
   useEffect(() => {
@@ -82,31 +83,10 @@ export default function Content() {
                 <p className="text-xl font-bold ">Original Message</p>
                 <TextBox>{content.message.text}</TextBox>
               </div>
-              {content.message.information && (
-                <>
-                  <div>
-                    <p className="text-xl font-bold ">Parsed Message</p>
-                    <TextBox>
-                      {content.message.information.normalizedText}
-                    </TextBox>
-                  </div>
-                  <ParsedContent
-                    type="Phone Numbers"
-                    list={content.message.information.phoneNumbers}
-                  />
-                  <ParsedContent
-                    type="Emails"
-                    list={content.message.information.emails}
-                  />
-                  <ParsedContent
-                    type="Domains"
-                    list={content.message.information.domains}
-                  />
-                  <ParsedContent
-                    type="Mentions"
-                    list={content.message.information.mentions}
-                  />
-                </>
+              {content.message.textInformation && (
+                <ParsedContents
+                  textInformation={content.message.textInformation}
+                />
               )}
             </div>
           )}
@@ -143,6 +123,14 @@ export default function Content() {
                       {showMore ? "Show less" : "Show more"}
                     </span>
                   </>
+                )}
+              </div>
+              <div className="flex flex-col items-stretch justify-start gap-2.5 py-2 px-2 ">
+                {imageTextInformation && (
+                  <ParsedContents
+                    textInformation={imageTextInformation}
+                    includeMessage={false}
+                  />
                 )}
               </div>
               <CMHeader title="Labels From Image" />
@@ -198,6 +186,29 @@ export default function Content() {
           </ul>
         </div>
       </DashboardContainer>
+    </>
+  );
+}
+
+function ParsedContents({
+  textInformation,
+  includeMessage = true,
+}: {
+  textInformation: TextInformation;
+  includeMessage?: boolean;
+}) {
+  return (
+    <>
+      {includeMessage ? (
+        <div>
+          <p className="text-xl font-bold ">Parsed Message</p>
+          <TextBox>{textInformation.normalizedText}</TextBox>
+        </div>
+      ) : null}
+      <ParsedContent type="Phone Numbers" list={textInformation.phoneNumbers} />
+      <ParsedContent type="Emails" list={textInformation.emails} />
+      <ParsedContent type="Domains" list={textInformation.domains} />
+      <ParsedContent type="Mentions" list={textInformation.mentions} />
     </>
   );
 }

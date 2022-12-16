@@ -26,7 +26,16 @@ export class ContentController extends BaseTenantController {
     ...this.contentInclude,
     message: {
       include: {
-        information: true,
+        textInformation: true,
+      },
+    },
+    image: {
+      include: {
+        ocr: {
+          include: {
+            imageTextInformation: true,
+          },
+        },
       },
     },
   };
@@ -184,26 +193,16 @@ export class ContentController extends BaseTenantController {
           text: message_text,
         },
       });
-      const normalizedText = ContentController.NormalizeText(message_text);
-      const phoneNumbers = ContentController.FindPhoneNumbers(normalizedText);
-      const links = ContentController.FindLinks(normalizedText);
-      await this.db.messageInformation.upsert({
+      const textInformation = ContentController.TextInformation(message_text);
+      await this.db.textInformation.upsert({
         where: { messageId: message.id },
         create: {
           tenantId: this.tenant.id,
           messageId: message.id,
-          normalizedText: normalizedText,
-          phoneNumbers: phoneNumbers,
-          emails: links.emails,
-          domains: links.domains,
-          mentions: links.mentions,
+          ...textInformation,
         },
         update: {
-          normalizedText: normalizedText,
-          phoneNumbers: phoneNumbers,
-          emails: links.emails,
-          domains: links.domains,
-          mentions: links.mentions,
+          ...textInformation,
         },
       });
     }
@@ -274,7 +273,11 @@ export class ContentController extends BaseTenantController {
     const image = await this.db.image.findUnique({
       where: { id: content.image.id },
       include: {
-        ocr: true,
+        ocr: {
+          include: {
+            imageTextInformation: true,
+          },
+        },
         awsModerationResult: true,
       },
     });
@@ -288,6 +291,7 @@ export class ContentController extends BaseTenantController {
     );
     return {
       ocr: image?.ocr?.text,
+      imageTextInformation: image?.ocr?.imageTextInformation,
       labels: labelsWithConfidence,
     };
   }
@@ -325,6 +329,17 @@ export class ContentController extends BaseTenantController {
       }),
     ]);
     return [...beforeContents.reverse(), content, ...afterContents];
+  }
+
+  static TextInformation(originalText: string) {
+    const normalizedText = this.NormalizeText(originalText);
+    const phoneNumbers = this.FindPhoneNumbers(normalizedText);
+    const links = this.FindLinks(normalizedText);
+    return {
+      normalizedText,
+      phoneNumbers,
+      ...links,
+    };
   }
 
   static NormalizeText(text: string) {

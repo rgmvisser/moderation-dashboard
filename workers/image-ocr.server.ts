@@ -5,6 +5,7 @@ import { getGeneralClient } from "~/db.server";
 import { logger } from "~/logger";
 import redis from "~/redis.server";
 import axios from "axios";
+import { ContentController } from "~/controllers/content.server";
 
 export const worker = new Worker(
   "image-ocr",
@@ -68,7 +69,7 @@ export const worker = new Worker(
     const time2 = new Date().getTime();
     const duration = time2 - time;
 
-    await db.imageOCR.create({
+    const createdImageOCR = await db.imageOCR.create({
       data: {
         tenantId: tenant.id,
         url: imageURL,
@@ -76,6 +77,17 @@ export const worker = new Worker(
         processTime: duration,
       },
     });
+
+    if (text.length > 0) {
+      const information = ContentController.TextInformation(text);
+      await db.textInformation.create({
+        data: {
+          ocrId: createdImageOCR.id,
+          tenantId: tenant.id,
+          ...information,
+        },
+      });
+    }
   },
   {
     connection: redis,

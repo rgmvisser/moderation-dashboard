@@ -200,14 +200,35 @@ async function seed() {
   console.log(`Database has been seeded. 🌱`);
 }
 
-async function backfillMessage() {
+async function backfillTextInformation() {
   const messages = await prisma.message.findMany();
   for (const message of messages) {
-    await prisma.messageInformation.create({
-      data: {
-        messageId: message.id,
+    const textInformation = ContentController.TextInformation(message.text);
+    await prisma.textInformation.upsert({
+      where: { messageId: message.id },
+      create: {
         tenantId: message.tenantId,
-        normalizedText: ContentController.NormalizeText(message.text),
+        messageId: message.id,
+        ...textInformation,
+      },
+      update: {
+        ...textInformation,
+      },
+    });
+  }
+  const imageOCRs = await prisma.imageOCR.findMany();
+  for (const imageOCR of imageOCRs) {
+    if (!imageOCR.text || imageOCR.text.length === 0) continue;
+    const textInformation = ContentController.TextInformation(imageOCR.text);
+    await prisma.textInformation.upsert({
+      where: { ocrId: imageOCR.id },
+      create: {
+        tenantId: imageOCR.tenantId,
+        ocrId: imageOCR.id,
+        ...textInformation,
+      },
+      update: {
+        ...textInformation,
       },
     });
   }
