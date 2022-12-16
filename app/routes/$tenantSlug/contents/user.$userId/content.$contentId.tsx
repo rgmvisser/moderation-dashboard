@@ -2,7 +2,7 @@ import type { LoaderArgs } from "@remix-run/node";
 import { ActionButtons } from "~/shared/components/ActionButtons";
 import { ProjectBadge, StatusBadge } from "~/shared/components/CMBadge";
 import { CMHeader } from "~/shared/components/CMHeader";
-import { DashboardContainer } from "~/shared/components/DashboardContainer";
+import { DashboardInnerContainer } from "~/shared/components/DashboardInnerContainer";
 import { json, useLoaderData } from "remix-supertyped";
 import { ActionController } from "~/controllers/action.server";
 import { ActionContainer } from "~/shared/components/ActionContainer";
@@ -62,7 +62,7 @@ export default function Content() {
 
   return (
     <>
-      <DashboardContainer>
+      <DashboardInnerContainer>
         <CMHeader title={content.message ? "Message" : "Image"}>
           <StatusBadge status={content.status} />
           <ProjectBadge
@@ -185,7 +185,7 @@ export default function Content() {
             })}
           </ul>
         </div>
-      </DashboardContainer>
+      </DashboardInnerContainer>
     </>
   );
 }

@@ -136,7 +136,7 @@ function CMNavLink({
       to={to}
       className={({ isActive }) => (isActive ? "bg-main text-white" : "")}
     >
-      <div className="gap- my-1 flex items-center  justify-start rounded-md bg-inherit p-2 py-2 font-semibold">
+      <div className="gap- my-1 flex items-center  justify-start gap-1 rounded-md bg-inherit p-2 py-2 font-semibold">
         <span className="h-4 w-4">{icon}</span>
         {children}
       </div>

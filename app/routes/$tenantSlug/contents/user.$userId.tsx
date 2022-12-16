@@ -2,7 +2,7 @@ import type { LoaderArgs } from "@remix-run/node";
 import { ActionButtons } from "~/shared/components/ActionButtons";
 import { StatusBadge } from "~/shared/components/CMBadge";
 import { CMHeader } from "~/shared/components/CMHeader";
-import { DashboardContainer } from "~/shared/components/DashboardContainer";
+import { DashboardInnerContainer } from "~/shared/components/DashboardInnerContainer";
 import ContentBox from "~/shared/components/ContentBox";
 import { ContentsStatus } from "~/shared/components/ContentStatus";
 import { PropertyContainer } from "~/shared/components/PropertyContainer";
@@ -41,7 +41,7 @@ export default function User() {
   return (
     <>
       <Outlet />
-      <DashboardContainer>
+      <DashboardInnerContainer>
         <CMHeader title={user.name ?? ""} image={<CMAvatar />}>
           <StatusBadge status={user.status} />
         </CMHeader>
@@ -94,7 +94,7 @@ export default function User() {
             );
           })}
         </ul>
-      </DashboardContainer>
+      </DashboardInnerContainer>
     </>
   );
 }

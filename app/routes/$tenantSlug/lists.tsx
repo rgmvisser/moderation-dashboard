@@ -24,6 +24,7 @@ import { ListPath, ListsPath } from "~/shared/utils.tsx/navigation";
 import { useTenantContext } from "~/shared/contexts/TenantContext";
 import { SubHeading } from "~/shared/components/SubHeading";
 import { DebouncedInput } from "~/shared/components/DebouncedInput";
+import DashboardContainer from "~/shared/components/DashboardContainer";
 
 export const postValidator = withZod(
   z.union([
@@ -134,9 +135,9 @@ export default function Lists() {
   }
 
   return (
-    <div className="flex h-full flex-col gap-2">
-      <div className="flex flex-row justify-between">
-        <h1>Lists</h1>
+    <DashboardContainer
+      title="Lists"
+      rightItem={
         <DebouncedInput
           icon={<MagnifyingGlassIcon className="h-4 w-4" />}
           radius="xl"
@@ -145,108 +146,108 @@ export default function Lists() {
           defaultValue={data.listFilter}
           onDebounceChange={(text) => filter(text)}
         />
-      </div>
-      <div className="flex h-full flex-col gap-4 rounded-xl bg-white p-4">
-        <Table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Num Items</th>
-              <th>Items</th>
-              <th>Last Updated</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {listWithCounts.map(({ list, count }) => (
-              <tr
-                key={list.id}
-                className="hover:cursor-pointer"
-                onClick={() =>
-                  navigate(ListPath(tenantContext.tenant.slug, list.id))
-                }
-              >
-                <td>{list.name}</td>
-                <td>{ListTypeName(list.type)}</td>
-                <td>
-                  {list.items.length !== count
-                    ? `${list.items.length} / ${count}`
-                    : count}
-                </td>
-                <td>
-                  {list.items.length === 0 && "-"}
-                  {list.items.slice(0, previewItems).map((item, index) => {
-                    return (
-                      <span key={item.value}>
-                        <Code>{item.value}</Code>
-                        {index !==
-                          Math.min(previewItems, list.items.length) - 1 && ", "}
-                        {index == previewItems - 1 &&
-                          list.items.length > previewItems && (
-                            <span>
-                              {" "}
-                              and {list.items.length - previewItems} more...
-                            </span>
-                          )}
-                      </span>
-                    );
-                  })}
-                </td>
-                <td>{GetDateFormatted(list.updatedAt)}</td>
-                <td>
-                  <Form
-                    method="post"
-                    onSubmit={(event) => {
-                      if (
-                        !confirm("Are you sure? This action cannot be undone.")
-                      ) {
-                        event.preventDefault();
-                      }
+      }
+    >
+      <Table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Num Items</th>
+            <th>Items</th>
+            <th>Last Updated</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {listWithCounts.map(({ list, count }) => (
+            <tr
+              key={list.id}
+              className="hover:cursor-pointer"
+              onClick={() =>
+                navigate(ListPath(tenantContext.tenant.slug, list.id))
+              }
+            >
+              <td>{list.name}</td>
+              <td>{ListTypeName(list.type)}</td>
+              <td>
+                {list.items.length !== count
+                  ? `${list.items.length} / ${count}`
+                  : count}
+              </td>
+              <td>
+                {list.items.length === 0 && "-"}
+                {list.items.slice(0, previewItems).map((item, index) => {
+                  return (
+                    <span key={item.value}>
+                      <Code>{item.value}</Code>
+                      {index !==
+                        Math.min(previewItems, list.items.length) - 1 && ", "}
+                      {index == previewItems - 1 &&
+                        list.items.length > previewItems && (
+                          <span>
+                            {" "}
+                            and {list.items.length - previewItems} more...
+                          </span>
+                        )}
+                    </span>
+                  );
+                })}
+              </td>
+              <td>{GetDateFormatted(list.updatedAt)}</td>
+              <td>
+                <Form
+                  method="post"
+                  onSubmit={(event) => {
+                    if (
+                      !confirm("Are you sure? This action cannot be undone.")
+                    ) {
+                      event.preventDefault();
+                    }
+                  }}
+                >
+                  <input type="hidden" name="id" value={list.id} />
+                  <input type="hidden" name="action" value="remove" />
+                  <ActionIcon
+                    color="red"
+                    type="submit"
+                    onClick={(e: any) => {
+                      e.stopPropagation();
                     }}
                   >
-                    <input type="hidden" name="id" value={list.id} />
-                    <input type="hidden" name="action" value="remove" />
-                    <ActionIcon
-                      color="red"
-                      type="submit"
-                      onClick={(e: any) => {
-                        e.stopPropagation();
-                      }}
-                    >
-                      <TrashIcon className="h-4 w-4" />
-                    </ActionIcon>
-                  </Form>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-        {listWithCounts.length === 0 && (
-          <EmptyStateTable>No lists yet</EmptyStateTable>
-        )}
+                    <TrashIcon className="h-4 w-4" />
+                  </ActionIcon>
+                </Form>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+      {listWithCounts.length === 0 && (
+        <EmptyStateTable>No lists yet</EmptyStateTable>
+      )}
 
-        <Form ref={formRef} method="post">
-          <div className="flex gap-2">
-            <input type="hidden" name="action" value="add" />
-            <TextInput type="text" name="name" placeholder="List name" />
-            <Select
-              name="type"
-              placeholder={`Select type of list`}
-              data={listTypes.map((type) => ({
-                label: ListTypeName(type),
-                value: type,
-              }))}
-            />
-            <CMButton type="submit">Create new list</CMButton>
+      <Form ref={formRef} method="post">
+        <div className="flex gap-2">
+          <input type="hidden" name="action" value="add" />
+          <TextInput type="text" name="name" placeholder="List name" />
+          <Select
+            name="type"
+            placeholder={`Select type of list`}
+            data={listTypes.map((type) => ({
+              label: ListTypeName(type),
+              value: type,
+            }))}
+          />
+          <CMButton type="submit">Create new list</CMButton>
+        </div>
+        {actionData?.error && (
+          <div key="name-error" className="text-xs text-red-500">
+            {actionData?.error}
           </div>
-          {actionData?.error && (
-            <div key="name-error" className="text-xs text-red-500">
-              {actionData?.error}
-            </div>
-          )}
-        </Form>
-      </div>
+        )}
+      </Form>
+
       <Drawer
         opened={opened}
         onClose={() => navigate(ListsPath(tenantContext.tenant.slug))}
@@ -257,6 +258,6 @@ export default function Lists() {
       >
         <Outlet />
       </Drawer>
-    </div>
+    </DashboardContainer>
   );
 }

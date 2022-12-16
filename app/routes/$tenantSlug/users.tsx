@@ -11,6 +11,7 @@ import { GetTenant } from "~/middleware/tenant";
 import { ContentController } from "~/controllers/content.server";
 import { UserController } from "~/controllers/user.server";
 import { useLoadingDelay } from "~/shared/hooks/useLoadingDelay";
+import DashboardContainer from "~/shared/components/DashboardContainer";
 
 export const validator = withZod(
   z.object({
@@ -87,13 +88,10 @@ export default function Users() {
   const loading = useLoadingDelay(transition.state !== "idle", {});
 
   return (
-    <div className="flex h-full flex-col gap-2">
-      <h1>Users</h1>
+    <DashboardContainer title="Users">
       <DataTable
-        withBorder
         loaderSize="lg"
         fetching={loading}
-        borderRadius="md"
         withColumnBorders
         striped
         highlightOnHover
@@ -169,6 +167,6 @@ export default function Users() {
         //     )
         //   }
       />
-    </div>
+    </DashboardContainer>
   );
 }

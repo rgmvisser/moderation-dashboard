@@ -17,6 +17,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useEffect, useRef } from "react";
 import { EmptyStateTable } from "~/shared/components/EmptyStateTable";
+import DashboardContainer from "~/shared/components/DashboardContainer";
 
 export const validator = withZod(
   z.object({
@@ -71,97 +72,93 @@ export default function Settings() {
   }, [actionData]);
 
   return (
-    <div className="flex h-full flex-col gap-2">
-      <h1>Settings</h1>
-      <div className="flex h-full flex-col gap-4 rounded-xl bg-white p-4">
-        <h2 className="text-lg font-semibold">API Keys</h2>
-        <Table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Key</th>
-              <th>Created By</th>
-              <th>Created At</th>
-              <th className="w-4"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.apiKeys.map((apiKey) => (
-              <tr key={apiKey.id}>
-                <td>{apiKey.name}</td>
-                <td>
-                  <Code>{apiKey.keyHint}</Code>
-                </td>
-                <td>{apiKey.createdBy.name}</td>
-                <td>{GetDateFormatted(apiKey.createdAt)}</td>
-                <td>
-                  <Form
-                    method="post"
-                    onSubmit={(event) => {
-                      if (
-                        !confirm("Are you sure? This action cannot be undone.")
-                      ) {
-                        event.preventDefault();
-                      }
-                    }}
-                  >
-                    <input type="hidden" name="id" value={apiKey.id} />
-                    <input type="hidden" name="type" value="remove" />
-                    <ActionIcon color="red" type="submit">
-                      <TrashIcon className="h-4 w-4" />
-                    </ActionIcon>
-                  </Form>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-        {data.apiKeys.length === 0 && (
-          <EmptyStateTable>No API keys yet</EmptyStateTable>
-        )}
-
-        <Form ref={formRef} method="post">
-          <div className="flex gap-2">
-            <input type="hidden" name="type" value="add" />
-            <TextInput type="text" name="name" placeholder="API key name" />
-            <CMButton type="submit">Create API key</CMButton>
-          </div>
-          {actionData?.error && (
-            <div key="name-error" className="text-xs text-red-500">
-              {actionData?.error}
-            </div>
-          )}
-        </Form>
-
-        {actionData?.key && actionData?.keySecret && (
-          <Notification
-            className="w-1/2"
-            icon={<CheckIcon className="h-4 w-4" />}
-            color="teal"
-            title="API key created"
-            disallowClose
-          >
-            Your API key is: <Code>{actionData.keySecret}</Code>{" "}
-            <CopyButton value={actionData.keySecret}>
-              {({ copied, copy }) => (
-                <CMButton
-                  status={copied ? "allowed" : undefined}
-                  onClick={copy}
-                  className=" inline-flex px-1 py-[3px]"
+    <DashboardContainer title="Settings">
+      <Table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Key</th>
+            <th>Created By</th>
+            <th>Created At</th>
+            <th className="w-4"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.apiKeys.map((apiKey) => (
+            <tr key={apiKey.id}>
+              <td>{apiKey.name}</td>
+              <td>
+                <Code>{apiKey.keyHint}</Code>
+              </td>
+              <td>{apiKey.createdBy.name}</td>
+              <td>{GetDateFormatted(apiKey.createdAt)}</td>
+              <td>
+                <Form
+                  method="post"
+                  onSubmit={(event) => {
+                    if (
+                      !confirm("Are you sure? This action cannot be undone.")
+                    ) {
+                      event.preventDefault();
+                    }
+                  }}
                 >
-                  {copied ? (
-                    <CheckIcon className="h3 w-3" />
-                  ) : (
-                    <ClipboardIcon className="h3 w-3" />
-                  )}
-                </CMButton>
-              )}
-            </CopyButton>{" "}
-            this is the only time you will see this key, please save it
-            somewhere safe.
-          </Notification>
+                  <input type="hidden" name="id" value={apiKey.id} />
+                  <input type="hidden" name="type" value="remove" />
+                  <ActionIcon color="red" type="submit">
+                    <TrashIcon className="h-4 w-4" />
+                  </ActionIcon>
+                </Form>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+      {data.apiKeys.length === 0 && (
+        <EmptyStateTable>No API keys yet</EmptyStateTable>
+      )}
+
+      <Form ref={formRef} method="post">
+        <div className="flex gap-2">
+          <input type="hidden" name="type" value="add" />
+          <TextInput type="text" name="name" placeholder="API key name" />
+          <CMButton type="submit">Create API key</CMButton>
+        </div>
+        {actionData?.error && (
+          <div key="name-error" className="text-xs text-red-500">
+            {actionData?.error}
+          </div>
         )}
-      </div>
-    </div>
+      </Form>
+
+      {actionData?.key && actionData?.keySecret && (
+        <Notification
+          className="w-1/2"
+          icon={<CheckIcon className="h-4 w-4" />}
+          color="teal"
+          title="API key created"
+          disallowClose
+        >
+          Your API key is: <Code>{actionData.keySecret}</Code>{" "}
+          <CopyButton value={actionData.keySecret}>
+            {({ copied, copy }) => (
+              <CMButton
+                status={copied ? "allowed" : undefined}
+                onClick={copy}
+                className=" inline-flex px-1 py-[3px]"
+              >
+                {copied ? (
+                  <CheckIcon className="h3 w-3" />
+                ) : (
+                  <ClipboardIcon className="h3 w-3" />
+                )}
+              </CMButton>
+            )}
+          </CopyButton>{" "}
+          this is the only time you will see this key, please save it somewhere
+          safe.
+        </Notification>
+      )}
+    </DashboardContainer>
   );
 }

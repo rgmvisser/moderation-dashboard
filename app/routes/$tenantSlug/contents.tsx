@@ -5,7 +5,7 @@ import ContentBox from "~/shared/components/ContentBox";
 import { useSocket } from "~/shared/contexts/SocketContext";
 import { JSONParseWithDates } from "~/shared/utils.tsx/json";
 import { Outlet, useParams } from "@remix-run/react";
-import { DashboardContainer } from "~/shared/components/DashboardContainer";
+import { DashboardInnerContainer } from "~/shared/components/DashboardInnerContainer";
 import { Selectors } from "~/shared/components/FilterSelectors";
 import { FilterController } from "~/controllers/filter.server";
 import { GetModeratorAndTenant } from "~/middleware/tenant";
@@ -120,7 +120,7 @@ export default function Contents() {
         <div className="flex  pb-4">
           <Selectors filter={filter} {...filterInfo} />
         </div>
-        <DashboardContainer className="h-[790px]">
+        <DashboardInnerContainer className="h-[790px]">
           <ul
             className="h-full w-full overflow-y-scroll"
             ref={listRef}
@@ -141,7 +141,7 @@ export default function Contents() {
             })}
             <div ref={bottomLineRef}></div>
           </ul>
-        </DashboardContainer>
+        </DashboardInnerContainer>
         <div
           className={`absolute left-0 right-0 bottom-3 transition-all duration-200 ${
             showScrollBottomButton

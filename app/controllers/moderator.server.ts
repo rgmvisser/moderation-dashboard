@@ -15,7 +15,15 @@ export class ModeratorController extends BaseTenantController {
   async getAllModerators() {
     const moderatorRoles = await this.db.moderatorRole.findMany({
       include: {
-        moderator: true,
+        moderator: {
+          include: {
+            roles: {
+              where: {
+                tenantId: this.tenant.id,
+              },
+            },
+          },
+        },
       },
     });
     return moderatorRoles.map((r) => r.moderator);
