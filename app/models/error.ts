@@ -12,4 +12,8 @@ export class CMError extends Error {
   }
 
   static TenantNotFound = new CMError("Tenant not found", 1);
+  static ModeratorAlreadyPartOfTenant = new CMError(
+    "Moderator already part of this workspace",
+    2
+  );
 }

@@ -1,10 +1,10 @@
 import { Authenticator } from "remix-auth";
 import { createCookieSessionStorage } from "@remix-run/node";
 import invariant from "tiny-invariant";
-import type { Moderator } from "@prisma/client";
 import { FormStrategy } from "remix-auth-form";
 import { ModeratorController } from "./controllers/moderator.server";
 import { sessionKey, sessionSecret } from "session";
+import type { Moderator } from "@prisma/client";
 
 export const sessionStorage = createCookieSessionStorage({
   cookie: {
@@ -33,13 +33,13 @@ authenticator.use(
     invariant(typeof password === "string", "password must be a string");
     invariant(password.length > 0, "password must not be empty");
 
-    const user = await ModeratorController.FindModerator(email, password);
-    if (!user) {
+    const moderator = await ModeratorController.FindModerator(email, password);
+    if (!moderator) {
       throw new Error("Invalid email or password");
     }
 
     // And return the user as the Authenticator expects it
-    return user;
+    return moderator;
   }),
   "email-password"
 );

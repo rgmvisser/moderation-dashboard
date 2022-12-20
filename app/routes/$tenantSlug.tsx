@@ -1,7 +1,7 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json, useLoaderData } from "remix-supertyped";
 import { Outlet } from "@remix-run/react";
-import { GetTenant } from "~/middleware/tenant";
+import { GetModeratorAndTenant, GetTenant } from "~/middleware/tenant";
 import type { TenantContext } from "~/shared/contexts/TenantContext";
 import { TenantProvider } from "~/shared/contexts/TenantContext";
 import AppLayout from "~/shared/components/AppLayout";
@@ -12,12 +12,13 @@ import { ReasonController } from "~/controllers/reason.server";
 import { getReasonForCategories } from "~/models/asw-labels";
 
 export async function loader({ request, params }: LoaderArgs) {
-  const tenant = await GetTenant(request, params);
+  const { tenant, moderator } = await GetModeratorAndTenant(request, params);
   const reasonController = new ReasonController(tenant);
   const statusReasons = await reasonController.getStatusReasons();
   const reasons = await reasonController.getReasons();
   const tenantContext: TenantContext = {
     tenant: tenant,
+    moderator: moderator,
     reasons: statusReasons,
     reasonForCategories: getReasonForCategories(reasons),
   };

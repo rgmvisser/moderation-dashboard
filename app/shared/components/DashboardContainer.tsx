@@ -9,7 +9,7 @@ export default function DashboardContainer({
 }) {
   return (
     <div className="flex h-full flex-col gap-2">
-      <div className="flex flex-row justify-between">
+      <div className="flex flex-row items-center justify-between">
         <h1>{title}</h1>
         {rightItem}
       </div>

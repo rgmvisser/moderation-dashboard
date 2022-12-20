@@ -2,18 +2,18 @@ import { getGeneralClient } from "~/db.server";
 import { BaseTenantController } from "./baseController.server";
 import bcrypt from "bcryptjs";
 import type { Moderator, Role, Tenant } from "@prisma/client";
-
-const includeTentant = {
-  roles: {
-    include: {
-      tenant: true,
-    },
-  },
-};
+import type { ModeratorWithTentantAndRole } from "~/models/moderator";
+import { CMError } from "~/models/error";
 
 export class ModeratorController extends BaseTenantController {
   async getAllModerators() {
     const moderatorRoles = await this.db.moderatorRole.findMany({
+      where: {
+        deletedAt: null,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
       include: {
         moderator: {
           include: {
@@ -27,6 +27,45 @@ export class ModeratorController extends BaseTenantController {
       },
     });
     return moderatorRoles.map((r) => r.moderator);
+  }
+
+  async getModeratorWithTenantAndRole(
+    id: Moderator["id"]
+  ): Promise<ModeratorWithTentantAndRole | null> {
+    const moderator = await this.db.moderator.findUnique({
+      where: {
+        id: id,
+      },
+      include: {
+        roles: {
+          include: {
+            tenant: true,
+          },
+          where: {
+            deletedAt: null,
+            tenantId: this.tenant.id,
+          },
+        },
+      },
+    });
+    return moderator;
+  }
+
+  async getRoleForModerator(moderator: Moderator) {
+    const moderatorWithRole = await this.db.moderator.findUnique({
+      where: {
+        id: moderator.id,
+      },
+      include: {
+        roles: {
+          where: {
+            deletedAt: null,
+            tenantId: this.tenant.id,
+          },
+        },
+      },
+    });
+    return moderatorWithRole?.roles[0].role;
   }
 
   static async CreateModerator(
@@ -45,6 +84,30 @@ export class ModeratorController extends BaseTenantController {
       role: Role;
     }
   ) {
+    const existingModerator = await getGeneralClient().moderator.findUnique({
+      where: {
+        email: email,
+      },
+      include: {
+        roles: true,
+      },
+    });
+    if (existingModerator) {
+      const existingRole = existingModerator.roles.find(
+        (r) => r.tenantId === tenant.id && r.deletedAt === null
+      );
+      if (existingRole) {
+        throw CMError.ModeratorAlreadyPartOfTenant;
+      }
+      await getGeneralClient().moderatorRole.create({
+        data: {
+          tenantId: tenant.id,
+          moderatorId: existingModerator.id,
+          role: role,
+        },
+      });
+      return existingModerator;
+    }
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     return await getGeneralClient().moderator.create({
@@ -68,7 +131,10 @@ export class ModeratorController extends BaseTenantController {
     });
   }
 
-  static async FindModerator(email: string, password: string) {
+  static async FindModerator(
+    email: string,
+    password: string
+  ): Promise<Moderator | null> {
     const moderator = await getGeneralClient().moderator.findUnique({
       where: {
         email,
@@ -90,15 +156,13 @@ export class ModeratorController extends BaseTenantController {
       where: {
         id: moderator.id,
       },
-      include: {
-        ...includeTentant,
-      },
     });
   }
 
   static async GetTenantsForModerator(moderator: Moderator) {
     const tenantRoles = await getGeneralClient().moderatorRole.findMany({
       where: {
+        deletedAt: null,
         moderatorId: moderator.id,
       },
       include: {
