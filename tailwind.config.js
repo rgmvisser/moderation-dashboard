@@ -7,7 +7,11 @@ module.exports = {
     extend: {
       colors: {
         main: colors.blue[500],
+        "main-hover": colors.blue[600],
         "main-dark": colors.blue[700],
+        secondary: colors.gray[400],
+        "secondary-hover": colors.gray[500],
+        "secondary-dark": colors.gray[600],
         allowed: colors.green[400],
       },
       backgroundColor: {
@@ -25,6 +29,7 @@ module.exports = {
       },
       borderColor: {
         main: colors.gray[200],
+        mantine: colors.gray[300],
       },
       keyframes: {
         "slide-from-top": {

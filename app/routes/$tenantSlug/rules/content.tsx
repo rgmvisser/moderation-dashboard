@@ -1,482 +1,286 @@
+import {
+  ArrowDownCircleIcon,
+  ArrowUpCircleIcon,
+  PlusCircleIcon,
+  PlusIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import { Checkbox, Collapse } from "@mantine/core";
+import { Status } from "@prisma/client";
+import { Form } from "@remix-run/react";
+import { withZod } from "@remix-validated-form/with-zod";
+import classNames from "classnames";
+import { useState } from "react";
+import { ValidatedForm } from "remix-validated-form";
+import { z } from "zod";
+import { StatusBadge } from "~/shared/components/CMBadge";
+import { CMButton } from "~/shared/components/CMButton";
+import { CMIconButton } from "~/shared/components/CMIconButton";
+import { CMTextInput } from "~/shared/components/CMInput";
+import { CMSelect } from "~/shared/components/CMSelect";
+import { Box, Container, Header } from "~/shared/components/DashboardContainer";
+import { useTenantContext } from "~/shared/contexts/TenantContext";
+import { ActionTextFromStatus } from "~/shared/utils.tsx/status";
+
 export default function ContentRules() {
   return (
-    <div className="flex flex-grow flex-col items-start justify-start gap-4 self-stretch p-4">
-      <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-between self-stretch">
-        <p className="flex-shrink-0 flex-grow-0 text-left text-lg font-semibold text-black">
-          Rulesets (Content)
-        </p>
-        <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-center gap-2.5 rounded-[10px] bg-[#2f80ed] px-4 py-2">
-          <p className="flex-shrink-0 flex-grow-0 text-center text-base font-semibold text-white">
-            Add Rule
-          </p>
-        </div>
+    <Container>
+      <Header title="Content Rules" />
+      <div className="flex flex-col gap-2">
+        <RuleBox
+          number={1}
+          name={"Allow admin users"}
+          action={"allowed"}
+          reason="Internal use"
+          total={5}
+        ></RuleBox>
+        <RuleBox
+          number={2}
+          name={"Flag user content"}
+          action={"flagged"}
+          reason="Inherit from user"
+          total={5}
+        ></RuleBox>
+        <RuleBox
+          number={3}
+          name={"Hide user content"}
+          action={"hidden"}
+          reason="Inherit from user"
+          total={5}
+        ></RuleBox>
+        <RuleBox
+          number={4}
+          name={"Filter bad words"}
+          action={"hidden"}
+          reason="Inappropriate content"
+          total={5}
+        ></RuleBox>
+        <RuleBox
+          number={5}
+          name={"Filter bad topics"}
+          action={"hidden"}
+          reason="Inappropriate content"
+          total={5}
+        ></RuleBox>
       </div>
-      <div className="flex h-[519px] flex-shrink-0 flex-grow-0 flex-col items-start justify-start gap-2 self-stretch">
-        <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start gap-3 self-stretch rounded-2xl bg-white p-3">
-          <div className="relative flex h-6 w-6 flex-shrink-0 flex-grow-0 flex-col items-center justify-center gap-2.5 rounded-xl border border-[#bdbdbd] p-1">
-            <p className="flex-shrink-0 flex-grow-0 text-left text-base text-black">
-              1
-            </p>
-          </div>
-          <div className="relative flex flex-shrink-0 flex-grow-0 items-start justify-start gap-2.5">
-            <p className="w-[500px] flex-shrink-0 flex-grow-0 text-left text-base text-black">
-              Allow if admin user
-            </p>
-          </div>
-          <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start gap-2.5">
-            <p className="flex-shrink-0 flex-grow-0 text-left text-base font-semibold text-black">
-              Action:
-            </p>
-            <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-center gap-2.5 rounded-[10px] bg-[#40c057] px-2 py-1">
-              <p className="flex-shrink-0 flex-grow-0 text-center text-xs font-semibold text-white">
-                Allowed
-              </p>
-            </div>
-          </div>
-          <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start gap-2.5">
-            <p className="flex-shrink-0 flex-grow-0 text-left text-base font-semibold text-black">
-              Reason:
-            </p>
-            <p className="flex-shrink-0 flex-grow-0 text-left text-base text-black">
-              Internal user
-            </p>
-          </div>
-          <div className="relative h-7 w-[318px] flex-grow self-stretch overflow-hidden" />
-          <p className="flex-shrink-0 flex-grow-0 text-left text-lg font-bold text-black">
-            v
-          </p>
-        </div>
-        <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start gap-3 self-stretch rounded-2xl bg-white p-3">
-          <div className="relative flex h-6 w-6 flex-shrink-0 flex-grow-0 flex-col items-center justify-center gap-2.5 rounded-xl border border-[#bdbdbd] p-1">
-            <p className="flex-shrink-0 flex-grow-0 text-left text-base text-black">
-              2
-            </p>
-          </div>
-          <div className="relative flex flex-shrink-0 flex-grow-0 items-start justify-start gap-2.5">
-            <p className="w-[500px] flex-shrink-0 flex-grow-0 text-left text-base text-black">
-              Flag content if user is flagged
-            </p>
-          </div>
-          <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start gap-2.5">
-            <p className="flex-shrink-0 flex-grow-0 text-left text-base font-semibold text-black">
-              Action:
-            </p>
-            <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-center gap-2.5 rounded-[10px] bg-[#f0b033] px-2 py-1">
-              <p className="flex-shrink-0 flex-grow-0 text-center text-xs font-semibold text-white">
-                Flagged
-              </p>
-            </div>
-          </div>
-          <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start gap-2.5">
-            <p className="flex-shrink-0 flex-grow-0 text-left text-base font-semibold text-black">
-              Reason:
-            </p>
-            <p className="flex-shrink-0 flex-grow-0 text-left text-base text-black">
-              Inherit user reason
-            </p>
-          </div>
-          <div className="relative h-7 w-[258px] flex-grow self-stretch overflow-hidden" />
-          <div className="relative flex flex-shrink-0 flex-grow-0 items-start justify-start gap-1">
-            <p className="flex-shrink-0 flex-grow-0 text-left text-lg font-bold text-black">
-              v
-            </p>
-            <p className="flex-shrink-0 flex-grow-0 text-left text-lg font-bold text-black">
-              v
-            </p>
-          </div>
-        </div>
-        <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start gap-3 self-stretch rounded-2xl bg-white p-3">
-          <div className="relative flex h-6 w-6 flex-shrink-0 flex-grow-0 flex-col items-center justify-center gap-2.5 rounded-xl border border-[#bdbdbd] p-1">
-            <p className="flex-shrink-0 flex-grow-0 text-left text-base text-black">
-              3
-            </p>
-          </div>
-          <div className="relative flex flex-shrink-0 flex-grow-0 items-start justify-start gap-2.5">
-            <p className="w-[500px] flex-shrink-0 flex-grow-0 text-left text-base text-black">
-              Flag content if user is hidden
-            </p>
-          </div>
-          <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start gap-2.5">
-            <p className="flex-shrink-0 flex-grow-0 text-left text-base font-semibold text-black">
-              Action:
-            </p>
-            <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-center gap-2.5 rounded-[10px] bg-[#f0334a] px-2 py-1">
-              <p className="flex-shrink-0 flex-grow-0 text-center text-xs font-semibold text-white">
-                Hidden
-              </p>
-            </div>
-          </div>
-          <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start gap-2.5">
-            <p className="flex-shrink-0 flex-grow-0 text-left text-base font-semibold text-black">
-              Reason:
-            </p>
-            <p className="flex-shrink-0 flex-grow-0 text-left text-base text-black">
-              Inherit user reason
-            </p>
-          </div>
-          <div className="relative h-7 w-[229.11px] flex-grow self-stretch overflow-hidden" />
-          {/* <img
-            src="screen-shot-2022-11-24-at-12.38-2.png"
-            className="h-6 w-[19.89px] flex-shrink-0 flex-grow-0 object-cover"
-          /> */}
-          <div className="relative flex flex-shrink-0 flex-grow-0 items-start justify-start gap-1">
-            <p className="flex-shrink-0 flex-grow-0 text-left text-lg font-bold text-black">
-              v
-            </p>
-            <p className="flex-shrink-0 flex-grow-0 text-left text-lg font-bold text-black">
-              v
-            </p>
-          </div>
-        </div>
-        <div className="relative flex flex-shrink-0 flex-grow-0 flex-col items-start justify-start gap-2 self-stretch rounded-2xl bg-white p-3">
-          <div className="flex flex-shrink-0 flex-grow-0 items-center justify-end gap-2.5 self-stretch">
-            <div className="relative flex flex-shrink-0 flex-grow-0 items-start justify-start gap-1">
-              <p className="flex-shrink-0 flex-grow-0 text-left text-lg font-bold text-black">
-                v
-              </p>
-              <p className="flex-shrink-0 flex-grow-0 text-left text-lg font-bold text-black">
-                v
-              </p>
-            </div>
-          </div>
-          <p className="flex-shrink-0 flex-grow-0 text-center text-lg font-semibold text-black">
-            Description
-          </p>
-          <div className="flex flex-shrink-0 flex-grow-0 flex-col items-start justify-center gap-2.5">
-            <div className="flex w-[430px] flex-shrink-0 flex-grow-0 flex-col items-start justify-start overflow-hidden">
-              <div className="flex h-[50px] flex-shrink-0 flex-grow-0 flex-col items-start justify-center gap-2.5 self-stretch rounded-lg border border-[#ced4da] py-1.5">
-                <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start px-[16.66670036315918px] py-px">
-                  <p className="flex-shrink-0 flex-grow-0 text-left text-lg text-[#adb5bd]">
-                    Placeholder text
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="relative flex flex-shrink-0 flex-grow-0 items-start justify-start gap-3 self-stretch rounded border border-[#e0e0e0] p-3">
-            <p className="flex-shrink-0 flex-grow-0 text-left text-base text-black">
-              If{" "}
-            </p>
-            <div className="flex w-[200px] flex-shrink-0 flex-grow-0 flex-col items-start justify-start overflow-hidden">
-              <div className="flex h-[30px] flex-shrink-0 flex-grow-0 items-center justify-between self-stretch rounded-sm border border-[#ced4da] py-1.5">
-                <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start px-2.5 py-px">
-                  <p className="flex-shrink-0 flex-grow-0 text-left text-xs text-[#adb5bd]">
-                    Location
-                  </p>
-                </div>
-                <div className="relative flex h-[30px] flex-shrink-0 flex-grow-0 items-center justify-start gap-2.5 overflow-hidden px-2 py-[9px]">
-                  <svg
-                    width={15}
-                    height={16}
-                    viewBox="0 0 15 16"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="relative h-[15px] w-[15px] flex-shrink-0 flex-grow-0"
-                    preserveAspectRatio="none"
-                  >
-                    <path
-                      d="M5 10.5L7.5 13L10 10.5"
-                      stroke="#868E96"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                    <path
-                      d="M5 5.5L7.5 3L10 5.5"
-                      stroke="#868E96"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </div>
-            <div className="flex w-[200px] flex-shrink-0 flex-grow-0 flex-col items-start justify-start overflow-hidden">
-              <div className="flex h-[30px] flex-shrink-0 flex-grow-0 items-center justify-between self-stretch rounded-sm border border-[#ced4da] py-1.5">
-                <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start px-2.5 py-px">
-                  <p className="flex-shrink-0 flex-grow-0 text-left text-xs text-[#adb5bd]">
-                    Is not
-                  </p>
-                </div>
-                <div className="relative flex h-[30px] flex-shrink-0 flex-grow-0 items-center justify-start gap-2.5 overflow-hidden px-2 py-[9px]">
-                  <svg
-                    width={15}
-                    height={16}
-                    viewBox="0 0 15 16"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="relative h-[15px] w-[15px] flex-shrink-0 flex-grow-0"
-                    preserveAspectRatio="none"
-                  >
-                    <path
-                      d="M5 10.5L7.5 13L10 10.5"
-                      stroke="#868E96"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                    <path
-                      d="M5 5.5L7.5 3L10 5.5"
-                      stroke="#868E96"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </div>
-            <div className="flex w-[200px] flex-shrink-0 flex-grow-0 flex-col items-start justify-start overflow-hidden">
-              <div className="flex h-[30px] flex-shrink-0 flex-grow-0 items-center justify-between self-stretch rounded-sm border border-[#ced4da] py-1.5">
-                <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start px-2.5 py-px">
-                  <p className="flex-shrink-0 flex-grow-0 text-left text-xs text-[#adb5bd]">
-                    Allowed locations list
-                  </p>
-                </div>
-                <div className="relative flex h-[30px] flex-shrink-0 flex-grow-0 items-center justify-start gap-2.5 overflow-hidden px-2 py-[9px]">
-                  <svg
-                    width={15}
-                    height={16}
-                    viewBox="0 0 15 16"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="relative h-[15px] w-[15px] flex-shrink-0 flex-grow-0"
-                    preserveAspectRatio="none"
-                  >
-                    <path
-                      d="M5 10.5L7.5 13L10 10.5"
-                      stroke="#868E96"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                    <path
-                      d="M5 5.5L7.5 3L10 5.5"
-                      stroke="#868E96"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-grow flex-col items-end justify-start gap-2.5">
-              <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-center gap-2.5 rounded-[30px] bg-[#f0334a] px-2 py-1">
-                <p className="flex-shrink-0 flex-grow-0 text-center text-base font-semibold text-white">
-                  X
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="relative flex flex-shrink-0 flex-grow-0 items-start justify-start gap-3 self-stretch rounded border border-[#e0e0e0] p-3">
-            <p className="flex-shrink-0 flex-grow-0 text-left text-base text-black">
-              If{" "}
-            </p>
-            <div className="flex w-[200px] flex-shrink-0 flex-grow-0 flex-col items-start justify-start overflow-hidden">
-              <div className="flex h-[30px] flex-shrink-0 flex-grow-0 items-center justify-between self-stretch rounded-sm border border-[#ced4da] py-1.5">
-                <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start px-2.5 py-px">
-                  <p className="flex-shrink-0 flex-grow-0 text-left text-xs text-[#adb5bd]">
-                    Location
-                  </p>
-                </div>
-                <div className="relative flex h-[30px] flex-shrink-0 flex-grow-0 items-center justify-start gap-2.5 overflow-hidden px-2 py-[9px]">
-                  <svg
-                    width={15}
-                    height={16}
-                    viewBox="0 0 15 16"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="relative h-[15px] w-[15px] flex-shrink-0 flex-grow-0"
-                    preserveAspectRatio="none"
-                  >
-                    <path
-                      d="M5 10.5L7.5 13L10 10.5"
-                      stroke="#868E96"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                    <path
-                      d="M5 5.5L7.5 3L10 5.5"
-                      stroke="#868E96"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </div>
-            <div className="flex w-[200px] flex-shrink-0 flex-grow-0 flex-col items-start justify-start overflow-hidden">
-              <div className="flex h-[30px] flex-shrink-0 flex-grow-0 items-center justify-between self-stretch rounded-sm border border-[#ced4da] py-1.5">
-                <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start px-2.5 py-px">
-                  <p className="flex-shrink-0 flex-grow-0 text-left text-xs text-[#adb5bd]">
-                    Is not
-                  </p>
-                </div>
-                <div className="relative flex h-[30px] flex-shrink-0 flex-grow-0 items-center justify-start gap-2.5 overflow-hidden px-2 py-[9px]">
-                  <svg
-                    width={15}
-                    height={16}
-                    viewBox="0 0 15 16"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="relative h-[15px] w-[15px] flex-shrink-0 flex-grow-0"
-                    preserveAspectRatio="none"
-                  >
-                    <path
-                      d="M5 10.5L7.5 13L10 10.5"
-                      stroke="#868E96"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                    <path
-                      d="M5 5.5L7.5 3L10 5.5"
-                      stroke="#868E96"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </div>
-            <div className="flex w-[200px] flex-shrink-0 flex-grow-0 flex-col items-start justify-start overflow-hidden">
-              <div className="flex h-[30px] flex-shrink-0 flex-grow-0 items-center justify-between self-stretch rounded-sm border border-[#ced4da] py-1.5">
-                <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start px-2.5 py-px">
-                  <p className="flex-shrink-0 flex-grow-0 text-left text-xs text-[#adb5bd]">
-                    Allowed locations list
-                  </p>
-                </div>
-                <div className="relative flex h-[30px] flex-shrink-0 flex-grow-0 items-center justify-start gap-2.5 overflow-hidden px-2 py-[9px]">
-                  <svg
-                    width={15}
-                    height={16}
-                    viewBox="0 0 15 16"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="relative h-[15px] w-[15px] flex-shrink-0 flex-grow-0"
-                    preserveAspectRatio="none"
-                  >
-                    <path
-                      d="M5 10.5L7.5 13L10 10.5"
-                      stroke="#868E96"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                    <path
-                      d="M5 5.5L7.5 3L10 5.5"
-                      stroke="#868E96"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-grow flex-col items-end justify-start gap-2.5">
-              <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-center gap-2.5 rounded-[30px] bg-[#f0334a] px-2 py-1">
-                <p className="flex-shrink-0 flex-grow-0 text-center text-base font-semibold text-white">
-                  X
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-shrink-0 flex-grow-0 flex-col items-end justify-start gap-2 self-stretch px-2">
-            <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-center gap-2.5 rounded-[30px] bg-[#40c057] px-2 py-1">
-              <p className="flex-shrink-0 flex-grow-0 text-center text-sm font-semibold text-white">
-                +
-              </p>
-            </div>
-          </div>
-          <div className="relative flex flex-shrink-0 flex-grow-0 flex-col items-start justify-start gap-2.5 self-stretch py-3">
-            <p className="flex-shrink-0 flex-grow-0 text-center text-lg font-semibold text-black">
-              Action
-            </p>
-            <div className="flex w-[413px] flex-shrink-0 flex-grow-0 items-center justify-center gap-4">
-              <div className="relative flex flex-grow items-center justify-center gap-2.5 rounded-[10px] bg-[#40c057] px-4 py-2">
-                <p className="flex-shrink-0 flex-grow-0 text-center text-base font-semibold text-white">
-                  Allow
-                </p>
-              </div>
-              <div className="relative flex flex-grow items-center justify-center gap-2.5 rounded-[10px] bg-[#f0b033] px-4 py-2">
-                <p className="flex-shrink-0 flex-grow-0 text-center text-base font-semibold text-white">
-                  Flag
-                </p>
-              </div>
-              <div className="relative flex flex-grow items-center justify-center gap-2.5 rounded-[10px] bg-[#f0334a] px-4 py-2">
-                <p className="flex-shrink-0 flex-grow-0 text-center text-base font-semibold text-white">
-                  Hide
-                </p>
-              </div>
-            </div>
-            <p className="flex-shrink-0 flex-grow-0 text-center text-lg font-semibold text-black">
-              Reason
-            </p>
-            <div className="flex flex-shrink-0 flex-grow-0 items-start justify-start gap-2.5">
-              <div className="flex h-[42px] w-[300px] flex-shrink-0 flex-grow-0 items-center justify-between rounded-sm border border-[#ced4da] py-1.5">
-                <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start px-2.5 py-px">
-                  <p className="flex-shrink-0 flex-grow-0 text-left text-xs text-[#adb5bd]">
-                    Allowed locations list
-                  </p>
-                </div>
-                <div className="relative flex h-[30px] flex-shrink-0 flex-grow-0 items-center justify-start gap-2.5 overflow-hidden px-2 py-[9px]">
-                  <svg
-                    width={15}
-                    height={16}
-                    viewBox="0 0 15 16"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="relative h-[15px] w-[15px] flex-shrink-0 flex-grow-0"
-                    preserveAspectRatio="none"
-                  >
-                    <path
-                      d="M5 10.5L7.5 13L10 10.5"
-                      stroke="#868E96"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                    <path
-                      d="M5 5.5L7.5 3L10 5.5"
-                      stroke="#868E96"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-center gap-2.5 rounded-[10px] bg-[#2f80ed] px-4 py-2">
-                <p className="flex-shrink-0 flex-grow-0 text-center text-base font-semibold text-white">
-                  Add Reason
-                </p>
-              </div>
-            </div>
-            <p className="flex-shrink-0 flex-grow-0 text-center text-lg font-semibold text-black">
-              Options
-            </p>
-            <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start gap-2">
-              <div className="relative h-4 w-4 flex-shrink-0 flex-grow-0">
-                <div className="absolute left-[-1px] top-[-1px] h-4 w-4 rounded-sm border border-[#ced4da]" />
-              </div>
-              <p className="flex-shrink-0 flex-grow-0 text-center text-lg font-semibold text-black">
-                Terminate if matches this rule
-              </p>
-              {/* <img
-                src="screen-shot-2022-11-24-at-12.38-2.png"
-                className="h-6 w-[19.89px] flex-shrink-0 flex-grow-0 object-cover"
-              /> */}
-            </div>
-            <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-start gap-2">
-              <div className="relative h-4 w-4 flex-shrink-0 flex-grow-0">
-                <div className="absolute left-[-1px] top-[-1px] h-4 w-4 rounded-sm border border-[#ced4da]" />
-              </div>
-              <p className="flex-shrink-0 flex-grow-0 text-center text-lg font-semibold text-black">
-                Skip if rule already has been applied
-              </p>
-            </div>
-            <div className="flex flex-shrink-0 flex-grow-0 flex-col items-end justify-start gap-2.5 self-stretch">
-              <div className="relative flex flex-shrink-0 flex-grow-0 items-center justify-center gap-2.5 rounded-[10px] bg-[#2f80ed] px-4 py-2">
-                <p className="flex-shrink-0 flex-grow-0 text-center text-base font-semibold text-white">
-                  Add Rule
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    </Container>
   );
 }
+
+type RuleBoxProps = {
+  number: number;
+  name: string;
+  action: Status;
+  reason: string;
+  total: number;
+};
+
+export const ruleValidator = withZod(
+  z.object({
+    name: z.string(),
+  })
+);
+
+const RuleBox = ({ number, name, action, reason, total }: RuleBoxProps) => {
+  const tenantContext = useTenantContext();
+  const [isOpen, setIsOpen] = useState(number === 1);
+  const [selectedAction, setSelectedAction] = useState(action);
+  const [conditions, setConditions] = useState(["a", "b", "c"]);
+  return (
+    <Box className="p-0 px-4">
+      <div
+        className={classNames(
+          "flex flex-row items-center",
+          "transition-opacity",
+          isOpen ? "hidden opacity-0" : "opacity-100"
+        )}
+      >
+        <div
+          className="flex grow cursor-pointer flex-row items-center gap-2 py-2"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <div className="flex h-5 w-5 items-center justify-center rounded-full border border-main bg-slate-50 text-center text-xs font-semibold ">
+            {number}
+          </div>
+          <div className="grow font-semibold">{name}</div>
+          <div className="flex items-center gap-1">
+            <span className="font-semibold">Action:</span>{" "}
+            <StatusBadge status={action} verb />
+          </div>
+
+          <div className="w-56 truncate">
+            <span className="font-semibold">Reason:</span> {reason}
+          </div>
+        </div>
+
+        <div className="flex w-10 items-center justify-end">
+          {number !== 1 ? (
+            <button>
+              <ArrowUpCircleIcon className="h-5 w-5" />
+            </button>
+          ) : null}
+          {number !== total ? (
+            <button>
+              <ArrowDownCircleIcon className="h-5 w-5" />
+            </button>
+          ) : null}
+        </div>
+      </div>
+      <Collapse
+        in={isOpen}
+        className={classNames(
+          "transition-opacity",
+          isOpen ? "opacity-100" : "opacity-0"
+        )}
+      >
+        <ValidatedForm validator={ruleValidator}>
+          <div className="flex flex-col gap-4 py-4">
+            <div className="flex  flex-col gap-2">
+              <input name="ruleid" type="hidden" value="" readOnly />
+              <CMTextInput
+                name="name"
+                label="Name"
+                defaultValue={name}
+                className="max-w-sm"
+              />
+              <div className="flex flex-col gap-2">
+                <h2 className=" font-semibold">Conditions</h2>
+                <div className="flex flex-col gap-2">
+                  {conditions.map((condition) => (
+                    <Condition
+                      allowRemoval={conditions.length > 1}
+                      condition={condition}
+                      key={condition}
+                      onRemove={(rmc) =>
+                        setConditions((conditions) => [
+                          ...conditions.filter((c) => c !== rmc),
+                        ])
+                      }
+                    />
+                  ))}
+                </div>
+                <div className="flex flex-col items-end p-1">
+                  <CMIconButton variant="positive" type="button">
+                    <PlusIcon
+                      className="h-4 w-4"
+                      onClick={(e) => setConditions((v) => [...v, "a"])}
+                    />
+                  </CMIconButton>
+                </div>
+              </div>
+
+              <CMSelect
+                name="action"
+                label="Action"
+                defaultValue={action}
+                data={Object.values(Status).map((status) => ({
+                  label: ActionTextFromStatus(status),
+                  value: status,
+                }))}
+                onChange={(value) => setSelectedAction(value as Status)}
+                className="-mt-8 max-w-sm"
+              />
+
+              <CMSelect
+                name="reasonId"
+                label={`Reason`}
+                placeholder={`Select reason for`}
+                data={tenantContext.reasons[selectedAction].map((reason) => ({
+                  label: reason.name,
+                  value: reason.id,
+                }))}
+                searchable
+                creatable
+                getCreateLabel={(query) => `+ Create ${query}`}
+                onCreate={(query) => {
+                  const item = { value: query.toLowerCase(), label: query };
+                  // setData((current) => [...current, item]);
+                  return item;
+                }}
+                className="max-w-sm"
+                // defaultValue={reason?.id}
+              />
+              <div className="mt-3 flex flex-col gap-2">
+                <h2 className=" font-semibold">Options</h2>
+                <Checkbox
+                  name="terminateOnMatch"
+                  label="Stop ruleset if rule matches"
+                />
+                <Checkbox
+                  name="skipIfAlreadyApplied"
+                  label="Skip if rule already has been applied"
+                />
+              </div>
+            </div>
+            <div className=" flex flex-row items-center justify-end gap-1">
+              <CMButton
+                type="button"
+                variant="secondary"
+                onClick={(e) => setIsOpen(false)}
+              >
+                Cancel
+              </CMButton>
+              <CMButton type="button" onClick={(e) => setIsOpen(false)}>
+                Save
+              </CMButton>
+            </div>
+          </div>
+        </ValidatedForm>
+      </Collapse>
+    </Box>
+  );
+};
+
+const Condition = function ({
+  condition,
+  allowRemoval,
+  onRemove,
+}: {
+  condition: string;
+  allowRemoval: boolean;
+  onRemove: (condition: string) => void;
+}) {
+  return (
+    <div className="flex flex-row items-center gap-1 rounded-md border border-mantine p-2">
+      <CMSelect
+        size="xs"
+        name="condition-left[]"
+        data={[
+          {
+            label: "User",
+            value: "user",
+          },
+        ]}
+      />
+      <CMSelect
+        size="xs"
+        name="condition-operator[]"
+        data={[
+          {
+            label: "is",
+            value: "is",
+          },
+          {
+            label: "is not",
+            value: "is not",
+          },
+        ]}
+      />
+      <CMSelect
+        size="xs"
+        name="condition-right[]"
+        data={[
+          {
+            label: "Admin",
+            value: "admin",
+          },
+        ]}
+      />
+      {allowRemoval && (
+        <CMIconButton variant="danger" type="button">
+          <XMarkIcon className="h-4 w-4" onClick={(e) => onRemove(condition)} />
+        </CMIconButton>
+      )}
+    </div>
+  );
+};

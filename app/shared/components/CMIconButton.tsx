@@ -5,12 +5,13 @@ interface CMIconButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   className?: string;
-  variant: "danger" | "primary" | "secondary";
+  variant: "danger" | "primary" | "secondary" | "positive";
 }
 
 const varientColors: Record<CMIconButtonProps["variant"], string> = {
   danger: "bg-red-500 hover:bg-red-600",
   primary: "bg-blue-500 hover:bg-blue-600",
+  positive: "bg-green-500 hover:bg-green-600",
   secondary: "bg-gray-500 hover:bg-gray-600",
 };
 

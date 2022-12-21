@@ -45,8 +45,8 @@ export const postValidator = withZod(
         action: z.literal("add"),
         name: z.string().min(3).max(100),
         email: z.string().email(),
-        password: z.string().min(3).max(100),
-        confirmPassword: z.string().min(3).max(100),
+        password: z.string().min(8).max(100),
+        confirmPassword: z.string().min(8).max(100),
         role: z.nativeEnum(Role, {
           errorMap: (issue, ctx) => {
             return { message: "Please select a role" };

@@ -1,7 +1,11 @@
 import type { MantineColor } from "@mantine/core";
 import { Badge } from "@mantine/core";
 import type { Status } from "@prisma/client";
-import { MantineColorFromStatus, TextFromStatus } from "../utils.tsx/status";
+import {
+  ActionTextFromStatus,
+  MantineColorFromStatus,
+  TextFromStatus,
+} from "../utils.tsx/status";
 import { TruncateMiddle } from "../utils.tsx/strings";
 
 type ProjectBadgeProps = {
@@ -20,16 +24,18 @@ export const ProjectBadge = ({ projectName, topicName }: ProjectBadgeProps) => {
 
 type StatusProps = {
   status: Status;
+  verb?: boolean;
 };
 
-export const StatusBadge = ({ status }: StatusProps) => {
+export const StatusBadge = ({ status, verb = false }: StatusProps) => {
   const color = MantineColorFromStatus(status);
   return (
     <Badge color={color} variant={"filled"} size="sm">
-      {TextFromStatus(status, true)}
+      {verb ? ActionTextFromStatus(status, true) : TextFromStatus(status, true)}
     </Badge>
   );
 };
+
 type ActionStatusProps = {
   toStatus: Status;
   fromStatus: Status;

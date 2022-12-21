@@ -9,6 +9,7 @@ import {
 interface CMButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   className?: string;
+  variant?: "primary" | "secondary";
   status?: Status;
   loading?: boolean;
 }
@@ -17,13 +18,20 @@ export const CMButton = ({
   children,
   className,
   status,
+  variant,
   loading = false,
   ...rest
 }: CMButtonProps) => {
-  const color = status ? ButtonColorFromStatus(status) : "bg-main";
+  const color = status
+    ? ButtonColorFromStatus(status)
+    : variant === "secondary"
+    ? "bg-secondary"
+    : "bg-main";
   const hoverColor = status
     ? ButtonHoverColorFromStatus(status)
-    : "bg-main-hover";
+    : variant === "secondary"
+    ? "hover:bg-secondary-hover"
+    : "hover:bg-main-hover";
   return (
     <button
       className={classNames(
