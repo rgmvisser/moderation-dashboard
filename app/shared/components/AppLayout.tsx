@@ -29,6 +29,7 @@ import {
   UsersRulesPath,
   UsersPath,
 } from "../utils.tsx/navigation";
+import classNames from "classnames";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const tenantContext = useTenantContext();
@@ -50,24 +51,23 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             <CMNavLink
               icon={<ClipboardDocumentCheckIcon />}
               to={RulesPath(tenantSlug)}
-              subMenu={
-                <>
-                  <CMNavLink
-                    icon={<ClipboardDocumentListIcon />}
-                    to={ContentRulesPath(tenantSlug)}
-                  >
-                    Content
-                  </CMNavLink>
-                  <CMNavLink
-                    icon={<UserCircleIcon />}
-                    to={UsersRulesPath(tenantSlug)}
-                  >
-                    Users
-                  </CMNavLink>
-                </>
-              }
+              hasSubmenu
             >
               Rules
+            </CMNavLink>
+            <CMNavLink
+              icon={<ClipboardDocumentListIcon />}
+              to={ContentRulesPath(tenantSlug)}
+              submenu
+            >
+              Content
+            </CMNavLink>
+            <CMNavLink
+              icon={<UserCircleIcon />}
+              to={UsersRulesPath(tenantSlug)}
+              submenu
+            >
+              Users
             </CMNavLink>
           </Navbar.Section>
           <Navbar.Section>
@@ -145,26 +145,32 @@ function CMNavLink({
   icon,
   to,
   children,
-  subMenu,
+  submenu = false,
+  hasSubmenu = false,
 }: {
   icon: ReactNode;
   to: string;
   children: ReactNode;
-  subMenu?: ReactNode;
+  submenu?: boolean;
+  hasSubmenu?: boolean;
 }) {
   return (
     <NavLink
       to={to}
       className={({ isActive }) =>
-        isActive && !subMenu ? "bg-main text-white" : ""
+        isActive && !hasSubmenu ? "bg-main text-white" : ""
       }
       children={({ isActive }) => (
         <>
-          <div className="gap- my-1 flex items-center  justify-start gap-1 rounded-md bg-inherit p-2 py-2 font-semibold">
+          <span
+            className={classNames(
+              "gap- my-1 flex items-center justify-start gap-1 rounded-md bg-inherit p-2 py-2 font-semibold",
+              submenu && "ml-4"
+            )}
+          >
             <span className="h-4 w-4">{icon}</span>
             {children}
-          </div>
-          {isActive && <div className="pl-4">{subMenu}</div>}
+          </span>
         </>
       )}
     />
