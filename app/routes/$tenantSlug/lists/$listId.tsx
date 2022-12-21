@@ -56,7 +56,7 @@ export const postValidator = withZod(
     values: z
       .string()
       .min(1, { message: "At least 1 item is required" })
-      .transform((v) => v.split("\n"))
+      .transform((v) => v.split("\n").map((v) => v.trim()))
       .optional(),
   })
 );

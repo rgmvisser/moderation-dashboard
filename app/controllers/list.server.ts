@@ -19,6 +19,9 @@ export class ListController extends BaseTenantController {
           select: {
             value: true,
           },
+          orderBy: {
+            value: "asc",
+          },
         },
       },
     });

@@ -179,8 +179,8 @@ export default function Lists() {
                 {list.items.length === 0 && "-"}
                 {list.items.slice(0, previewItems).map((item, index) => {
                   return (
-                    <span key={item.value}>
-                      <Code>{item.value}</Code>
+                    <span key={item.value} className="text-secondary">
+                      {item.value}
                       {index !==
                         Math.min(previewItems, list.items.length) - 1 && ", "}
                       {index == previewItems - 1 &&

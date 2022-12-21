@@ -20,6 +20,13 @@ export function QueuePath(tenantSlug: string) {
 export function RulesPath(tenantSlug: string) {
   return `/${tenantSlug}/rules`;
 }
+export function ContentRulesPath(tenantSlug: string) {
+  return `${RulesPath(tenantSlug)}/content`;
+}
+export function UsersRulesPath(tenantSlug: string) {
+  return `${RulesPath(tenantSlug)}/users`;
+}
+
 export function ListsPath(tenantSlug: string) {
   return `/${tenantSlug}/lists`;
 }

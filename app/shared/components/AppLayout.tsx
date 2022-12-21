@@ -11,6 +11,7 @@ import {
   Cog8ToothIcon,
   UserGroupIcon,
   BellAlertIcon,
+  UserCircleIcon,
 } from "@heroicons/react/24/outline";
 import UserMenu from "./UserMenu";
 import Logo from "./Logo";
@@ -18,12 +19,14 @@ import { useTenantContext } from "../contexts/TenantContext";
 import {
   ActionsPath,
   AlertsPath,
+  ContentRulesPath,
   ListsPath,
   QueuePath,
   ReportsPath,
   RulesPath,
   TenantModeratorsPath,
   TenantSettingsPath,
+  UsersRulesPath,
   UsersPath,
 } from "../utils.tsx/navigation";
 
@@ -45,8 +48,24 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           </Navbar.Section>
           <Navbar.Section>
             <CMNavLink
-              icon={<ClipboardDocumentListIcon />}
+              icon={<ClipboardDocumentCheckIcon />}
               to={RulesPath(tenantSlug)}
+              subMenu={
+                <>
+                  <CMNavLink
+                    icon={<ClipboardDocumentListIcon />}
+                    to={ContentRulesPath(tenantSlug)}
+                  >
+                    Content
+                  </CMNavLink>
+                  <CMNavLink
+                    icon={<UserCircleIcon />}
+                    to={UsersRulesPath(tenantSlug)}
+                  >
+                    Users
+                  </CMNavLink>
+                </>
+              }
             >
               Rules
             </CMNavLink>
@@ -126,20 +145,28 @@ function CMNavLink({
   icon,
   to,
   children,
+  subMenu,
 }: {
   icon: ReactNode;
   to: string;
   children: ReactNode;
+  subMenu?: ReactNode;
 }) {
   return (
     <NavLink
       to={to}
-      className={({ isActive }) => (isActive ? "bg-main text-white" : "")}
-    >
-      <div className="gap- my-1 flex items-center  justify-start gap-1 rounded-md bg-inherit p-2 py-2 font-semibold">
-        <span className="h-4 w-4">{icon}</span>
-        {children}
-      </div>
-    </NavLink>
+      className={({ isActive }) =>
+        isActive && !subMenu ? "bg-main text-white" : ""
+      }
+      children={({ isActive }) => (
+        <>
+          <div className="gap- my-1 flex items-center  justify-start gap-1 rounded-md bg-inherit p-2 py-2 font-semibold">
+            <span className="h-4 w-4">{icon}</span>
+            {children}
+          </div>
+          {isActive && <div className="pl-4">{subMenu}</div>}
+        </>
+      )}
+    />
   );
 }
