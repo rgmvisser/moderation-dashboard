@@ -1,4 +1,5 @@
-import type { MantineColor } from "@mantine/core";
+import { FlagIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { CheckIcon, MantineColor } from "@mantine/core";
 import { Status } from "@prisma/client";
 
 export function BGColorFromStatus(status: Status) {
@@ -50,6 +51,19 @@ export function TextFromStatus(status: Status, caps = false) {
     return status.toUpperCase();
   }
   return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
+type IconProps = { status: Status } & React.ComponentPropsWithoutRef<"svg">;
+
+export function IconFromStatus({ status, ...rest }: IconProps) {
+  switch (status) {
+    case Status.allowed:
+      return <CheckIcon {...rest} />;
+    case Status.flagged:
+      return <FlagIcon {...rest} />;
+    case Status.hidden:
+      return <XMarkIcon {...rest} />;
+  }
 }
 
 export function ActionTextFromStatus(status: Status, caps = false) {

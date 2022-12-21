@@ -1,5 +1,9 @@
 import type { Status } from "@prisma/client";
-import { ButtonColorFromStatus, TextFromStatus } from "../utils.tsx/status";
+import {
+  ButtonColorFromStatus,
+  IconFromStatus,
+  TextFromStatus,
+} from "../utils.tsx/status";
 
 export const ContentsStatus = ({
   allowed,
@@ -40,18 +44,13 @@ const StatusComponent = ({
   percentage: number;
 }) => {
   const color = ButtonColorFromStatus(status);
-  const text = TextFromStatus(status, true);
-  let textSize = "text-xs";
-  if (percentage < 15) {
-    textSize = "text-[8px]";
-  }
   return (
     <span
       className={`flex h-[30px] items-center justify-center self-stretch overflow-hidden ${color}`}
       style={{ width: `${percentage}%` }}
     >
-      <p className={`text-center ${textSize} font-bold text-white`}>
-        {percentage >= 8 && text}
+      <p className={`text-center text-xs text-white`}>
+        <IconFromStatus status={status} className="h-4 w-4" />
       </p>
     </span>
   );
