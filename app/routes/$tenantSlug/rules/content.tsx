@@ -1,15 +1,6 @@
-import {
-  ArrowDownCircleIcon,
-  ArrowUpCircleIcon,
-  ForwardIcon,
-  NoSymbolIcon,
-  PlusCircleIcon,
-  PlusIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
+import { PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Checkbox, Collapse } from "@mantine/core";
 import { Status } from "@prisma/client";
-import { Form } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
 import classNames from "classnames";
 import { useState } from "react";
@@ -21,14 +12,22 @@ import { CMIconButton } from "~/shared/components/CMIconButton";
 import { CMTextInput } from "~/shared/components/CMInput";
 import { CMSelect } from "~/shared/components/CMSelect";
 import { Box, Container, Header } from "~/shared/components/DashboardContainer";
-import { SkipIcon, TerminateIcon } from "~/shared/components/Icons";
+import {
+  DownIcon,
+  SkipIcon,
+  TerminateIcon,
+  UpIcon,
+} from "~/shared/components/Icons";
 import { useTenantContext } from "~/shared/contexts/TenantContext";
 import { ActionTextFromStatus } from "~/shared/utils.tsx/status";
 
 export default function ContentRules() {
   return (
     <Container>
-      <Header title="Content Rules" />
+      <Header
+        title="Content Rules"
+        rightItem={<CMButton type="button">+ Rule</CMButton>}
+      />
       <div className="flex flex-col gap-2">
         <RuleBox
           number={1}
@@ -146,12 +145,12 @@ const RuleBox = ({
         <div className="flex w-10 items-center justify-end">
           {number !== 1 ? (
             <button>
-              <ArrowUpCircleIcon className="h-5 w-5" />
+              <UpIcon />
             </button>
           ) : null}
           {number !== total ? (
             <button>
-              <ArrowDownCircleIcon className="h-5 w-5" />
+              <DownIcon />
             </button>
           ) : null}
         </div>
