@@ -1,6 +1,8 @@
 import {
   ArrowDownCircleIcon,
   ArrowUpCircleIcon,
+  ForwardIcon,
+  NoSymbolIcon,
   PlusCircleIcon,
   PlusIcon,
   XMarkIcon,
@@ -19,6 +21,7 @@ import { CMIconButton } from "~/shared/components/CMIconButton";
 import { CMTextInput } from "~/shared/components/CMInput";
 import { CMSelect } from "~/shared/components/CMSelect";
 import { Box, Container, Header } from "~/shared/components/DashboardContainer";
+import { SkipIcon, TerminateIcon } from "~/shared/components/Icons";
 import { useTenantContext } from "~/shared/contexts/TenantContext";
 import { ActionTextFromStatus } from "~/shared/utils.tsx/status";
 
@@ -33,6 +36,8 @@ export default function ContentRules() {
           action={"allowed"}
           reason="Internal use"
           total={5}
+          skip
+          terminate
         ></RuleBox>
         <RuleBox
           number={2}
@@ -40,6 +45,7 @@ export default function ContentRules() {
           action={"flagged"}
           reason="Inherit from user"
           total={5}
+          skip
         ></RuleBox>
         <RuleBox
           number={3}
@@ -47,6 +53,7 @@ export default function ContentRules() {
           action={"hidden"}
           reason="Inherit from user"
           total={5}
+          skip
         ></RuleBox>
         <RuleBox
           number={4}
@@ -54,6 +61,7 @@ export default function ContentRules() {
           action={"hidden"}
           reason="Inappropriate content"
           total={5}
+          terminate
         ></RuleBox>
         <RuleBox
           number={5}
@@ -73,6 +81,8 @@ type RuleBoxProps = {
   action: Status;
   reason: string;
   total: number;
+  skip?: boolean;
+  terminate?: boolean;
 };
 
 export const ruleValidator = withZod(
@@ -81,9 +91,17 @@ export const ruleValidator = withZod(
   })
 );
 
-const RuleBox = ({ number, name, action, reason, total }: RuleBoxProps) => {
+const RuleBox = ({
+  number,
+  name,
+  action,
+  reason,
+  total,
+  skip = false,
+  terminate = false,
+}: RuleBoxProps) => {
   const tenantContext = useTenantContext();
-  const [isOpen, setIsOpen] = useState(number === 1);
+  const [isOpen, setIsOpen] = useState(number === 3);
   const [selectedAction, setSelectedAction] = useState(action);
   const [conditions, setConditions] = useState(["a", "b", "c"]);
   return (
@@ -103,9 +121,21 @@ const RuleBox = ({ number, name, action, reason, total }: RuleBoxProps) => {
             {number}
           </div>
           <div className="grow font-semibold">{name}</div>
-          <div className="flex items-center gap-1">
+          {skip && (
+            <div>
+              <SkipIcon />
+            </div>
+          )}
+          {terminate && (
+            <div>
+              <TerminateIcon />
+            </div>
+          )}
+          <div className="flex items-center">
             <span className="font-semibold">Action:</span>{" "}
-            <StatusBadge status={action} verb />
+            <span className="flex w-16 flex-row items-center justify-center">
+              <StatusBadge status={action} verb />
+            </span>
           </div>
 
           <div className="w-56 truncate">
@@ -163,7 +193,9 @@ const RuleBox = ({ number, name, action, reason, total }: RuleBoxProps) => {
                   <CMIconButton variant="positive" type="button">
                     <PlusIcon
                       className="h-4 w-4"
-                      onClick={(e) => setConditions((v) => [...v, "a"])}
+                      onClick={(e) =>
+                        setConditions((v) => [...v, new Date().toISOString()])
+                      }
                     />
                   </CMIconButton>
                 </div>
@@ -204,11 +236,21 @@ const RuleBox = ({ number, name, action, reason, total }: RuleBoxProps) => {
                 <h2 className=" font-semibold">Options</h2>
                 <Checkbox
                   name="terminateOnMatch"
-                  label="Stop ruleset if rule matches"
+                  label={
+                    <span className="flex flex-row items-center gap-1">
+                      Stop ruleset if rule matches
+                      <TerminateIcon />
+                    </span>
+                  }
                 />
                 <Checkbox
                   name="skipIfAlreadyApplied"
-                  label="Skip if rule already has been applied"
+                  label={
+                    <span className="flex flex-row items-center gap-1">
+                      Skip if rule already has been applied
+                      <SkipIcon />
+                    </span>
+                  }
                 />
               </div>
             </div>
