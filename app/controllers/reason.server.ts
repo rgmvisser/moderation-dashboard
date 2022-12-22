@@ -3,7 +3,7 @@ import { BaseTenantController } from "./baseController.server";
 
 export class ReasonController extends BaseTenantController {
   async getStatusReasons() {
-    const statusReasons = await this.db.statusReasons.findMany({
+    const statusReasons = await this.db.statusReason.findMany({
       include: {
         reason: true,
       },

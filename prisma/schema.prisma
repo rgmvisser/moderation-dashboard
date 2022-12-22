@@ -35,7 +35,7 @@ model Tenant {
   contents      Content[]
   projects      Project[]
   reasons       Reason[]
-  statusReasons StatusReasons[]
+  statusReasons StatusReason[]
   actions       Action[]
   topics        Topic[]
 
@@ -49,6 +49,8 @@ model Tenant {
   awsModerationResults AWSModerationResult[]
   ocrs                 ImageOCR[]
   textInformations     TextInformation[]
+  rules                Rule[]
+  conditions           Condition[]
 }
 
 model ApiKey {
@@ -236,20 +238,20 @@ model ModeratorFilters {
 }
 
 model Reason {
-  id            String          @id @default(cuid())
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  id            String         @id @default(cuid())
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   name          String
-  statusReasons StatusReasons[]
+  statusReasons StatusReason[]
   actions       Action[]
-  tenant        Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   tenantId      String
-  custom        Boolean         @default(false)
+  custom        Boolean        @default(false)
 
   @@unique([name, tenantId])
 }
 
-model StatusReasons {
+model StatusReason {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -258,6 +260,7 @@ model StatusReasons {
   reasonId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   tenantId  String
+  Rule      Rule[]
 }
 
 enum ActionType {
@@ -365,4 +368,38 @@ model TextInformation {
   mentions       String[]
   tenant         Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   tenantId       String
+}
+
+enum RuleType {
+  content
+  user
+}
+
+model Rule {
+  id                   String       @id @default(cuid())
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  name                 String
+  description          String?
+  type                 RuleType
+  tenant               Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId             String
+  conditions           Condition[]
+  reason               StatusReason @relation(fields: [statusReasonId], references: [id], onDelete: Restrict)
+  statusReasonId       String
+  terminateOnMatch     Boolean      @default(false)
+  skipIfAlreadyApplied Boolean      @default(false)
+  order                Int
+}
+
+model Condition {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // TBD what's needed here
+
+  Rule     Rule   @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  ruleId   String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId String
 }
