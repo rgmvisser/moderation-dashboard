@@ -1,7 +1,7 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json, useLoaderData } from "remix-supertyped";
 import { Outlet } from "@remix-run/react";
-import { GetModeratorAndTenant, GetTenant } from "~/middleware/tenant";
+import { GetModeratorAndTenant } from "~/middleware/tenant";
 import type { TenantContext } from "~/shared/contexts/TenantContext";
 import { TenantProvider } from "~/shared/contexts/TenantContext";
 import AppLayout from "~/shared/components/AppLayout";

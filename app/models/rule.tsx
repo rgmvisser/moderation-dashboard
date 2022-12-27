@@ -4,3 +4,7 @@ export type RuleWithReasonAndCondions = Rule & {
   reason: Reason;
   conditions: Condition[];
 };
+
+export type MoveDirection = "up" | "down";
+
+export const Directions = ["up", "down"] as const;
