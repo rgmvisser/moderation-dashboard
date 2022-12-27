@@ -14,8 +14,10 @@ const nameConfig: Config = {
 const prisma = new PrismaClient();
 
 async function seed() {
-  // const t = await prisma.tenant.findFirstOrThrow();
+  const t = await prisma.tenant.findFirstOrThrow();
+  await createRules(t);
 
+  return;
   await prisma.tenant.deleteMany(); // Everything should cascade
   await prisma.backlogMessage.deleteMany();
 
@@ -44,50 +46,72 @@ async function seed() {
   // Created reasons per status
   await prisma.reason.createMany({
     data: [
-      { tenantId: tenant.id, name: "Explicit Nudity" },
-      { tenantId: tenant.id, name: "Suggestive" },
-      { tenantId: tenant.id, name: "Violence" },
-      { tenantId: tenant.id, name: "Visually Disturbing" },
-      { tenantId: tenant.id, name: "Rude Gestures" },
-      { tenantId: tenant.id, name: "Drugs" },
-      { tenantId: tenant.id, name: "Tobacco" },
-      { tenantId: tenant.id, name: "Alcohol" },
-      { tenantId: tenant.id, name: "Gambling" },
-      { tenantId: tenant.id, name: "Hate Symbols" },
-      { tenantId: tenant.id, name: "Other" },
+      {
+        tenantId: tenant.id,
+        name: "Explicit Nudity",
+        statuses: [Status.flagged, Status.hidden],
+      },
+      {
+        tenantId: tenant.id,
+        name: "Suggestive",
+        statuses: [Status.flagged, Status.hidden],
+      },
+      {
+        tenantId: tenant.id,
+        name: "Violence",
+        statuses: [Status.flagged, Status.hidden],
+      },
+      {
+        tenantId: tenant.id,
+        name: "Visually Disturbing",
+        statuses: [Status.flagged, Status.hidden],
+      },
+      {
+        tenantId: tenant.id,
+        name: "Rude Gestures",
+        statuses: [Status.flagged, Status.hidden],
+      },
+      {
+        tenantId: tenant.id,
+        name: "Drugs",
+        statuses: [Status.flagged, Status.hidden],
+      },
+      {
+        tenantId: tenant.id,
+        name: "Tobacco",
+        statuses: [Status.flagged, Status.hidden],
+      },
+      {
+        tenantId: tenant.id,
+        name: "Alcohol",
+        statuses: [Status.flagged, Status.hidden],
+      },
+      {
+        tenantId: tenant.id,
+        name: "Gambling",
+        statuses: [Status.flagged, Status.hidden],
+      },
+      {
+        tenantId: tenant.id,
+        name: "Hate Symbols",
+        statuses: [Status.flagged, Status.hidden],
+      },
+      {
+        tenantId: tenant.id,
+        name: "Other",
+        statuses: [Status.flagged, Status.hidden],
+      },
+      {
+        tenantId: tenant.id,
+        name: "Inaccurate flag",
+        statuses: [Status.allowed],
+      },
+      {
+        tenantId: tenant.id,
+        name: "Inaccurate hide",
+        statuses: [Status.allowed],
+      },
     ],
-  });
-  const reasons = await prisma.reason.findMany();
-  for (const reason of reasons) {
-    await prisma.statusReason.create({
-      data: {
-        status: Status.flagged,
-        reason: { connect: { id: reason.id } },
-        tenant: { connect: { id: tenant.id } },
-      },
-    });
-    await prisma.statusReason.create({
-      data: {
-        status: Status.hidden,
-        reason: { connect: { id: reason.id } },
-        tenant: { connect: { id: tenant.id } },
-      },
-    });
-  }
-
-  await prisma.statusReason.create({
-    data: {
-      status: Status.allowed,
-      reason: { create: { tenantId: tenant.id, name: "Inaccurate flag" } },
-      tenant: { connect: { id: tenant.id } },
-    },
-  });
-  await prisma.statusReason.create({
-    data: {
-      status: Status.allowed,
-      reason: { create: { tenantId: tenant.id, name: "Inaccurate hide" } },
-      tenant: { connect: { id: tenant.id } },
-    },
   });
 
   // Create contents
@@ -204,25 +228,18 @@ async function seed() {
 }
 
 async function createRules(tenant: Tenant) {
-  const internalStatusReason = await createRuleReasons(
-    tenant,
-    "Internal",
-    Status.allowed
-  );
-  const inheritUserStatusReasonFlag = await createRuleReasons(
+  const internalReason = await createRuleReason(tenant, "Internal", [
+    Status.allowed,
+  ]);
+  const inheritUserReason = await createRuleReason(
     tenant,
     "Inherit from user",
-    Status.flagged
+    [Status.allowed, Status.hidden, Status.flagged]
   );
-  const inheritUserStatusReasonHide = await createRuleReasons(
-    tenant,
-    "Inherit from user",
-    Status.hidden
-  );
-  const badWordStatusReasonFlag = await createRuleReasons(
+  const inappropriateContentReason = await createRuleReason(
     tenant,
     "Inappropriate content",
-    Status.flagged
+    [Status.flagged, Status.hidden]
   );
   await prisma.rule.create({
     data: {
@@ -236,7 +253,8 @@ async function createRules(tenant: Tenant) {
           tenantId: tenant.id,
         },
       },
-      statusReasonId: internalStatusReason.id,
+      reasonId: internalReason.id,
+      action: Status.allowed,
       order: 0,
     },
   });
@@ -252,7 +270,8 @@ async function createRules(tenant: Tenant) {
           tenantId: tenant.id,
         },
       },
-      statusReasonId: inheritUserStatusReasonFlag.id,
+      reasonId: inheritUserReason.id,
+      action: Status.flagged,
       order: 1,
     },
   });
@@ -269,7 +288,8 @@ async function createRules(tenant: Tenant) {
           tenantId: tenant.id,
         },
       },
-      statusReasonId: inheritUserStatusReasonHide.id,
+      reasonId: inheritUserReason.id,
+      action: Status.hidden,
       order: 2,
     },
   });
@@ -285,41 +305,51 @@ async function createRules(tenant: Tenant) {
           tenantId: tenant.id,
         },
       },
-      statusReasonId: badWordStatusReasonFlag.id,
+      reasonId: inappropriateContentReason.id,
+      action: Status.flagged,
       order: 3,
     },
   });
 }
 
-async function createRuleReasons(tenant: Tenant, name: string, status: Status) {
-  const reason = await prisma.reason.upsert({
+async function createRuleReason(
+  tenant: Tenant,
+  name: string,
+  statusList: Status[]
+) {
+  const reason = await prisma.reason.findUnique({
     where: {
       name_tenantId: {
         tenantId: tenant.id,
         name,
       },
     },
-    create: {
-      tenantId: tenant.id,
-      name,
-    },
-    update: {},
   });
-  return (
-    (await prisma.statusReason.findFirst({
+  if (reason) {
+    if (statusList.every((status) => reason.statuses.includes(status))) {
+      return reason;
+    }
+    const newList = [...new Set([...statusList, ...reason.statuses])];
+    console.log(newList);
+    return await prisma.reason.update({
       where: {
-        status,
-        reasonId: reason.id,
+        id: reason.id,
       },
-    })) ??
-    (await prisma.statusReason.create({
       data: {
-        status,
-        reasonId: reason.id,
-        tenantId: tenant.id,
+        statuses: {
+          set: newList,
+        },
       },
-    }))
-  );
+    });
+  } else {
+    return await prisma.reason.create({
+      data: {
+        tenantId: tenant.id,
+        name,
+        statuses: statusList,
+      },
+    });
+  }
 }
 
 async function backfillTextInformation() {

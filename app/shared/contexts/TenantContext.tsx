@@ -1,4 +1,3 @@
-import type { Role } from "@prisma/client";
 import type { Reason, Tenant } from "@prisma/client";
 import type { ReactNode } from "react";
 import { useContext } from "react";
@@ -6,7 +5,6 @@ import { createContext } from "react";
 import type { LabelCategory } from "~/models/asw-labels";
 import type { ReasonsForStatus } from "~/models/reason";
 import type { ModeratorWithTentantAndRole } from "~/models/moderator";
-import { Roles } from "~/models/moderator";
 
 export type TenantContext = {
   tenant: Tenant;

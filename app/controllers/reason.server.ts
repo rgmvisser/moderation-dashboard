@@ -3,20 +3,19 @@ import { BaseTenantController } from "./baseController.server";
 
 export class ReasonController extends BaseTenantController {
   async getStatusReasons() {
-    const statusReasons = await this.db.statusReason.findMany({
-      include: {
-        reason: true,
-      },
-    });
-    const reasons: ReasonsForStatus = {
+    const reasons = await this.getReasons();
+
+    const reasonsForStatus: ReasonsForStatus = {
       allowed: [],
       flagged: [],
       hidden: [],
     };
-    for (const statusReason of statusReasons) {
-      reasons[statusReason.status].push(statusReason.reason);
+    for (const reason of reasons) {
+      for (const status of reason.statuses) {
+        reasonsForStatus[status].push(reason);
+      }
     }
-    return reasons;
+    return reasonsForStatus;
   }
 
   async getReasons() {

@@ -77,7 +77,7 @@ export const ruleValidator = withZod(
 const RuleBox = ({ number, total, rule }: RuleBoxProps) => {
   const tenantContext = useTenantContext();
   const [isOpen, setIsOpen] = useState(number === 3);
-  const [selectedAction, setSelectedAction] = useState(rule.reason.status);
+  const [selectedAction, setSelectedAction] = useState(rule.action);
   const [conditions, setConditions] = useState<
     (Condition | PartialCondition)[]
   >(rule.conditions);
@@ -111,13 +111,12 @@ const RuleBox = ({ number, total, rule }: RuleBoxProps) => {
           <div className="flex items-center">
             <span className="font-semibold">Action:</span>{" "}
             <span className="flex w-16 flex-row items-center justify-center">
-              <StatusBadge status={rule.reason.status} verb />
+              <StatusBadge status={rule.action} verb />
             </span>
           </div>
 
           <div className="w-56 truncate">
-            <span className="font-semibold">Reason:</span>{" "}
-            {rule.reason.reasonId}
+            <span className="font-semibold">Reason:</span> {rule.reason.name}
           </div>
         </div>
 
@@ -187,7 +186,7 @@ const RuleBox = ({ number, total, rule }: RuleBoxProps) => {
               <CMSelect
                 name="action"
                 label="Action"
-                defaultValue={rule.reason.status}
+                defaultValue={rule.action}
                 data={Object.values(Status).map((status) => ({
                   label: ActionTextFromStatus(status),
                   value: status,

@@ -1,6 +1,6 @@
-import type { Condition, Rule, StatusReason } from "@prisma/client";
+import type { Condition, Rule, Reason } from "@prisma/client";
 
 export type RuleWithReasonAndCondions = Rule & {
-  reason: StatusReason;
+  reason: Reason;
   conditions: Condition[];
 };
