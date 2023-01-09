@@ -1,21 +1,25 @@
-import type { SelectProps } from "@mantine/core";
-import { Select } from "@mantine/core";
+import type { TextInputProps } from "@mantine/core";
+import { TextInput } from "@mantine/core";
 import { useField } from "remix-validated-form";
 
-type Props = {
+type InputProps = {
   name: string;
   isRequired?: boolean;
 };
 
-export const CMSelect = ({ name, ...rest }: Props & SelectProps) => {
+export const CMHiddenInput = ({
+  name,
+  ...rest
+}: InputProps & TextInputProps) => {
   const { getInputProps, error } = useField(name);
 
   return (
     <>
-      <Select
+      <TextInput
         {...getInputProps({
           ...rest,
         })}
+        type="hidden"
       />
       {error && (
         <div key={error} className="text-xs text-red-500">

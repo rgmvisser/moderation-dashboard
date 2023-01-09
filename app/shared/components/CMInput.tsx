@@ -15,7 +15,6 @@ export const CMTextInput = ({ name, ...rest }: InputProps & TextInputProps) => {
     <>
       <TextInput
         {...getInputProps({
-          id: name,
           ...rest,
         })}
       />
