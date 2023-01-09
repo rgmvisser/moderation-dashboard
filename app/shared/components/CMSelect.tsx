@@ -7,16 +7,13 @@ type Props = {
   isRequired?: boolean;
 };
 
-export const CMSelect = ({ name, ...rest }: Props & SelectProps) => {
+export const CMSelect = ({ name, data, ...rest }: Props & SelectProps) => {
   const { getInputProps, error } = useField(name);
-
+  const props = getInputProps({ ...rest });
+  // Somehow resetting of the form is not working
   return (
     <>
-      <Select
-        {...getInputProps({
-          ...rest,
-        })}
-      />
+      <Select {...props} data={data} />
       {error && (
         <div key={error} className="text-xs text-red-500">
           {error}

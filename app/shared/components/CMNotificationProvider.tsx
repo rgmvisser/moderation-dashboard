@@ -2,12 +2,11 @@ import { showNotification } from "@mantine/notifications";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
 
-export type CMNotification =
-  | string
-  | {
-      title: string;
-      substitle: string;
-    };
+export type CMNotification = {
+  id: string;
+  title: string;
+  substitle?: string;
+};
 
 export function CMNotificationProvider({
   notification,
@@ -18,13 +17,15 @@ export function CMNotificationProvider({
 }) {
   useEffect(() => {
     if (notification) {
-      console.log("notification", notification);
-      if (typeof notification === "string") {
+      const id = notification.id + notification.title;
+      if (!notification.substitle) {
         showNotification({
-          message: notification,
+          id: id,
+          message: notification.title,
         });
       } else {
         showNotification({
+          id: id,
           title: notification.title,
           message: notification.substitle,
         });

@@ -1,9 +1,9 @@
-import { PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { Checkbox, Collapse } from "@mantine/core";
-import type { Condition } from "@prisma/client";
+import { PlusIcon, TrashIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { ActionIcon, Collapse } from "@mantine/core";
+import { Condition, Reason, RuleType } from "@prisma/client";
 import { Status } from "@prisma/client";
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
-import type { Params } from "@remix-run/react";
+import { Params, useParams } from "@remix-run/react";
 import { Form } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
 import classNames from "classnames";
@@ -37,18 +37,31 @@ import { useTenantContext } from "~/shared/contexts/TenantContext";
 import { RulesPath } from "~/shared/utils.tsx/navigation";
 import { ActionTextFromStatus } from "~/shared/utils.tsx/status";
 import { Flipper, Flipped } from "react-flip-toolkit";
-import { zx } from "zodix";
 import { CMHiddenInput } from "~/shared/components/CMHiddenInput";
-import { CMNotificationProvider } from "~/shared/components/CMNotificationProvider";
+import {
+  CMNotification,
+  CMNotificationProvider,
+} from "~/shared/components/CMNotificationProvider";
+import { CMCheckbox } from "~/shared/components/CMCheckbox";
+import { CheckboxAsString } from "zodix";
 
 const ruleObject = z.object({
-  subaction: z.literal("save"),
-  ruleId: z.union([z.string().cuid(), z.literal("")]),
+  subaction: z.enum(["update", "delete"]),
+  ruleId: z.string().cuid(),
   name: z.string().min(1),
   action: z.nativeEnum(Status),
-  reasonId: z.string().cuid(),
-  terminateOnMatch: zx.CheckboxAsString,
-  skipIfAlreadyApplied: zx.CheckboxAsString,
+  reasonIdOrName: z.union([z.string().min(1), z.string().cuid()]),
+  terminateOnMatch: CheckboxAsString,
+  skipIfAlreadyApplied: CheckboxAsString,
+});
+
+const createRuleObject = z.object({
+  subaction: z.literal("new"),
+});
+
+const deleteRuleObject = z.object({
+  subaction: z.literal("delete"),
+  ruleId: z.string().cuid(),
 });
 
 export const validator = withZod(
@@ -59,10 +72,13 @@ export const validator = withZod(
       ruleId: z.string().cuid(),
     }),
     ruleObject,
+    createRuleObject,
+    deleteRuleObject,
   ])
 );
 
-// TODO: Work on conditions in the rules
+export const newRuleValidator = withZod(createRuleObject);
+export const deleteRuleValidator = withZod(deleteRuleObject);
 
 const GetType = (params: Params) => {
   const type = params.type as "user" | "content";
@@ -83,48 +99,44 @@ export async function action({ request, params }: ActionArgs) {
   }
   const rulesController = new RulesController(tenant);
   const { subaction } = result.data;
-  let notification: string | undefined = undefined;
-  let updatedRule: RuleWithReasonAndCondions | undefined = undefined;
-  console.log(result.data);
+  let notification: CMNotification | undefined = undefined;
+  let createdRule: RuleWithReasonAndCondions | undefined = undefined;
   if (subaction === "move") {
     const { ruleId, direction } = result.data;
     await rulesController.moveRule(ruleId, direction);
-  } else if (subaction === "save") {
+  } else if (subaction === "update") {
     const {
       ruleId,
       name,
       action,
-      reasonId,
+      reasonIdOrName,
       terminateOnMatch,
       skipIfAlreadyApplied,
     } = result.data;
-    console.log(result.data);
-    if (ruleId) {
-      updatedRule = await rulesController.updateRule(
-        ruleId,
-        name,
-        action,
-        reasonId,
-        terminateOnMatch,
-        skipIfAlreadyApplied,
-        []
-      );
-      notification = "Rule updated";
-    } else {
-      updatedRule = await rulesController.createRule(
-        name,
-        type,
-        action,
-        reasonId,
-        terminateOnMatch,
-        skipIfAlreadyApplied,
-        []
-      );
-      notification = "Rule created";
-    }
+    await rulesController.updateRule(
+      ruleId,
+      name,
+      action,
+      reasonIdOrName,
+      terminateOnMatch,
+      skipIfAlreadyApplied,
+      []
+    );
+    notification = { id: ruleId, title: "Rule updated" };
+  } else if (subaction === "new") {
+    createdRule = await rulesController.createRule(
+      "New Rule",
+      type,
+      Status.allowed
+    );
+    notification = { id: createdRule.id, title: "Rule created" };
+  } else if (subaction === "delete") {
+    const { ruleId } = result.data;
+    await rulesController.deleteRule(ruleId);
+    notification = { id: ruleId, title: "Rule deleted" };
   }
   const rules = await rulesController.getRules(type);
-  return json({ rules, notification, updatedRule });
+  return json({ rules, notification, createdRule });
 }
 
 export async function loader({ request, params }: LoaderArgs) {
@@ -139,11 +151,10 @@ export default function ContentRules() {
   const { rules } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   let notification;
-  let updateRule: RuleWithReasonAndCondions | undefined;
+  let createdRule: RuleWithReasonAndCondions | undefined;
   if (actionData && !("fieldErrors" in actionData)) {
     notification = actionData.notification;
-    updateRule = actionData.updatedRule;
-    console.log(updateRule);
+    createdRule = actionData.createdRule;
   }
 
   return (
@@ -151,7 +162,15 @@ export default function ContentRules() {
       <Container>
         <Header
           title="Content Rules"
-          rightItem={<CMButton type="button">+ Rule</CMButton>}
+          rightItem={
+            <ValidatedForm
+              validator={newRuleValidator}
+              subaction="new"
+              method="post"
+            >
+              <CMButton type="submit">+ Rule</CMButton>
+            </ValidatedForm>
+          }
         />
         <div>
           <Flipper
@@ -165,6 +184,7 @@ export default function ContentRules() {
                   number={index + 1}
                   total={rules.length}
                   rule={rule}
+                  open={createdRule?.id === rule.id}
                 ></RuleBox>
               </Flipped>
             ))}
@@ -179,12 +199,13 @@ type RuleBoxProps = {
   number: number;
   total: number;
   rule: RuleWithReasonAndCondions;
+  open?: boolean;
 };
 
 export const ruleValidator = withZod(ruleObject);
 
-const RuleBox = ({ number, total, rule }: RuleBoxProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+const RuleBox = ({ number, total, rule, open = false }: RuleBoxProps) => {
+  const [isOpen, setIsOpen] = useState(open);
   const [lastUpdated, setLastUpdated] = useState(rule.updatedAt);
   useEffect(() => {
     if (lastUpdated < rule.updatedAt) {
@@ -276,38 +297,79 @@ const EditRuleForm = function ({
   setIsOpen: (open: boolean) => void;
 }) {
   const tenantContext = useTenantContext();
+  const [subaction, setSubaction] = useState<"update" | "delete">("update");
   const [selectedAction, setSelectedAction] = useState(rule.action);
   const [conditions, setConditions] = useState<
     (Condition | PartialCondition)[]
   >(rule.conditions);
+  const [possibleReasons, setPossibleReasons] = useState<
+    { name: string; id: string }[]
+  >([]);
+  useEffect(() => {
+    setPossibleReasons(tenantContext.reasons[selectedAction]);
+  }, [selectedAction, tenantContext.reasons]);
   // const context = useFormContext(`edit-rule-form-${rule.id}`);
   // useEffect(() => {
   //   console.log(context);
+  //   console.log(JSON.stringify(Object.fromEntries(context.getValues())));
   // }, [context]);
 
   return (
     <ValidatedForm
       id={`edit-rule-form-${rule.id}`}
-      subaction="save"
       validator={ruleValidator}
       defaultValues={{
         ruleId: rule.id,
         name: rule.name,
         action: rule.action,
-        reasonId: rule.reason.id,
+        reasonIdOrName: rule.reason.id,
         terminateOnMatch: rule.terminateOnMatch,
         skipIfAlreadyApplied: rule.skipIfAlreadyApplied,
       }}
-      onSubmit={(values) => {
-        console.log("Submit:", values);
-      }}
       method="post"
+      onSubmit={(data, event) => {
+        if (
+          data.subaction === "delete" &&
+          !confirm("Are you sure? This action cannot be undone.")
+        ) {
+          event.preventDefault();
+        }
+      }}
     >
       <div className="flex flex-col gap-4 py-4">
         <div className="flex  flex-col gap-2">
           <CMHiddenInput name="ruleId" />
+          <CMHiddenInput name="subaction" value={subaction} />
           <CMTextInput name="name" label="Name" className="max-w-sm" />
-          <div className="flex flex-col gap-2">
+          <CMSelect
+            name="action"
+            label="Action"
+            data={Object.values(Status).map((status) => ({
+              label: ActionTextFromStatus(status),
+              value: status,
+            }))}
+            onChange={(value) => setSelectedAction(value as Status)}
+            className="max-w-sm"
+          />
+          <CMSelect
+            name="reasonIdOrName"
+            label={`Reason`}
+            placeholder={`Select reason for`}
+            data={possibleReasons.map((reason) => ({
+              label: reason.name,
+              value: reason.id,
+            }))}
+            searchable
+            creatable
+            getCreateLabel={(query) => `+ Create ${query}`}
+            onCreate={(query) => {
+              const item = { id: query, name: query };
+              setPossibleReasons((current) => [...current, item]);
+              return query;
+            }}
+            className="max-w-sm"
+          />
+          <div className="-mb-8 flex flex-col gap-2">
             <h2 className=" font-semibold">Conditions</h2>
             <div className="flex flex-col gap-2">
               {conditions.map((condition) => (
@@ -337,40 +399,9 @@ const EditRuleForm = function ({
               </CMIconButton>
             </div>
           </div>
-
-          <CMSelect
-            name="action"
-            label="Action"
-            data={Object.values(Status).map((status) => ({
-              label: ActionTextFromStatus(status),
-              value: status,
-            }))}
-            onChange={(value) => setSelectedAction(value as Status)}
-            className="-mt-8 max-w-sm"
-          />
-
-          <CMSelect
-            name="reasonId"
-            label={`Reason`}
-            placeholder={`Select reason for`}
-            data={tenantContext.reasons[selectedAction].map((reason) => ({
-              label: reason.name,
-              value: reason.id,
-            }))}
-            searchable
-            creatable
-            getCreateLabel={(query) => `+ Create ${query}`}
-            onCreate={(query) => {
-              const item = { value: query.toLowerCase(), label: query };
-              // setData((current) => [...current, item]);
-              return item;
-            }}
-            className="max-w-sm"
-            defaultValue={rule.reason.id}
-          />
-          <div className="mt-3 flex flex-col gap-2">
+          <div className="flex flex-col gap-2">
             <h2 className=" font-semibold">Options</h2>
-            <Checkbox
+            <CMCheckbox
               name="terminateOnMatch"
               label={
                 <span className="flex flex-row items-center gap-1">
@@ -378,9 +409,9 @@ const EditRuleForm = function ({
                   <TerminateIcon />
                 </span>
               }
-              defaultChecked={rule.terminateOnMatch}
+              size="sm"
             />
-            <Checkbox
+            <CMCheckbox
               name="skipIfAlreadyApplied"
               label={
                 <span className="flex flex-row items-center gap-1">
@@ -388,11 +419,22 @@ const EditRuleForm = function ({
                   <SkipIcon />
                 </span>
               }
-              defaultChecked={rule.skipIfAlreadyApplied}
+              size="sm"
             />
           </div>
         </div>
         <div className=" flex flex-row items-center justify-end gap-1">
+          <ActionIcon
+            color="red"
+            type="submit"
+            onClick={(e: any) => {
+              setSubaction("delete");
+              e.stopPropagation();
+            }}
+          >
+            <TrashIcon className="h-4 w-4" />
+          </ActionIcon>
+
           <CMButton
             type="reset"
             variant="secondary"
@@ -402,7 +444,9 @@ const EditRuleForm = function ({
           >
             Cancel
           </CMButton>
-          <CMButton type="submit">Save</CMButton>
+          <CMButton type="submit" onClick={() => setSubaction("update")}>
+            Save
+          </CMButton>
         </div>
       </div>
     </ValidatedForm>

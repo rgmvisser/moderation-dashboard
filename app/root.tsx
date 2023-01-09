@@ -49,7 +49,7 @@ export default function App() {
 
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS>
-      <NotificationsProvider>
+      <NotificationsProvider position="top-right">
         <html lang="en" className="h-full">
           <head>
             <StylesPlaceholder />
