@@ -79,19 +79,30 @@ export async function action({ request, params }: ActionArgs) {
   }
   if (action === "addItem" && value) {
     const item = await listController.addItem(moderator, listId, value);
-    return json({ item, notification: `"${value}" added` });
+    return json({
+      item,
+      notification: { id: value, title: `"${value}" added` },
+    });
   } else if (action === "addItems" && values) {
     const items = await listController.addItems(moderator, listId, values);
-    return json({ items, notification: `${values.length} items added` });
+    return json({
+      items,
+      notification: { id: listId, title: `${values.length} items added` },
+    });
   } else if (action === "deleteItem" && id) {
     const item = await listController.deleteItem(id);
-    return json({ notification: `"${item.value}" deleted` });
+    return json({ notification: { id: id, title: `"${item.value}" deleted` } });
   } else if (action === "deleteItems" && ids) {
     await listController.deleteItems(ids);
-    return json({ notification: `${ids.length} items deleted` });
+    return json({
+      notification: { id: ids.join("-"), title: `${ids.length} items deleted` },
+    });
   } else if (action === "changeName" && name) {
     const newList = await listController.changeName(list, name);
-    return json({ list: newList, notification: "Changed name to " + name });
+    return json({
+      list: newList,
+      notification: { id: list.id, title: "Changed name to " + name },
+    });
   } else {
     return json({ error: "Invalid request" });
   }
@@ -141,7 +152,7 @@ export default function List() {
   // const [opened, setOpened] = useState(true);
   const data = useLoaderData<typeof loader>();
   const { order, orderBy, page, perPage, items, total, filter, list } = data;
-  const actionData = useActionData();
+  const actionData = useActionData<typeof action>();
   const navigate = useNavigate();
 
   const [selectedRecords, setSelectedRecords] = useState<ListItem[]>([]);
@@ -151,7 +162,7 @@ export default function List() {
   const dropFormItemsRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (actionData && !actionData.error) {
+    if (actionData && !("error" in actionData)) {
       formRef.current?.reset();
       inputRef.current?.focus();
     }
@@ -191,9 +202,13 @@ export default function List() {
       dropFormRef.current?.submit();
     }
   };
+  const notification =
+    actionData && "notification" in actionData
+      ? actionData.notification
+      : undefined;
 
   return (
-    <CMNotificationProvider notification={actionData?.notification}>
+    <CMNotificationProvider notification={notification}>
       <div className="flex flex-col gap-4">
         <div>
           <Form method="post">
@@ -300,9 +315,9 @@ export default function List() {
           </div>
         )}
 
-        {actionData?.error && (
+        {actionData && "error" in actionData && (
           <div key="name-error" className="text-xs text-red-500">
-            {actionData?.error}
+            {actionData.error}
           </div>
         )}
         <div>

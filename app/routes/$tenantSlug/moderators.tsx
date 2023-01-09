@@ -19,7 +19,10 @@ import { useLoadingDelay } from "~/shared/hooks/useLoadingDelay";
 import { ValidatedForm, validationError } from "remix-validated-form";
 import { CMTextInput } from "~/shared/components/CMInput";
 import { CMSelect } from "~/shared/components/CMSelect";
-import { CMNotificationProvider } from "~/shared/components/CMNotificationProvider";
+import {
+  CMNotification,
+  CMNotificationProvider,
+} from "~/shared/components/CMNotificationProvider";
 import { IsAdmin } from "~/models/roles";
 import { useTenantContext } from "~/shared/contexts/TenantContext";
 import { ModeratorAdminController } from "~/controllers/moderatorAdmin.server";
@@ -83,7 +86,10 @@ export async function action({ request, params }: ActionArgs) {
         email,
         role,
       });
-      return json({ moderator, notification: `Added ${name} as moderator` });
+      return json({
+        moderator,
+        notification: { id: moderator.id, title: `Added ${name} as moderator` },
+      });
     } catch (error: any) {
       if (error.code === "P2002") {
         return validationError(
@@ -108,12 +114,14 @@ export async function action({ request, params }: ActionArgs) {
     const moderatorAdminController = new ModeratorAdminController(moderator);
     const { id } = res.data;
     await moderatorAdminController.deleteModerator(id);
-    return json({ notification: "Moderator removed" });
+    return json({ notification: { id, title: "Moderator removed" } });
   } else if (action === "updateRole") {
     const moderatorAdminController = new ModeratorAdminController(moderator);
     const { id, role } = res.data;
     await moderatorAdminController.updateRole(id, role);
-    return json({ notification: "Moderator's role update to: " + role });
+    return json({
+      notification: { id, title: "Moderator's role update to: " + role },
+    });
   } else {
     return json({ error: "Invalid request" });
   }
@@ -136,7 +144,7 @@ export default function Moderators() {
   const isLoading = useLoadingDelay(transition.state !== "idle", {
     delay: 0,
   });
-  const actionData = useActionData();
+  const actionData = useActionData<typeof action>();
   const { moderators } = data;
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmedPassword] = useState("");
@@ -158,15 +166,22 @@ export default function Moderators() {
   }, [password, confirmPassword]);
 
   useEffect(() => {
-    if (actionData && !actionData.error && !actionData.fieldErrors) {
+    if (
+      actionData &&
+      !("error" in actionData) &&
+      !("fieldErrors" in actionData)
+    ) {
       formRef.current?.reset();
       setAddModeratorOpened(false);
     }
   }, [actionData]);
   const isAdmin = IsAdmin(tenantContext.tenant, tenantContext.moderator);
-
+  let notification: CMNotification | undefined;
+  if (actionData && "notification" in actionData) {
+    notification = actionData.notification;
+  }
   return (
-    <CMNotificationProvider notification={actionData?.notification}>
+    <CMNotificationProvider notification={notification}>
       <DashboardContainer
         title="Moderators"
         rightItem={
@@ -296,7 +311,7 @@ export default function Moderators() {
               <CMButton type="submit" loading={isLoading}>
                 {isLoading ? "Creating" : "Create Moderator"}
               </CMButton>
-              {actionData?.error && (
+              {actionData && "error" in actionData && actionData?.error && (
                 <div key={"generalError"} className="text-xs text-red-500">
                   {actionData.error}
                 </div>
