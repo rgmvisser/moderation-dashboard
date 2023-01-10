@@ -1,7 +1,10 @@
 import cuid from "cuid";
 import type { Condition, Rule } from "@prisma/client";
 
-export type PartialCondition = Omit<Condition, "createdAt" | "updatedAt">;
+export type PartialCondition = Omit<
+  Condition,
+  "createdAt" | "updatedAt" | "deletedAt"
+>;
 
 export const NewCondition = (
   rule: Rule,

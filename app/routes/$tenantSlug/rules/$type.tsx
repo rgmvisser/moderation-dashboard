@@ -1,19 +1,15 @@
 import { PlusIcon, TrashIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { ActionIcon, Collapse } from "@mantine/core";
-import { Condition, Reason, RuleType } from "@prisma/client";
+import type { Condition } from "@prisma/client";
 import { Status } from "@prisma/client";
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
-import { Params, useParams } from "@remix-run/react";
+import type { Params } from "@remix-run/react";
 import { Form } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
 import classNames from "classnames";
 import { useEffect, useState } from "react";
 import { json, redirect, useActionData, useLoaderData } from "remix-supertyped";
-import {
-  useFormContext,
-  ValidatedForm,
-  validationError,
-} from "remix-validated-form";
+import { ValidatedForm, validationError } from "remix-validated-form";
 import { z } from "zod";
 import { RulesController } from "~/controllers/rules.server";
 import { GetModeratorAndTenant } from "~/middleware/tenant";
@@ -38,10 +34,8 @@ import { RulesPath } from "~/shared/utils.tsx/navigation";
 import { ActionTextFromStatus } from "~/shared/utils.tsx/status";
 import { Flipper, Flipped } from "react-flip-toolkit";
 import { CMHiddenInput } from "~/shared/components/CMHiddenInput";
-import {
-  CMNotification,
-  CMNotificationProvider,
-} from "~/shared/components/CMNotificationProvider";
+import type { CMNotification } from "~/shared/components/CMNotificationProvider";
+import { CMNotificationProvider } from "~/shared/components/CMNotificationProvider";
 import { CMCheckbox } from "~/shared/components/CMCheckbox";
 import { CheckboxAsString } from "zodix";
 
@@ -336,10 +330,14 @@ const EditRuleForm = function ({
         }
       }}
     >
-      <div className="flex flex-col gap-4 py-4">
+      <CMHiddenInput name="ruleId" />
+      <CMHiddenInput name="subaction" value={subaction} />
+      <div
+        className="h-4 cursor-pointer"
+        onClick={() => setIsOpen(false)}
+      ></div>
+      <div className="flex flex-col gap-4 pb-4">
         <div className="flex  flex-col gap-2">
-          <CMHiddenInput name="ruleId" />
-          <CMHiddenInput name="subaction" value={subaction} />
           <CMTextInput name="name" label="Name" className="max-w-sm" />
           <CMSelect
             name="action"

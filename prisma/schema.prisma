@@ -367,6 +367,7 @@ model Rule {
   id                   String      @id @default(cuid())
   createdAt            DateTime    @default(now())
   updatedAt            DateTime    @updatedAt
+  deletedAt            DateTime?
   name                 String
   description          String?
   type                 RuleType
@@ -382,9 +383,10 @@ model Rule {
 }
 
 model Condition {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
   // TBD what's needed here
 
   Rule     Rule   @relation(fields: [ruleId], references: [id], onDelete: Cascade)

@@ -13,20 +13,28 @@ export class RulesController extends BaseTenantController {
     conditions: true,
   };
 
-  async getRules(type: RuleType): Promise<RuleWithReasonAndCondions[]> {
+  async getRules(
+    type: RuleType,
+    includeDeleted: boolean = false
+  ): Promise<RuleWithReasonAndCondions[]> {
     return await this.db.rule.findMany({
       where: {
         type,
+        deletedAt: includeDeleted ? undefined : null,
       },
       include: this.include,
       orderBy: this.order,
     });
   }
 
-  async getRule(ruleId: string): Promise<RuleWithReasonAndCondions> {
+  async getRule(
+    ruleId: string,
+    includeDeleted: boolean = false
+  ): Promise<RuleWithReasonAndCondions> {
     const rule = await this.db.rule.findUnique({
       where: {
         id: ruleId,
+        deletedAt: includeDeleted ? undefined : null,
       },
       include: this.include,
     });
@@ -142,9 +150,12 @@ export class RulesController extends BaseTenantController {
   }
 
   async deleteRule(ruleId: string) {
-    return await this.db.rule.delete({
+    return await this.db.rule.update({
       where: {
         id: ruleId,
+      },
+      data: {
+        deletedAt: new Date(),
       },
     });
   }
