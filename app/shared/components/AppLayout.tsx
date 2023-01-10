@@ -14,7 +14,7 @@ import {
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
 import UserMenu from "./UserMenu";
-import Logo from "./Logo";
+import Logo, { CustomerLogo, LassoLogo } from "./Logo";
 import { useTenantContext } from "../contexts/TenantContext";
 import {
   ActionsPath,
@@ -111,6 +111,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               Settings
             </CMNavLink>
           </Navbar.Section>
+
           <Navbar.Section>
             <CMNavLink
               icon={<UserGroupIcon />}
@@ -119,6 +120,25 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               Moderators
             </CMNavLink>
           </Navbar.Section>
+
+          <Navbar.Section>
+            <CMNavLink
+              icon={
+                <img
+                  height={16}
+                  width={16}
+                  alt={`${tenantContext.tenant.name} logo`}
+                  src={
+                    "https://global-uploads.webflow.com/612e0e79f82694f1de746286/6135e40cd050652fcb9a3a49_Logo%20Woov.svg"
+                  }
+                />
+              }
+              to={TenantModeratorsPath(tenantSlug)}
+            >
+              {tenantContext.tenant.name}
+            </CMNavLink>
+          </Navbar.Section>
+
           {/* <Navbar.Section>
             <Timer />
           </Navbar.Section> */}
@@ -127,10 +147,14 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       header={
         <Header height={60} p="md">
           <div className="flex items-center justify-between">
-            <Logo
-              logoURL="https://global-uploads.webflow.com/612e0e79f82694f1de746286/6135e40cd050652fcb9a3a49_Logo%20Woov.svg"
-              name={tenantContext.tenant.name}
-            />
+            <div className="flex">
+              <LassoLogo />
+
+              {/* <CustomerLogo
+                logoURL="https://global-uploads.webflow.com/612e0e79f82694f1de746286/6135e40cd050652fcb9a3a49_Logo%20Woov.svg"
+                name={tenantContext.tenant.name}
+              /> */}
+            </div>
             <UserMenu />
           </div>
         </Header>
